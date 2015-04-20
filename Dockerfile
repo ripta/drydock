@@ -35,6 +35,3 @@ RUN gem update --system --no-document \
 # Install bower and gulp
 RUN npm install -g bower gulp
 
-# EXPOSE 80
-# ENTRYPOINT ["ruby"]
-
