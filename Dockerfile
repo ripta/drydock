@@ -1,8 +1,8 @@
 # Dockerfile
-# image: ripta/drydock:v0.0.1-build.1
+# image: ripta/drydock:v0.0.2-1.0
 # repo: https://github.com/ripta/drydock.git
 
-FROM gliderlabs/alpine:3.1
+FROM gliderlabs/alpine:3.2
 MAINTAINER Ripta Pasay <ripta+docker@pasay.name>
 
 RUN apk update
