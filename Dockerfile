@@ -5,6 +5,8 @@
 FROM gliderlabs/alpine:3.2
 MAINTAINER Ripta Pasay <ripta+docker@pasay.name>
 
+LABEL meta.version="0.0.2" meta.build="1.0" meta.onbuild=true
+
 RUN apk update
 
 # Install the base and dev packages
