@@ -32,23 +32,25 @@ RUN gem update --system --no-document \
     && gem install --no-document bundler \
     && gem install --no-document unicorn
 
+# Throw build errors if Gemfile has been modified without updating Gemfile.lock
+RUN bundle config --global frozen 1
+
 # Install bower and gulp
 RUN npm install -g bower gulp
 
 # Prepare global environment variables
 ENV APPLICATION_ROOT /app
-ENV BUILD_ROOT /build
 
-ONBUILD ADD Gemfile ${BUILD_ROOT}
-ONBUILD ADD Gemfile.lock ${BUILD_ROOT}/Gemfile.lock
+ONBUILD ADD Gemfile ${APPLICATION_ROOT}
+ONBUILD ADD Gemfile.lock ${APPLICATION_ROOT}/Gemfile.lock
 
 ONBUILD RUN bundle config build.nokogiri --use-system-libraries \
         && bundle --path vendor
 
-ONBUILD ADD package.json ${BUILD_ROOT}/package.json
-ONBUILD RUN cd ${BUILD_ROOT} && npm install
+ONBUILD ADD package.json ${APPLICATION_ROOT}/package.json
+ONBUILD RUN cd ${APPLICATION_ROOT} && npm install
 
-ONBUILD WORKDIR ${APPLICATION_ROOT}
+ONBUILD COPY . ${APPLICATION_ROOT}
 
 ONBUILD RUN apk del libffi-dev libxml2-dev libxslt-dev curl-dev \
         && apk del gcc make musl-dev \
