@@ -18,8 +18,6 @@ RUN apk add musl musl-dev \
     && apk add make \
     && apk add curl curl-dev
 
-# RUN rm -rf /var/cache/apk/*
-
 RUN curl -L -o /bin/gosu https://github.com/tianon/gosu/releases/download/1.3/gosu-amd64 \
     && chmod +x /bin/gosu
 
@@ -34,4 +32,6 @@ RUN gem update --system --no-document \
 
 # Install bower and gulp
 RUN npm install -g bower gulp
+
+ONBUILD RUN rm -rf /var/cache/apk/*
 
