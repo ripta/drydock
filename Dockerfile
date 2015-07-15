@@ -18,7 +18,7 @@ RUN apk add musl musl-dev \
     && apk add make \
     && apk add curl curl-dev
 
-RUN curl -L -o /bin/gosu https://github.com/tianon/gosu/releases/download/1.3/gosu-amd64 \
+RUN curl -sL -o /bin/gosu https://github.com/tianon/gosu/releases/download/1.3/gosu-amd64 \
     && chmod +x /bin/gosu
 
 # This is needed due to the missing trust certificates in alpine linux
