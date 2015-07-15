@@ -40,20 +40,21 @@ RUN bundle config --global frozen 1 \
 RUN npm install -g bower gulp
 
 # Prepare global environment variables
-ENV APPLICATION_ROOT /app
+ENV APPLICATION_ROOT /app/
+RUN mkdir ${APPLICATION_ROOT}
+WORKDIR ${APPLICATION_ROOT}
 
 # Build rubygem dependencies
-ONBUILD ADD Gemfile ${APPLICATION_ROOT}
-ONBUILD ADD Gemfile.lock ${APPLICATION_ROOT}/Gemfile.lock
+ONBUILD COPY Gemfile ${APPLICATION_ROOT}
+ONBUILD COPY Gemfile.lock ${APPLICATION_ROOT}
 ONBUILD RUN bundle --path vendor
 
 # Build npm dependencies
-ONBUILD ADD package.json ${APPLICATION_ROOT}/package.json
+ONBUILD COPY package.json ${APPLICATION_ROOT}/package.json
 ONBUILD RUN cd ${APPLICATION_ROOT} && npm install
 
 # Copy the application source in
-ONBUILD WORKDIR ${APPLICATION_ROOT}
-ONBUILD ADD . ${APPLICATION_ROOT}
+ONBUILD COPY . ${APPLICATION_ROOT}
 
 # Clean up build tools
 ONBUILD RUN apk del libffi-dev libxml2-dev libxslt-dev curl-dev \
