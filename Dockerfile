@@ -33,5 +33,24 @@ RUN gem update --system --no-document \
 # Install bower and gulp
 RUN npm install -g bower gulp
 
+# Prepare global environment variables
+ENV APPLICATION_ROOT /app
+ENV BUILD_ROOT /build
+
+ONBUILD ADD Gemfile ${BUILD_ROOT}
+ONBUILD ADD Gemfile.lock ${BUILD_ROOT}/Gemfile.lock
+
+ONBUILD RUN bundle config build.nokogiri --use-system-libraries \
+        && bundle --path vendor
+
+ONBUILD ADD package.json ${BUILD_ROOT}/package.json
+ONBUILD RUN cd ${BUILD_ROOT} && npm install
+
+ONBUILD WORKDIR ${APPLICATION_ROOT}
+
+ONBUILD RUN apk del libffi-dev libxml2-dev libxslt-dev curl-dev \
+        && apk del gcc make musl-dev \
+        && apk del nodejs-dev ruby-dev
 ONBUILD RUN rm -rf /var/cache/apk/*
+
 
