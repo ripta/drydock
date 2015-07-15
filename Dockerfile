@@ -1,11 +1,11 @@
 # Dockerfile
-# image: ripta/drydock:v0.0.2-1.0
+# image: ripta/drydock:v1.0
 # repo: https://github.com/ripta/drydock.git
 
 FROM gliderlabs/alpine:3.2
 MAINTAINER Ripta Pasay <ripta+docker@pasay.name>
 
-LABEL meta.version="0.0.2" meta.build="1.0" meta.onbuild=true
+LABEL meta.version="1.0" meta.onbuild=true
 
 RUN apk update
 
@@ -52,7 +52,8 @@ ONBUILD ADD package.json ${APPLICATION_ROOT}/package.json
 ONBUILD RUN cd ${APPLICATION_ROOT} && npm install
 
 # Copy the application source in
-ONBUILD COPY . ${APPLICATION_ROOT}
+ONBUILD WORKDIR ${APPLICATION_ROOT}
+ONBUILD ADD . ${APPLICATION_ROOT}
 
 # Clean up build tools
 ONBUILD RUN apk del libffi-dev libxml2-dev libxslt-dev curl-dev \
