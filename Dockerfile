@@ -16,9 +16,13 @@ RUN apk add ruby ruby-dev \
 # Install the headers and build packages
 RUN apk add musl musl-dev \
     && apk add linux-headers \
-    && apk add gcc \
+    && apk add gcc g++ \
     && apk add make \
     && apk add curl curl-dev
+
+RUN apk add libffi-dev libxml2-dev libxslt-dev
+
+RUN apk add git
 
 RUN curl -sL -o /bin/gosu https://github.com/tianon/gosu/releases/download/1.3/gosu-amd64 \
     && chmod +x /bin/gosu
@@ -58,7 +62,7 @@ ONBUILD COPY . ${APPLICATION_ROOT}
 
 # Clean up build tools
 ONBUILD RUN apk del libffi-dev libxml2-dev libxslt-dev curl-dev \
-        && apk del gcc make musl-dev \
+        && apk del gcc g++ make musl-dev \
         && apk del nodejs-dev ruby-dev
 ONBUILD RUN rm -rf /var/cache/apk/*
 
