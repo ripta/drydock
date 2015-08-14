@@ -18,7 +18,8 @@ RUN apk add musl musl-dev \
     && apk add linux-headers \
     && apk add gcc g++ \
     && apk add make \
-    && apk add curl curl-dev
+    && apk add curl curl-dev \
+    && apk add openssh
 
 RUN apk add libffi-dev libxml2-dev libxslt-dev
 
