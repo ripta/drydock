@@ -32,7 +32,7 @@ module Drydock
 
     DEFAULT_OPTIONS = {
       auto_remove: true,
-      event_stream: false,
+      event_handler: false,
       logs: false
     }
 
@@ -107,9 +107,7 @@ module Drydock
       return @stream_monitor if @stream_monitor && @stream_monitor.alive?
 
       @stream_monitor = Thread.new do
-        Docker::Event.stream do |event|
-          puts event
-        end
+        Docker::Event.stream(&opts[:event_handler])
       end
     end
 

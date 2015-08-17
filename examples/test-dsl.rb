@@ -1,7 +1,7 @@
 #!/usr/bin/env drydock
 
-set :event_stream do |event|
-  puts event.inspect
+set :event_handler do |event|
+  puts event
 end
 
 from 'gliderlabs/alpine', '3.2'
