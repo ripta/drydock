@@ -1,9 +1,13 @@
 #!/usr/bin/env drydock
 
+set :event_handler do |event|
+  puts event
+end
+
 app_root   = '/app'
 build_root = '/build'
 
-from('gliderlabs/alpine', tag: '3.2', logs: STDERR, report_changes: true)
+from 'gliderlabs/alpine', '3.2'
 
 with :pkg do |pkg|
   pkg.update
