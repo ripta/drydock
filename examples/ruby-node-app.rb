@@ -6,6 +6,14 @@ require 'bundler'
 Bundler.setup
 require 'docker'
 
+Docker.options[:read_timeout] = 300
+
+estream = Thread.new do
+  Docker::Event.stream do |event|
+    puts event
+  end
+end
+
 stream_chunk_proc = proc do |stream, chunk|
   puts "#{stream} #{chunk}"
 end
@@ -21,6 +29,9 @@ puts "  #{c1.changes.size} changed files"
 i2 = c1.commit
 puts i2.id
 
+Thread.kill(estream)
+exit
+
 c2 = Docker::Container.create(Image: i2.id, Cmd: ['/bin/sh', '-c', 'apk add ruby ruby-dev'], Tty: true)
 c2.tap(&:start).attach(&stream_chunk_proc)
 c2.wait
@@ -28,7 +39,6 @@ puts "  #{c2.changes.size} changed files"
 
 i3 = c2.commit
 puts i3.id
-
 
 ##image.run('apk update')
 ##image.run('apk add ruby ruby-dev')
