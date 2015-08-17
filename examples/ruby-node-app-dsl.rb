@@ -9,7 +9,7 @@ build_root = '/build'
 
 from 'gliderlabs/alpine', '3.2'
 
-with :pkg do |pkg|
+with Plugins::APK do |pkg|
   pkg.update
   pkg.add 'ruby', 'ruby-dev'
   pkg.add 'nodejs', 'nodejs-dev'
@@ -25,7 +25,7 @@ end
 
 download_once 'https://github.com/tianon/gosu/releases/download/1.3/gosu-amd64', '/bin/gosu', chmod: 0755
 
-with :rubygems do |g|
+with Plugins::Rubygems do |g|
   # g.source.add 'https://s3.amazonaws.com/production.s3.rubygems.org/'
   # g.source.remove 'https://rubygems.org/'
   g.update_system(no_document: true)
@@ -36,7 +36,7 @@ end
 run 'bundle config --global frozen 1'
 run 'bundle config --global build.nokogiri --use-system-libraries'
 
-with :npm do |npm|
+with Plugins::NPM do |npm|
   npm.install('bower', 'gulp', global: true)
 end
 
