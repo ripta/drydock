@@ -26,6 +26,9 @@ module Drydock
     raise NotImplementedError, "TODO(rpasay)"
   end
 
+  module Plugins
+  end
+
   class Project
 
     attr_reader :repo, :tag
