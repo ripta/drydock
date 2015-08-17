@@ -1,13 +1,16 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
+require 'bundler'
+
+Bundler.setup
 require 'docker'
 
 stream_chunk_proc = proc do |stream, chunk|
   puts "#{stream} #{chunk}"
 end
 
-i1 = Docker::Image.create(fromImage: 'gliderlabs/alpine:3.2')
+i1 = Docker::Image.create(fromImage: 'gliderlabs/alpine', tag: '3.2')
 puts i1.id
 
 c1 = Docker::Container.create(Image: i1.id, Cmd: ['/bin/sh', '-c', 'apk update'], Tty: true)

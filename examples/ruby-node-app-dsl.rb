@@ -6,7 +6,7 @@ require 'docker'
 app_root   = '/app'
 build_root = '/build'
 
-dd = Drydock.from('gliderlabs/alpine:3.2', logs: STDERR, report_changes: true)
+dd = Drydock.from('gliderlabs/alpine', tag: '3.2', logs: STDERR, report_changes: true)
 
 #dd.run('apk update')
 #dd.run('apk add ruby ruby-dev')
@@ -37,8 +37,8 @@ end
 dd.download_once('https://github.com/tianon/gosu/releases/download/1.3/gosu-amd64', '/bin/gosu', chmod: 0755)
 
 dd.with(:rubygems) do |gem|
-  gem.source.add 'https://s3.amazonaws.com/production.s3.rubygems.org/'
-  gem.source.remove 'https://rubygems.org/'
+  # gem.source.add 'https://s3.amazonaws.com/production.s3.rubygems.org/'
+  # gem.source.remove 'https://rubygems.org/'
   gem.update_system(no_document: true)
   gem.install('bundler', no_document: true)
   gem.install('unicorn', no_document: true)
