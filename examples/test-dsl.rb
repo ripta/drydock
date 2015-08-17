@@ -1,12 +1,9 @@
+#!/usr/bin/env drydock
 
-require 'rubygems'
-require 'bundler'
+set :event_stream do |event|
+  puts event.inspect
+end
 
-Bundler.setup
-
-$LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
-require 'drydock'
-
-base = Drydock.from('gliderlabs/alpine', tag: '3.2', logs: STDERR)
-base.run('apk update')
-puts base.to_image_id
+from 'gliderlabs/alpine', '3.2'
+run 'apk update'
+puts latest_image.id
