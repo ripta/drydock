@@ -17,12 +17,13 @@ Jeweler::Tasks.new do |gem|
   gem.name = "drydock"
   gem.homepage = "http://github.com/ripta/drydock"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Docker Image Pipeline DSL}
+  gem.description = %Q{A Dockerfile-replacement DSL for building complex images}
   gem.email = "github@r8y.org"
   gem.authors = ["Ripta Pasay"]
   # dependencies defined in Gemfile
 end
+
 Jeweler::RubygemsDotOrgTasks.new
 
 require 'rake/testtask'
