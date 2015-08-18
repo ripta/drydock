@@ -6,8 +6,11 @@ module Drydock
   def self.build(opts = {}, &blk)
     Project.new(opts).tap do |project|
       dryfile, dryfilename = yield
-      project.instance_eval(dryfile, dryfilename)
-      project.finalize!
+      begin
+        project.instance_eval(dryfile, dryfilename)
+      ensure
+        project.finalize!
+      end
     end
   end
 
