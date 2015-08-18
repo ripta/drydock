@@ -19,7 +19,7 @@ event_handler = Proc.new do |is_new, event|
   end
 
   puts if is_new
-  print "[#{time_string}] #{short_id} #{event.status}\r"
+  print "\033[2K[#{time_string}] #{short_id} #{event.status}\r"
 end
 
 opts = {
