@@ -1,0 +1,167 @@
+
+module Drydock
+  class Project
+
+    DEFAULT_OPTIONS = {
+      auto_remove: true,
+      cache: nil,
+      event_handler: false,
+      logs: false
+    }
+
+    def initialize(opts = {})
+      @containers = []
+      @images     = []
+      @plugins    = {}
+
+      @serial = 0
+
+      @opts = DEFAULT_OPTIONS.clone
+      opts.each_pair { |key, value| set(key, value) }
+    end
+
+    def download(source_url, target_path, chmod: nil, chown: nil)
+      response = Excon.get(source_url)
+      if response.status != 200
+        raise OperationError, "cannot download #{source_url}, status code #{response.status}"
+      end
+
+      response.body
+    end
+
+    def download_once(source_url, target_path, chmod: 0644)
+      unless cache.key?(source_url)
+        cache.set(source_url) do |obj|
+          chunked = Proc.new do |chunk, remaining_bytes, total_bytes|
+            obj.write(chunk)
+          end
+          Excon.get(source_url, response_block: chunked)
+        end
+      end
+
+      with_stream_monitor do
+        c = Docker::Container.create(build_run_opts('# Filesystem Change Only'))
+        c.archive_put do |output|
+          Gem::Package::TarWriter.new(output) do |tar|
+            cache.get(source_url) do |input|
+              tar.add_file(target_path, chmod) do |tar_file|
+                tar_file.write(input.read)
+              end
+            end
+          end
+        end
+
+        containers << c
+        images << c.commit
+
+        c
+      end
+    end
+
+    def from(repo, tag = 'latest')
+      with_stream_monitor do
+        images << Docker::Image.create(pull_opts(repo, tag))
+      end
+      self
+    end
+
+    def finalize!
+      containers.each(&:remove)
+      containers.clear
+      self
+    end
+
+    def latest_image
+      images.last
+    end
+
+    def root_image
+      images.first
+    end
+
+    def run(cmd, opts = {})
+      with_stream_monitor do
+        Docker::Container.create(build_run_opts(cmd, opts)).tap do |c|
+          c.start
+          c.wait
+          containers << c
+          images << c.commit
+        end
+      end
+    end
+
+    def set(key, value = nil, &blk)
+      key = key.to_sym
+      raise ArgumentError, "unknown option #{key.inspect}" unless opts.key?(key)
+      raise ArgumentError, "one of value or block is required" if value.nil? && blk.nil?
+      raise ArgumentError, "only one of value or block may be provided" if value && blk
+
+      opts[key] = value || blk
+    end
+
+    def with(plugin, &blk)
+      (@plugins[plugin] ||= plugin.new(self)).tap do |instance|
+        yield instance
+      end
+    end
+
+    private
+    attr_reader :containers, :images, :opts
+
+    def build_run_opts(cmd, opts = {})
+      {
+        Cmd: ['/bin/sh', '-c', cmd],
+        Tty: opts.fetch(:tty, false),
+        Image: latest_image.id
+      }
+    end
+
+    def cache
+      opts.fetch(:cache) { Caches::NoCache.new }
+    end
+
+    def event_handler
+      opts.fetch(:event_handler, nil)
+    end
+
+    def pull_opts(repo, tag = nil)
+      if tag
+        {fromImage: repo, tag: tag}
+      else
+        {fromImage: repo}
+      end
+    end
+
+    def stream_monitor
+      return @stream_monitor if @stream_monitor && @stream_monitor.alive?
+      return nil if event_handler.nil?
+
+      @stream_monitor = Thread.new do
+        previous_id = nil
+        Docker::Event.stream do |event|
+          if previous_id.nil?
+            @serial += 1
+            event_handler.call event, true, @serial
+          else
+            is_new = previous_id != event.id
+            @serial += 1 if is_new
+            event_handler.call event, is_new, @serial
+          end
+          previous_id = event.id
+        end
+      end
+    end
+
+    def with_stream_monitor(&blk)
+      mon = stream_monitor
+      mon.run if mon
+      yield
+    ensure
+      if mon
+        mon.kill
+        mon.join
+      end
+    end
+
+  end
+end
