@@ -5,10 +5,9 @@ module Drydock
 
   def self.build(opts = {}, &blk)
     Project.new(opts).tap do |project|
-      if blk
-        yield project
-        project.finalize!
-      end
+      dryfile, dryfilename = yield
+      project.instance_eval(dryfile, dryfilename)
+      project.finalize!
     end
   end
 
@@ -26,15 +25,154 @@ module Drydock
     raise NotImplementedError, "TODO(rpasay)"
   end
 
+  module Caches
+
+    class Base
+
+      def fetch(key, &blk)
+        raise NotImplementedError, '#fetch must be overridden in the subclass'
+      end
+
+      def get(key, &blk)
+        raise NotImplementedError, '#get must be overridden in the subclass'
+      end
+
+      def set(key, value = nil, &blk)
+        raise NotImplementedError, '#set must be overridden in the subclass'
+      end
+
+    end
+
+    class FilesystemCache < Base
+
+      def initialize(dir = "~/.drydock")
+        @dir = File.expand_path(dir)
+      end
+
+      def fetch(key, &blk)
+        filename = build_path(key)
+
+        if File.exist?(filename)
+          File.read(filename)
+        else
+          blk.call.tap do |contents|
+            File.open(filename, 'w') do |file|
+              file.write contents
+            end
+          end
+        end
+      end
+
+      def get(key, &blk)
+        filename = build_path(key)
+        if File.exist?(filename)
+          if blk.nil?
+            File.read(filename)
+          else
+            File.open(filename) do |file|
+              blk.call file
+            end
+          end
+        else
+          nil
+        end
+      end
+
+      def key?(key)
+        File.exist?(build_path(key))
+      end
+
+      def set(key, value = nil, &blk)
+        File.open(build_path(key), 'w') do |file|
+          if blk.nil?
+            file.write value
+          else
+            blk.call file
+          end
+        end
+
+        nil
+      end
+
+      private
+      attr_reader :dir
+
+      def build_path(key)
+        digest   = Digest::SHA2.hexdigest(key)
+        subdir1  = digest.slice(0, 2)
+        subdir2  = digest.slice(2, 2)
+        filename = digest.slice(4, digest.length - 4)
+        File.join(dir, subdir1, subdir2, filename)
+      end
+
+    end
+
+    class NoCache < Base
+
+      def fetch(key, &blk)
+        blk.call
+      end
+
+      def get(key, &blk)
+        nil
+      end
+
+      def key?(key)
+        false
+      end
+
+      def set(key, value = nil, &blk)
+        if blk
+          File.open('/dev/null', 'w') do |file|
+            blk.call file
+          end
+        end
+
+        nil
+      end
+
+    end
+
+  end
+
   module Plugins
+
+    class Base
+      attr_reader :project
+      def initialize(project)
+        @project = project
+      end
+    end
+
+    class PackageManager < Base; end
+
+    class APK < PackageManager
+
+      def add(*pkgs)
+        project.run "apk add #{pkgs.join(' ')}"
+      end
+
+      def clean
+        project.run "rm -rf /var/cache/apk/*"
+      end
+
+      def remove(*pkgs)
+        project.run "apk del #{pkgs.join(' ')}"
+      end
+
+      def update
+        project.run "apk update"
+      end
+
+    end
+
   end
 
   class Project
 
-    attr_reader :repo, :tag
-
     DEFAULT_OPTIONS = {
       auto_remove: true,
+      cache: nil,
       event_handler: false,
       logs: false
     }
@@ -42,10 +180,17 @@ module Drydock
     def initialize(opts = {})
       @containers = []
       @images     = []
+      @plugins    = {}
 
       @opts = DEFAULT_OPTIONS.clone
       opts.each_pair { |key, value| set(key, value) }
     end
+
+    # def download(source_url, target_path, chmod: nil, chown: nil)
+    # end
+
+    # def download_once(source_url, target_path, chmod: nil, chown: nil)
+    # end
 
     def from(repo, tag = 'latest')
       images << Docker::Image.create(pull_opts(repo, tag))
@@ -67,7 +212,9 @@ module Drydock
     end
 
     def run(cmd, opts = {})
-      stream_monitor.run
+      mon = stream_monitor
+      mon.run if mon
+
       Docker::Container.create(build_run_opts(cmd, opts)).tap do |c|
         c.start
         c.wait
@@ -75,7 +222,7 @@ module Drydock
         images << c.commit
       end
     ensure
-      stream_monitor.kill
+      mon.kill if mon
     end
 
     def set(key, value = nil, &blk)
@@ -85,6 +232,12 @@ module Drydock
       raise ArgumentError, "only one of value or block may be provided" if value && blk
 
       opts[key] = value || blk
+    end
+
+    def with(plugin, &blk)
+      (@plugins[plugin] ||= plugin.new(self)).tap do |instance|
+        yield instance
+      end
     end
 
     private
@@ -98,6 +251,14 @@ module Drydock
       }
     end
 
+    def cache
+      opts.fetch(:cache) { Caches::NoCache.new }
+    end
+
+    def event_handler
+      opts.fetch(:event_handler, nil)
+    end
+
     def pull_opts(repo, tag = nil)
       if tag
         {fromImage: repo, tag: tag}
@@ -108,9 +269,10 @@ module Drydock
 
     def stream_monitor
       return @stream_monitor if @stream_monitor && @stream_monitor.alive?
+      return nil if event_handler.nil?
 
       @stream_monitor = Thread.new do
-        Docker::Event.stream(&opts[:event_handler])
+        Docker::Event.stream(&event_handler)
       end
     end
 

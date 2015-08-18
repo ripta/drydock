@@ -8,11 +8,15 @@ Bundler.setup
 $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'drydock'
 
-module Drydock
+opts = {
+  cache: Drydock::Caches::FilesystemCache.new,
+  event_handler: proc { |event|
+    puts event
+  }
+}
+
+Drydock.build(opts) do |project|
   filename = ARGV[0] || 'Drydockfile'
   contents = File.read(filename)
-
-  build do |project|
-    project.instance_eval(contents, filename)
-  end
+  [contents, filename]
 end
