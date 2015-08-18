@@ -20,6 +20,34 @@ module Drydock
       opts.each_pair { |key, value| set(key, value) }
     end
 
+    def cli_flags(flags = {}, opts = {})
+      return '' if flags.nil? || flags.empty?
+
+      buffer = StringIO.new
+      flags.each_pair do |k, v|
+        if k.size == 1
+          buffer << "-#{k} "
+        else
+          k = k.gsub(/_/, '-')
+          case v
+          when TrueClass
+            buffer << "--#{k} "
+          when FalseClass
+            buffer << "--no-#{k} "
+          else
+            v = v.to_s
+            if v.match(/\s/)
+              buffer << "--#{k} #{v.inspect}"
+            else
+              buffer << "--#{k} #{v}"
+            end
+          end
+        end
+      end
+
+      buffer.string
+    end
+
     def download(source_url, target_path, chmod: nil, chown: nil)
       response = Excon.get(source_url)
       if response.status != 200
