@@ -1,6 +1,23 @@
 
 require 'docker'
 
+module Docker
+  class Container
+    def archive_get(path, &blk)
+      query = { 'path' => path }
+      connection.get(path_for(:archive), query, response_block: blk)
+      self
+    end
+
+    def archive_put(path, overwrite: false, &blk)
+      headers = { 'Content-Type' => 'application/x-tar' }
+      query   = { 'path' => path, 'noOverwriteDirNonDir' => overwrite }
+      connection.put(path_for(:archive), query, headers: headers, &blk)
+      self
+    end
+  end
+end
+
 module Drydock
 
   def self.build(opts = {}, &blk)
