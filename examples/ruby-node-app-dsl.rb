@@ -1,9 +1,5 @@
 #!/usr/bin/env drydock
 
-set :event_handler do |event|
-  puts event
-end
-
 app_root   = '/app'
 build_root = '/build'
 
