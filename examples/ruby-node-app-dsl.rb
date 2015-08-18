@@ -24,9 +24,9 @@ download_once 'https://github.com/tianon/gosu/releases/download/1.3/gosu-amd64',
 with Plugins::Rubygems do |g|
   # g.source.add 'https://s3.amazonaws.com/production.s3.rubygems.org/'
   # g.source.remove 'https://rubygems.org/'
-  g.update_system(no_document: true)
-  g.install('bundler', no_document: true)
-  g.install('unicorn', no_document: true)
+  g.update_system(document: false)
+  g.install('bundler', document: false)
+  g.install('unicorn', document: false)
 end
 
 run 'bundle config --global frozen 1'
