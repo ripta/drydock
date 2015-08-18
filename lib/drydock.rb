@@ -222,7 +222,10 @@ module Drydock
         images << c.commit
       end
     ensure
-      mon.kill if mon
+      if mon
+        mon.kill
+        mon.join
+      end
     end
 
     def set(key, value = nil, &blk)
