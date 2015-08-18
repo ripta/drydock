@@ -7,3 +7,4 @@ group :development do
 end
 
 gem 'docker-api', '~> 1.22.0', require: 'docker'
+gem 'excon'
