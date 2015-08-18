@@ -8,7 +8,7 @@ Bundler.setup
 $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'drydock'
 
-event_handler = Proc.new do |is_new, event|
+event_handler = Proc.new do |event, is_new, serial|
   timestamp = Time.at(event.time)
   time_string = timestamp.strftime('%H:%M:%S')
   long_id = event.id.to_s
@@ -18,8 +18,11 @@ event_handler = Proc.new do |is_new, event|
     long_id.slice(0, 12)
   end
 
-  puts if is_new
-  print "\033[2K[#{time_string}] #{short_id} #{event.status}\r"
+  if is_new
+    puts "[#{time_string}] ##{serial}: #{short_id} #{event.status}"
+  else
+    puts "[#{time_string}] + #{short_id} #{event.status}"
+  end
 end
 
 opts = {

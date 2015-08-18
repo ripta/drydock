@@ -216,6 +216,8 @@ module Drydock
       @images     = []
       @plugins    = {}
 
+      @serial = 0
+
       @opts = DEFAULT_OPTIONS.clone
       opts.each_pair { |key, value| set(key, value) }
     end
@@ -340,10 +342,12 @@ module Drydock
         previous_id = nil
         Docker::Event.stream do |event|
           if previous_id.nil?
-            event_handler.call true, event
+            @serial += 1
+            event_handler.call event, true, @serial
           else
             is_new = previous_id != event.id
-            event_handler.call is_new, event
+            @serial += 1 if is_new
+            event_handler.call event, is_new, @serial
           end
           previous_id = event.id
         end
