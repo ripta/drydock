@@ -8,20 +8,23 @@ Bundler.setup
 $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'drydock'
 
+event_handler = Proc.new do |is_new, event|
+  timestamp = Time.at(event.time)
+  time_string = timestamp.strftime('%H:%M:%S')
+  long_id = event.id.to_s
+  short_id = if long_id.include?(':') || long_id.include?('/')
+    long_id
+  else 
+    long_id.slice(0, 12)
+  end
+
+  puts if is_new
+  print "[#{time_string}] #{short_id} #{event.status}\r"
+end
+
 opts = {
   cache: Drydock::Caches::FilesystemCache.new,
-  event_handler: proc { |is_new, event|
-    timestamp = Time.at(event.time)
-    time_string = timestamp.strftime('%H:%M:%S')
-    long_id = event.id.to_s
-    short_id = if long_id.include?(':') || long_id.include?('/')
-      long_id
-    else 
-      long_id.slice(0, 12)
-    end
-
-    puts "[#{time_string}] #{short_id} #{event.status}"
-  }
+  event_handler: event_handler
 }
 
 Drydock.build(opts) do |project|
