@@ -1,18 +1,25 @@
 
 require 'docker'
+require 'excon'
+require 'fileutils'
 
 module Docker
   class Container
-    def archive_get(path, &blk)
+    def archive_get(path = '/', &blk)
       query = { 'path' => path }
       connection.get(path_for(:archive), query, response_block: blk)
       self
     end
 
-    def archive_put(path, overwrite: false, &blk)
+    def archive_put(path = '/', overwrite: false, &blk)
       headers = { 'Content-Type' => 'application/x-tar' }
       query   = { 'path' => path, 'noOverwriteDirNonDir' => overwrite }
-      connection.put(path_for(:archive), query, headers: headers, &blk)
+
+      output = StringIO.new
+      blk.call(output)
+      output.rewind
+
+      connection.put(path_for(:archive), query, headers: headers, body: output)
       self
     end
   end
@@ -67,6 +74,7 @@ module Drydock
 
       def initialize(dir = "~/.drydock")
         @dir = File.expand_path(dir)
+        FileUtils.mkdir_p(@dir)
       end
 
       def fetch(key, &blk)
@@ -103,7 +111,11 @@ module Drydock
       end
 
       def set(key, value = nil, &blk)
-        File.open(build_path(key), 'w') do |file|
+        filename = build_path(key)
+        dirname = File.dirname(filename)
+        FileUtils.mkdir_p(dirname)
+
+        File.open(filename, 'w') do |file|
           if blk.nil?
             file.write value
           else
@@ -188,6 +200,8 @@ module Drydock
 
   end
 
+  class OperationError < StandardError; end
+
   class Project
 
     DEFAULT_OPTIONS = {
@@ -206,11 +220,43 @@ module Drydock
       opts.each_pair { |key, value| set(key, value) }
     end
 
-    # def download(source_url, target_path, chmod: nil, chown: nil)
-    # end
+    def download(source_url, target_path, chmod: nil, chown: nil)
+      response = Excon.get(source_url)
+      if response.status != 200
+        raise OperationError, "cannot download #{source_url}, status code #{response.status}"
+      end
 
-    # def download_once(source_url, target_path, chmod: nil, chown: nil)
-    # end
+      response.body
+    end
+
+    def download_once(source_url, target_path, chmod: 0644)
+      unless cache.key?(source_url)
+        cache.set(source_url) do |obj|
+          chunked = Proc.new do |chunk, remaining_bytes, total_bytes|
+            obj.write(chunk)
+          end
+          Excon.get(source_url, response_block: chunked)
+        end
+      end
+
+      with_stream_monitor do
+        c = Docker::Container.create(build_run_opts('# Filesystem Change Only'))
+        c.archive_put do |output|
+          Gem::Package::TarWriter.new(output) do |tar|
+            cache.get(source_url) do |input|
+              tar.add_file(target_path, chmod) do |tar_file|
+                tar_file.write(input.read)
+              end
+            end
+          end
+        end
+
+        containers << c
+        images << c.commit
+
+        c
+      end
+    end
 
     def from(repo, tag = 'latest')
       with_stream_monitor do
