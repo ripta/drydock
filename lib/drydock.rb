@@ -193,7 +193,9 @@ module Drydock
     # end
 
     def from(repo, tag = 'latest')
-      images << Docker::Image.create(pull_opts(repo, tag))
+      with_stream_monitor do
+        images << Docker::Image.create(pull_opts(repo, tag))
+      end
       self
     end
 
@@ -212,19 +214,13 @@ module Drydock
     end
 
     def run(cmd, opts = {})
-      mon = stream_monitor
-      mon.run if mon
-
-      Docker::Container.create(build_run_opts(cmd, opts)).tap do |c|
-        c.start
-        c.wait
-        containers << c
-        images << c.commit
-      end
-    ensure
-      if mon
-        mon.kill
-        mon.join
+      with_stream_monitor do
+        Docker::Container.create(build_run_opts(cmd, opts)).tap do |c|
+          c.start
+          c.wait
+          containers << c
+          images << c.commit
+        end
       end
     end
 
@@ -276,6 +272,17 @@ module Drydock
 
       @stream_monitor = Thread.new do
         Docker::Event.stream(&event_handler)
+      end
+    end
+
+    def with_stream_monitor(&blk)
+      mon = stream_monitor
+      mon.run if mon
+      yield
+    ensure
+      if mon
+        mon.kill
+        mon.join
       end
     end
 
