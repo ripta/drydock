@@ -271,7 +271,16 @@ module Drydock
       return nil if event_handler.nil?
 
       @stream_monitor = Thread.new do
-        Docker::Event.stream(&event_handler)
+        previous_id = nil
+        Docker::Event.stream do |event|
+          if previous_id.nil?
+            event_handler.call true, event
+          else
+            is_new = previous_id != event.id
+            event_handler.call is_new, event
+          end
+          previous_id = event.id
+        end
       end
     end
 
