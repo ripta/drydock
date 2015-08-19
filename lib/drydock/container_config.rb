@@ -2,6 +2,14 @@
 module Drydock
   class ContainerConfig < ::Hash
 
+    def self.from(hash)
+      self.new.tap do |cfg|
+        hash.each_pair do |k, v|
+          cfg[k] = v
+        end
+      end
+    end
+
     # Logic taken from https://github.com/docker/docker/blob/master/runconfig/compare.go
     def ==(other)
       return false if other.nil?

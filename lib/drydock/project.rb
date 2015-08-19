@@ -10,9 +10,8 @@ module Drydock
     }
 
     def initialize(opts = {})
-      @containers = []
-      @images     = []
-      @plugins    = {}
+      @chain   = nil
+      @plugins = {}
 
       @serial = 0
 
@@ -69,64 +68,37 @@ module Drydock
       end
 
       with_stream_monitor do
-        c = Docker::Container.create(build_run_opts('# Filesystem Change Only'))
-        c.archive_put do |output|
-          Gem::Package::TarWriter.new(output) do |tar|
-            cache.get(source_url) do |input|
-              tar.add_file(target_path, chmod) do |tar_file|
-                tar_file.write(input.read)
+        chain.run('# Filesystem Change Only') do |container|
+          container.archive_put do |output|
+            Gem::Package::TarWriter.new(output) do |tar|
+              cache.get(source_url) do |input|
+                tar.add_file(target_path, chmod) do |tar_file|
+                  tar_file.write(input.read)
+                end
               end
             end
           end
         end
-
-        containers << c
-        images << c.commit
-
-        c
       end
+
+      self
     end
 
     def from(repo, tag = 'latest')
-      with_stream_monitor do
-        images << Docker::Image.create(pull_opts(repo, tag))
-      end
+      raise InvalidInstructionError, '`from` must only be called once per project' if chain
+      with_stream_monitor { @chain = PhaseChain.new(repo, tag) }
       self
     end
 
     def finalize!
-      containers.each(&:remove)
-      containers.clear
+      chain.finalize!
       self
     end
 
-    def latest_image
-      images.last
-    end
-
-    def root_image
-      images.first
-    end
-
     def run(cmd, opts = {})
-      with_stream_monitor do
-        Docker::Container.create(build_run_opts(cmd, opts)).tap do |c|
-          c.start
-          c.wait
-          c.streaming_logs(stdout: true, stderr: true) do |stream, chunk|
-            case stream
-            when :stdout
-              Drydock.logger.info "  (O) #{chunk.chomp}"
-            when :stderr
-              Drydock.logger.info "  (E) #{chunk.chomp}"
-            else
-              Drydock.logger.info "  (?/#{stream.inspect}) #{chunk.chomp}"
-            end
-          end
-          containers << c
-          images << c.commit
-        end
-      end
+      raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
+      with_stream_monitor { chain.run(cmd, opts) }
+      self
     end
 
     def set(key, value = nil, &blk)
@@ -145,15 +117,7 @@ module Drydock
     end
 
     private
-    attr_reader :containers, :images, :opts
-
-    def build_run_opts(cmd, opts = {})
-      {
-        Cmd: ['/bin/sh', '-c', cmd],
-        Tty: opts.fetch(:tty, false),
-        Image: latest_image.id
-      }
-    end
+    attr_reader :chain, :opts
 
     def cache
       opts.fetch(:cache) { Caches::NoCache.new }
@@ -161,14 +125,6 @@ module Drydock
 
     def event_handler
       opts.fetch(:event_handler, nil)
-    end
-
-    def pull_opts(repo, tag = nil)
-      if tag
-        {fromImage: repo, tag: tag}
-      else
-        {fromImage: repo}
-      end
     end
 
     def stream_monitor
