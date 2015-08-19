@@ -7,6 +7,7 @@ from 'gliderlabs/alpine', '3.2'
 
 with Plugins::APK do |pkg|
   pkg.update
+  pkg.upgrade
   pkg.add 'ruby', 'ruby-dev'
   pkg.add 'nodejs', 'nodejs-dev'
   pkg.add 'musl', 'musl-dev'

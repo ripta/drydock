@@ -21,6 +21,10 @@ module Drydock
         project.run "apk update"
       end
 
+      def upgrade
+        project.run "apk upgrade"
+      end
+
     end
   end
 end

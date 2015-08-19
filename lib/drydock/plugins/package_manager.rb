@@ -21,6 +21,10 @@ module Drydock
         raise NotImplementedError, '#update must be overridde in the subclass'
       end
 
+      def upgrade
+        raise NotImplementedError, '#upgrade must be overridde in the subclass'
+      end
+
     end
   end
 end
