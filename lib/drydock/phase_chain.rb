@@ -53,10 +53,10 @@ module Drydock
     end
 
     def finalize!
-      return self if self.frozen?
+      return self if frozen?
 
-      self.each(&:remove)
-      self.freeze
+      containers.each(&:remove)
+      freeze
     end
 
     def each(&blk)
@@ -73,7 +73,7 @@ module Drydock
     end
 
     def run(cmd, opts = {}, &blk)
-      src_image = self.last ? self.last.result_image : @from
+      src_image = last ? last.result_image : @from
       container = self.class.run(src_image.id, cmd, opts)
 
       yield container if block_given?
