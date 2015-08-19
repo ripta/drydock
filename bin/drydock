@@ -19,10 +19,16 @@ event_handler = Proc.new do |event, is_new, serial|
   end
 
   if is_new
-    puts "[#{time_string}] ##{serial}: #{short_id} #{event.status}"
+    Drydock.logger.info "##{serial}: #{short_id} #{event.status}"
   else
-    puts "[#{time_string}] + #{short_id} #{event.status}"
+    Drydock.logger.debug "+ #{short_id} #{event.status}"
   end
+end
+
+STDOUT.sync = true
+Drydock.logger = Logger.new(STDOUT).tap do |l|
+  l.level = Logger::INFO
+  l.formatter = Drydock::Formatter.new
 end
 
 opts = {
@@ -31,7 +37,11 @@ opts = {
 }
 
 Drydock.build(opts) do |project|
+  Drydock.logger.info "Drydock v#{Drydock.version}"
+
   filename = ARGV[0] || 'Drydockfile'
   contents = File.read(filename)
+  Drydock.logger.info "Loaded #{contents.length} bytes from #{filename}"
+
   [contents, filename]
 end

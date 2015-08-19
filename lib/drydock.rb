@@ -9,6 +9,7 @@ module Drydock # :nodoc:
 end
 
 require_relative 'drydock/drydock'
+require_relative 'drydock/logger'
 require_relative 'drydock/errors'
 require_relative 'drydock/project'
 
