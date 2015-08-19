@@ -113,6 +113,16 @@ module Drydock
         Docker::Container.create(build_run_opts(cmd, opts)).tap do |c|
           c.start
           c.wait
+          c.streaming_logs(stdout: true, stderr: true) do |stream, chunk|
+            case stream
+            when :stdout
+              Drydock.logger.info "  (O) #{chunk.chomp}"
+            when :stderr
+              Drydock.logger.info "  (E) #{chunk.chomp}"
+            else
+              Drydock.logger.info "  (?/#{stream.inspect}) #{chunk.chomp}"
+            end
+          end
           containers << c
           images << c.commit
         end
