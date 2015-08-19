@@ -6,6 +6,11 @@ module Drydock
       dryfile, dryfilename = yield
       begin
         project.instance_eval(dryfile, dryfilename)
+      rescue => e
+        Drydock.logger.error("#{e.class}: #{e.message}")
+        e.backtrace.each do |backtrace|
+          Drydock.logger.error("  #{backtrace}")
+        end
       ensure
         project.finalize!
       end
