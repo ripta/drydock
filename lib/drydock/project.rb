@@ -25,6 +25,7 @@ module Drydock
 
       buffer = StringIO.new
       flags.each_pair do |k, v|
+        k = k.to_s
         if k.size == 1
           buffer << "-#{k} "
         else
