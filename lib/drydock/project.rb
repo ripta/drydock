@@ -36,6 +36,8 @@ module Drydock
     end
 
     def download_once(source_url, target_path, chmod: 0644)
+      raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
+
       unless cache.key?(source_url)
         cache.set(source_url) do |obj|
           chunked = Proc.new do |chunk, remaining_bytes, total_bytes|
@@ -45,7 +47,11 @@ module Drydock
         end
       end
 
-      run('# Filesystem Change Only') do |container|
+      Drydock.logger.info(
+          "##{chain.size + 1} - download_once(#{source_url.inspect}, " +
+          "#{target_path.inspect}, chmod: #{sprintf('%o', chmod)})"
+      )
+      chain.run("# DOWNLOAD #{source_url}") do |container|
         container.archive_put do |output|
           Gem::Package::TarWriter.new(output) do |tar|
             cache.get(source_url) do |input|
@@ -82,6 +88,7 @@ module Drydock
 
     def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
+
       Drydock.logger.info("##{chain.size + 1} - run #{cmd.inspect}")
       Drydock.logger.info("  opts = #{opts.inspect}") unless opts.empty?
       chain.run(cmd, opts, &blk)
