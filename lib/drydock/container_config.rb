@@ -20,10 +20,10 @@ module Drydock
     def self.from(hash)
       self.new.tap do |cfg|
         DEFAULTS.each_pair do |k, v|
-          cfg[k.to_s] = v
+          cfg[k] = v
         end
         hash.each_pair do |k, v|
-          cfg[k.to_s] = v
+          cfg[k] = v
         end
       end
     end
@@ -59,6 +59,14 @@ module Drydock
       end
 
       return true
+    end
+
+    def [](key)
+      super(key.to_s)
+    end
+
+    def []=(key, value)
+      super(key.to_s, value)
     end
 
   end
