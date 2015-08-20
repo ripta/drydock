@@ -48,6 +48,10 @@ module Drydock
       buffer.string
     end
 
+    def done!
+      throw :done
+    end
+
     def download(source_url, target_path, chmod: nil, chown: nil)
       response = Excon.get(source_url)
       if response.status != 200

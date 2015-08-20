@@ -5,7 +5,9 @@ module Drydock
     Project.new(opts).tap do |project|
       dryfile, dryfilename = yield
       begin
-        project.instance_eval(dryfile, dryfilename)
+        catch :done do
+          project.instance_eval(dryfile, dryfilename)
+        end
       rescue => e
         Drydock.logger.error("#{e.class}: #{e.message}")
         e.backtrace.each do |backtrace|
