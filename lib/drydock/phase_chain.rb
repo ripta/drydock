@@ -109,5 +109,9 @@ module Drydock
       self
     end
 
+    def serial
+      size + 1
+    end
+
   end
 end

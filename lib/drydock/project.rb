@@ -40,7 +40,7 @@ module Drydock
       # TODO(rpasay): invalidate cache when the downloaded file changes,
       # and then force rebuild
       Drydock.logger.info(
-          "##{chain.size + 1}: download_once(#{source_url.inspect}, " +
+          "##{chain.serial}: download_once(#{source_url.inspect}, " +
           "#{target_path.inspect}, chmod: #{sprintf('%o', chmod)})"
       )
       chain.run("# DOWNLOAD #{source_url}") do |container|
@@ -60,7 +60,7 @@ module Drydock
 
     def env(name, value)
       raise InvalidInstructionError, '`env` cannot be called before `from`' unless chain
-      Drydock.logger.info("##{chain.size + 1}: env(#{name.inspect}, #{value.inspect})")
+      Drydock.logger.info("##{chain.serial}: env(#{name.inspect}, #{value.inspect})")
       chain.run("# SET ENV #{name}", env: ["#{name}=#{value}"])
       self
     end
@@ -92,7 +92,7 @@ module Drydock
     def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
-      Drydock.logger.info("##{chain.size + 1}: run #{cmd.inspect}")
+      Drydock.logger.info("##{chain.serial}: run #{cmd.inspect}")
       Drydock.logger.info("  opts = #{opts.inspect}") unless opts.empty?
       chain.run(cmd, opts, &blk)
       self
