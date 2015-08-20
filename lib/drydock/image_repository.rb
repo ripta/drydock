@@ -21,5 +21,13 @@ module Drydock
       self.all.each(&blk)
     end
 
+    def self.find_by_config(config)
+      self.find { |image| config == ContainerConfig.from(image.info['ContainerConfig']) }
+    end
+
+    def self.select_by_config(config)
+      self.select { |image| config == ContainerConfig.from(image.info['ContainerConfig']) }
+    end
+
   end
 end
