@@ -37,11 +37,11 @@ with Plugins::NPM do |npm|
   npm.install('bower', 'gulp', global: true)
 end
 
-nested_build do
+derive do
   env 'BUILD_ROOT', build_root
 end
 
-nested_build do
+derive do
   env 'APPLICATION_ROOT', app_root
 end
 

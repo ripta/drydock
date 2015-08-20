@@ -85,7 +85,7 @@ module Drydock
       self
     end
 
-    def nested_build(&blk)
+    def derive(&blk)
       Drydock.build_on_chain(chain, &blk)
     end
 
