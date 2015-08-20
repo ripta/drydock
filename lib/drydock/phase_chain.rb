@@ -78,10 +78,10 @@ module Drydock
 
       yield container if block_given?
 
-      self << Phase.new(
-        src_image,
-        container,
-        container.commit
+      self << Phase.from(
+        source_image:    src_image,
+        build_container: container,
+        result_image:    container.commit
       )
 
       self

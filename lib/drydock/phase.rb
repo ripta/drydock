@@ -11,6 +11,11 @@ module Drydock
     alias_method :source,  :source_image
     alias_method :source=, :source_image=
 
+    def self.from(hsh)
+      h = hsh.to_h
+      new(*h.values_at(*members))
+    end
+
     def build?
       !build_container.nil?
     end
