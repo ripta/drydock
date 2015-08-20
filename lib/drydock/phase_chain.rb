@@ -56,6 +56,10 @@ module Drydock
       map(&:build_container)
     end
 
+    def depth
+      @parent ? @parent.depth + 1 : 1
+    end
+
     def derive
       self.class.new(last_image, self)
     end
@@ -110,7 +114,7 @@ module Drydock
     end
 
     def serial
-      size + 1
+      @parent ? "#{@parent.serial}.#{size + 1}" : "#{size + 1}"
     end
 
   end
