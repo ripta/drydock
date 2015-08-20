@@ -22,7 +22,14 @@ module Drydock
     end
 
     def self.find_by_config(config)
-      self.find { |image| config == ContainerConfig.from(image.info['ContainerConfig']) }
+      base_image = config['Image']
+      candidates = self.select_by_config(config)
+
+      possibles = candidates.select do |image|
+        image.info['Parent'] == base_image || image.info['ContainerConfig']['Image'] == base_image
+      end
+
+      possibles.sort_by { |image| image.info['Created'] }.last
     end
 
     def self.select_by_config(config)
