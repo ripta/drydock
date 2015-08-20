@@ -6,9 +6,11 @@ module Drydock
       include Enumerable
     end
 
+    @image_cache = {}
+
     def self.all
       Docker::Image.all(all: 1).map do |image|
-        Docker::Image.get(image.id)
+        @image_cache[image.id] ||= Docker::Image.get(image.id)
       end
     end
 
