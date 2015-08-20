@@ -55,7 +55,7 @@ module Drydock
     def finalize!
       return self if frozen?
 
-      containers.each(&:remove)
+      map(&:finalize!)
       freeze
     end
 

@@ -11,5 +11,14 @@ module Drydock
     alias_method :source,  :source_image
     alias_method :source=, :source_image=
 
+    def build?
+      !build_container.nil?
+    end
+
+    def finalize!
+      return unless build?
+      build_container.remove
+    end
+
   end
 end
