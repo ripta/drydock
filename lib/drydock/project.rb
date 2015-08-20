@@ -22,35 +22,6 @@ module Drydock
       @stream_monitor = event_handler ? StreamMonitor.new(event_handler) : nil
     end
 
-    def cli_flags(flags = {}, opts = {})
-      return '' if flags.nil? || flags.empty?
-
-      buffer = StringIO.new
-      flags.each_pair do |k, v|
-        k = k.to_s
-        if k.size == 1
-          buffer << "-#{k} "
-        else
-          k = k.gsub(/_/, '-')
-          case v
-          when TrueClass
-            buffer << "--#{k} "
-          when FalseClass
-            buffer << "--no-#{k} "
-          else
-            v = v.to_s
-            if v.match(/\s/)
-              buffer << "--#{k} #{v.inspect}"
-            else
-              buffer << "--#{k} #{v}"
-            end
-          end
-        end
-      end
-
-      buffer.string
-    end
-
     def done!
       throw :done
     end

@@ -7,7 +7,7 @@ module Drydock
 
       def install(*pkgs)
         opts = pkgs.last.is_a?(Hash) ? pkgs.pop : {}
-        flags = project.cli_flags(opts)
+        flags = CliFlags.new(opts)
         project.run("npm install #{flags} #{pkgs.join(' ')}")
       end
 

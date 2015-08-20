@@ -12,6 +12,7 @@ require_relative 'drydock/drydock'
 require_relative 'drydock/logger'
 require_relative 'drydock/errors'
 
+require_relative 'drydock/cli_flags'
 require_relative 'drydock/container_config'
 require_relative 'drydock/phase'
 require_relative 'drydock/phase_chain'

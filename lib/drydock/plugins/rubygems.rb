@@ -10,7 +10,7 @@ module Drydock
       end
 
       def install(pkg, opts = {})
-        flags = project.cli_flags(opts)
+        flags = CliFlags.new(opts)
         project.run("gem install #{pkg} #{flags}")
       end
 
@@ -19,7 +19,7 @@ module Drydock
       end
 
       def update_system(opts = {})
-        flags = project.cli_flags(opts)
+        flags = CliFlags.new(opts)
         project.run("gem update --system #{flags}")
       end
 
