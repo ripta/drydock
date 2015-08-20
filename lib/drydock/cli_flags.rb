@@ -22,7 +22,7 @@ module Drydock
 
     def process_flag(key, value)
       key = key.to_s
-      if key.size.one?
+      if key.size == 1
         "-#{key} "
       else
         key = key.gsub(/_/, '-')
