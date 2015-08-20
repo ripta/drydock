@@ -19,7 +19,10 @@ module Drydock
 
     def self.from(hash)
       self.new.tap do |cfg|
-        DEFAULTS.merge(hash).each_pair do |k, v|
+        DEFAULTS.each_pair do |k, v|
+          cfg[k.to_s] = v
+        end
+        hash.each_pair do |k, v|
           cfg[k.to_s] = v
         end
       end
