@@ -76,11 +76,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  docker-api (~> 1.22.0)
-  excon
+  docker-api (~> 1.22)
+  excon (~> 0.45)
   jeweler (~> 2.0)
-  pry (~> 0.10.0)
-  rake
+  pry (~> 0.10)
+  rake (~> 10.0)
   rspec (~> 3.0)
 
 BUNDLED WITH
