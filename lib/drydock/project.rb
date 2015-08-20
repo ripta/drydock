@@ -17,6 +17,8 @@ module Drydock
 
       @opts = DEFAULT_OPTIONS.clone
       opts.each_pair { |key, value| set(key, value) }
+
+      stream_monitor.run
     end
 
     def cli_flags(flags = {}, opts = {})
@@ -71,14 +73,12 @@ module Drydock
         end
       end
 
-      with_stream_monitor do
-        chain.run('# Filesystem Change Only') do |container|
-          container.archive_put do |output|
-            Gem::Package::TarWriter.new(output) do |tar|
-              cache.get(source_url) do |input|
-                tar.add_file(target_path, chmod) do |tar_file|
-                  tar_file.write(input.read)
-                end
+      chain.run('# Filesystem Change Only') do |container|
+        container.archive_put do |output|
+          Gem::Package::TarWriter.new(output) do |tar|
+            cache.get(source_url) do |input|
+              tar.add_file(target_path, chmod) do |tar_file|
+                tar_file.write(input.read)
               end
             end
           end
@@ -90,18 +90,20 @@ module Drydock
 
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
-      with_stream_monitor { @chain = PhaseChain.new(repo, tag) }
+      @chain = PhaseChain.new(repo, tag)
       self
     end
 
     def finalize!
       chain.finalize!
+      stream_monitor.kill
+      stream_monitor.join
       self
     end
 
     def run(cmd, opts = {})
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
-      with_stream_monitor { chain.run(cmd, opts) }
+      chain.run(cmd, opts)
       self
     end
 
@@ -132,10 +134,7 @@ module Drydock
     end
 
     def stream_monitor
-      return @stream_monitor if @stream_monitor && @stream_monitor.alive?
-      return nil if event_handler.nil?
-
-      @stream_monitor = Thread.new do
+      @stream_monitor ||= Thread.new do
         previous_id = nil
         Docker::Event.stream do |event|
           if previous_id.nil?
@@ -148,17 +147,6 @@ module Drydock
           end
           previous_id = event.id
         end
-      end
-    end
-
-    def with_stream_monitor(&blk)
-      mon = stream_monitor
-      mon.run if mon
-      yield
-    ensure
-      if mon
-        mon.kill
-        mon.join
       end
     end
 
