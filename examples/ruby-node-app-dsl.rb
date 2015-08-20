@@ -39,10 +39,15 @@ end
 
 derive do
   env 'BUILD_ROOT', build_root
-end
+  mkdir build_root
 
-derive do
-  env 'APPLICATION_ROOT', app_root
+  derive do
+    copy 'Gemfile', build_root
+    copy 'Gemfile.lock', build_root
+    cd build_root do
+      run 'bundle --path vendor'
+    end
+  end
 end
 
 # # Drydock.using(dd) { |base| ... }
