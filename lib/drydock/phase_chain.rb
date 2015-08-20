@@ -75,7 +75,7 @@ module Drydock
       cached_image = ImageRepository.find_by_config(build_config)
 
       if cached_image
-        Drydock.logger.info "{ Using cached image ID #{cached_image.id.slice(0, 12)} }"
+        Drydock.logger.info "    { Using cached image ID #{cached_image.id.slice(0, 12)} }"
         self << Phase.from(
           source_image: src_image,
           result_image: cached_image

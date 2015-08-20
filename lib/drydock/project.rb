@@ -45,7 +45,7 @@ module Drydock
         end
       end
 
-      chain.run('# Filesystem Change Only') do |container|
+      run('# Filesystem Change Only') do |container|
         container.archive_put do |output|
           Gem::Package::TarWriter.new(output) do |tar|
             cache.get(source_url) do |input|
@@ -62,6 +62,7 @@ module Drydock
 
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
+      Drydock.logger.info("#0 - from(#{repo.inspect}, #{tag.inspect})")
       @chain = PhaseChain.new(repo, tag)
       self
     end
@@ -79,9 +80,11 @@ module Drydock
       self
     end
 
-    def run(cmd, opts = {})
+    def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
-      chain.run(cmd, opts)
+      Drydock.logger.info("##{chain.size + 1} - run #{cmd.inspect}")
+      Drydock.logger.info("  opts = #{opts.inspect}") unless opts.empty?
+      chain.run(cmd, opts, &blk)
       self
     end
 
