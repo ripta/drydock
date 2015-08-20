@@ -60,15 +60,15 @@ module Drydock
       self.class.new(last_image, self)
     end
 
+    def each(&blk)
+      @chain.each(&blk)
+    end
+
     def finalize!
       return self if frozen?
 
       map(&:finalize!)
       freeze
-    end
-
-    def each(&blk)
-      @chain.each(&blk)
     end
 
     def images
