@@ -10,7 +10,7 @@ module Drydock
     }
 
     def initialize(opts = {})
-      @chain   = nil
+      @chain   = opts.key?(:chain) && opts.delete(:chain).deep_dup
       @plugins = {}
 
       @serial = 0
@@ -60,6 +60,7 @@ module Drydock
 
     def env(name, value)
       raise InvalidInstructionError, '`env` cannot be called before `from`' unless chain
+      Drydock.logger.info("##{chain.size + 1}: env(#{name.inspect}, #{value.inspect})")
       chain.run("# SET ENV #{name}", env: ["#{name}=#{value}"])
       self
     end
@@ -67,7 +68,7 @@ module Drydock
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
       Drydock.logger.info("#0: from(#{repo.inspect}, #{tag.inspect})")
-      @chain = PhaseChain.new(repo, tag)
+      @chain = PhaseChain.from_repo(repo, tag)
       self
     end
 
@@ -82,6 +83,10 @@ module Drydock
       end
 
       self
+    end
+
+    def nested_build(&blk)
+      Drydock.build_on_chain(chain, &blk)
     end
 
     def run(cmd, opts = {}, &blk)

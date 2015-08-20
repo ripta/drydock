@@ -37,6 +37,14 @@ with Plugins::NPM do |npm|
   npm.install('bower', 'gulp', global: true)
 end
 
+nested_build do
+  env 'BUILD_ROOT', build_root
+end
+
+nested_build do
+  env 'APPLICATION_ROOT', app_root
+end
+
 # # Drydock.using(dd) { |base| ... }
 # #   or
 # # base = Drydock.from(dd.id)

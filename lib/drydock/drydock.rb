@@ -19,6 +19,16 @@ module Drydock
     end
   end
 
+  def self.build_on_chain(chain, opts = {}, &blk)
+    Project.new(opts.merge(chain: chain)).tap do |project|
+      begin
+        project.instance_eval(&blk)
+      ensure
+        project.finalize!
+      end
+    end
+  end
+
   def self.from(repo, opts = {}, &blk)
     opts = opts.clone
     tag  = opts.delete(:tag, 'latest')

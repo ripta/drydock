@@ -42,13 +42,21 @@ module Drydock
       end
     end
 
-    def initialize(repo, tag = 'latest')
-      @chain = []
-      @from  = Docker::Image.create(self.class.build_pull_opts(repo, tag))
+    def self.from_repo(repo, tag = 'latest')
+      new(Docker::Image.create(build_pull_opts(repo, tag)))
+    end
+
+    def initialize(from, chain = [])
+      @chain = chain
+      @from  = from
     end
 
     def containers
       map(&:build_container)
+    end
+
+    def deep_dup
+      self.class.new(@from.clone, @chain.clone)
     end
 
     def finalize!
