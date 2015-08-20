@@ -18,7 +18,8 @@ module Drydock
       @opts = DEFAULT_OPTIONS.clone
       opts.each_pair { |key, value| set(key, value) }
 
-      stream_monitor.run
+      event_handler = opts.fetch(:event_handler, nil)
+      @stream_monitor = event_handler ? StreamMonitor.new(event_handler) : nil
     end
 
     def cli_flags(flags = {}, opts = {})
@@ -96,8 +97,10 @@ module Drydock
 
     def finalize!
       chain.finalize!
-      stream_monitor.kill
-      stream_monitor.join
+      if stream_monitor
+        stream_monitor.kill
+        stream_monitor.join
+      end
       self
     end
 
@@ -123,31 +126,10 @@ module Drydock
     end
 
     private
-    attr_reader :chain, :opts
+    attr_reader :chain, :opts, :stream_monitor
 
     def cache
       opts.fetch(:cache) { Caches::NoCache.new }
-    end
-
-    def event_handler
-      opts.fetch(:event_handler, nil)
-    end
-
-    def stream_monitor
-      @stream_monitor ||= Thread.new do
-        previous_id = nil
-        Docker::Event.stream do |event|
-          if previous_id.nil?
-            @serial += 1
-            event_handler.call event, true, @serial
-          else
-            is_new = previous_id != event.id
-            @serial += 1 if is_new
-            event_handler.call event, is_new, @serial
-          end
-          previous_id = event.id
-        end
-      end
     end
 
   end
