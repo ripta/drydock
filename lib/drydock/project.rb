@@ -41,7 +41,7 @@ module Drydock
       # TODO(rpasay): invalidate cache when the downloaded file changes,
       # and then force rebuild
       Drydock.logger.info(
-          "##{chain.size + 1} - download_once(#{source_url.inspect}, " +
+          "##{chain.size + 1}: download_once(#{source_url.inspect}, " +
           "#{target_path.inspect}, chmod: #{sprintf('%o', chmod)})"
       )
       chain.run("# DOWNLOAD #{source_url}") do |container|
@@ -61,7 +61,7 @@ module Drydock
 
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
-      Drydock.logger.info("#0 - from(#{repo.inspect}, #{tag.inspect})")
+      Drydock.logger.info("#0: from(#{repo.inspect}, #{tag.inspect})")
       @chain = PhaseChain.new(repo, tag)
       self
     end
@@ -82,7 +82,7 @@ module Drydock
     def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
-      Drydock.logger.info("##{chain.size + 1} - run #{cmd.inspect}")
+      Drydock.logger.info("##{chain.size + 1}: run #{cmd.inspect}")
       Drydock.logger.info("  opts = #{opts.inspect}") unless opts.empty?
       chain.run(cmd, opts, &blk)
       self
