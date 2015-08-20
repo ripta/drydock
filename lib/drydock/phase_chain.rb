@@ -46,17 +46,18 @@ module Drydock
       new(Docker::Image.create(build_pull_opts(repo, tag)))
     end
 
-    def initialize(from, chain = [])
-      @chain = chain
-      @from  = from
+    def initialize(from, parent = nil)
+      @chain  = []
+      @from   = from
+      @parent = parent
     end
 
     def containers
       map(&:build_container)
     end
 
-    def deep_dup
-      self.class.new(@from.clone, @chain.clone)
+    def derive
+      self.class.new(last_image, self)
     end
 
     def finalize!
@@ -73,6 +74,10 @@ module Drydock
     def images
       return [] if empty?
       [root_image] + map(&:result_image)
+    end
+
+    def last_image
+      @chain.last.result_image
     end
 
     def root_image

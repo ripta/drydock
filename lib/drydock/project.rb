@@ -10,7 +10,7 @@ module Drydock
     }
 
     def initialize(opts = {})
-      @chain   = opts.key?(:chain) && opts.delete(:chain).deep_dup
+      @chain   = opts.key?(:chain) && opts.delete(:chain).derive
       @plugins = {}
 
       @serial = 0
