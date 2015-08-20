@@ -96,11 +96,15 @@ module Drydock
     end
 
     def finalize!
-      chain.finalize!
+      if chain
+        chain.finalize!
+      end
+
       if stream_monitor
         stream_monitor.kill
         stream_monitor.join
       end
+
       self
     end
 
