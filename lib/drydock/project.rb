@@ -26,15 +26,6 @@ module Drydock
       throw :done
     end
 
-    def download(source_url, target_path, chmod: nil, chown: nil)
-      response = Excon.get(source_url)
-      if response.status != 200
-        raise OperationError, "cannot download #{source_url}, status code #{response.status}"
-      end
-
-      response.body
-    end
-
     def download_once(source_url, target_path, chmod: 0644)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
