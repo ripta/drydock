@@ -37,7 +37,7 @@ module Drydock
       return false if self['Tty'] != other['Tty']
 
       return false if self['Cmd'] != other['Cmd']
-      return false if self['Env'] != other['Env']
+      return false if Array(self['Env']).sort != Array(other['Env']).sort
       return false if self['Labels'] != other['Labels']
       return false if self['Entrypoint'] != other['Entrypoint']
 
