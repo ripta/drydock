@@ -16,12 +16,16 @@ module Drydock
       new(*h.values_at(*members))
     end
 
-    def build?
-      !build_container.nil?
+    def built?
+      !cached?
+    end
+
+    def cached?
+      build_container.nil?
     end
 
     def finalize!
-      return unless build?
+      return unless built?
       build_container.remove
     end
 
