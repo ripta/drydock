@@ -47,6 +47,8 @@ module Drydock
         end
       end
 
+      # TODO(rpasay): invalidate cache when the downloaded file changes,
+      # and then force rebuild
       Drydock.logger.info(
           "##{chain.size + 1} - download_once(#{source_url.inspect}, " +
           "#{target_path.inspect}, chmod: #{sprintf('%o', chmod)})"
