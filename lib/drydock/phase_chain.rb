@@ -39,10 +39,6 @@ module Drydock
       end
     end
 
-    def self.run(image_id, cmd, opts = {})
-      create_container(build_container_opts(image_id, cmd, opts))
-    end
-
     def initialize(repo, tag = 'latest')
       @chain = []
       @from  = Docker::Image.create(self.class.build_pull_opts(repo, tag))
@@ -74,15 +70,25 @@ module Drydock
 
     def run(cmd, opts = {}, &blk)
       src_image = last ? last.result_image : @from
-      container = self.class.run(src_image.id, cmd, opts)
 
-      yield container if block_given?
+      build_config = self.class.build_container_opts(src_image.id, cmd, opts)
+      cached_image = ImageRepository.find_by_config(build_config)
 
-      self << Phase.from(
-        source_image:    src_image,
-        build_container: container,
-        result_image:    container.commit
-      )
+      if cached_image
+        Drydock.logger.info "{ Using cached image ID #{cached_image.id.slice(0, 12)} }"
+        self << Phase.from(
+          source_image: src_image,
+          result_image: cached_image
+        )
+      else
+        container = self.class.create_container(build_config)
+        yield container if block_given?
+        self << Phase.from(
+          source_image:    src_image,
+          build_container: container,
+          result_image:    container.commit
+        )
+      end
 
       self
     end
