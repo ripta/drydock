@@ -2,9 +2,24 @@
 module Drydock
   class ContainerConfig < ::Hash
 
+    DEFAULTS = {
+      'OpenStdin'    => false,
+      'AttachStdin'  => false,
+      'AttachStdout' => false,
+      'AttachStderr' => false,
+      'User'         => '',
+      'Tty'          => false,
+      'Cmd'          => nil,
+      'Env'          => ['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
+      'Labels'       => nil,
+      'Entrypoint'   => nil,
+      'ExposedPorts' => nil,
+      'Volumes'      => nil
+    }
+
     def self.from(hash)
       self.new.tap do |cfg|
-        hash.each_pair do |k, v|
+        DEFAULTS.merge(hash).each_pair do |k, v|
           cfg[k] = v
         end
       end
