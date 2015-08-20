@@ -18,8 +18,7 @@ module Drydock
       @opts = DEFAULT_OPTIONS.clone
       opts.each_pair { |key, value| set(key, value) }
 
-      event_handler = opts.fetch(:event_handler, nil)
-      @stream_monitor = event_handler ? StreamMonitor.new(event_handler) : nil
+      @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
     end
 
     def done!
@@ -107,7 +106,7 @@ module Drydock
     attr_reader :chain, :opts, :stream_monitor
 
     def cache
-      opts.fetch(:cache) { Caches::NoCache.new }
+      opts[:cache] ||= Caches::NoCache.new
     end
 
   end
