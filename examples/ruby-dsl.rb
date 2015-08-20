@@ -1,8 +1,5 @@
 #!/usr/bin/env drydock
 
-app_root   = '/app'
-build_root = '/build'
-
 from 'gliderlabs/alpine', '3.2'
 
 with Plugins::APK do |pkg|
