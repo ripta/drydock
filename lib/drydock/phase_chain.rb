@@ -11,7 +11,10 @@ module Drydock
         Cmd: ['/bin/sh', '-c', cmd],
         Tty: opts.fetch(:tty, false),
         Image: image_id
-      )
+      ).tap do |cc|
+        env = Array(opts[:env])
+        cc[:Env].push(*env) unless env.empty?
+      end
     end
 
     def self.build_pull_opts(repo, tag = nil)

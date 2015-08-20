@@ -58,6 +58,12 @@ module Drydock
       self
     end
 
+    def env(name, value)
+      raise InvalidInstructionError, '`env` cannot be called before `from`' unless chain
+      chain.run("# SET ENV #{name}", env: ["#{name}=#{value}"])
+      self
+    end
+
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
       Drydock.logger.info("#0: from(#{repo.inspect}, #{tag.inspect})")
