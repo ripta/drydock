@@ -21,6 +21,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{A Dockerfile-replacement DSL for building complex images}
   gem.email = "github@r8y.org"
   gem.authors = ["Ripta Pasay"]
+
   # dependencies defined in Gemfile
 end
 
