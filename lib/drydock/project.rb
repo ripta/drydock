@@ -37,12 +37,17 @@ module Drydock
 
       recurse_glob = recursive ? "**/*" : "*"
       source_files = File.directory?(source_path) ? Dir.glob("#{source_path}/#{recurse_glob}") : [source_path]
+      source_files.reject! { |path| File.directory?(path) }
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
       chain.run("# COPY #{source_path} #{target_path}") do |container|
         target_stat = container.archive_head(target_path)
-        raise InvalidInstructionError, "#{target_path} must be a directory in the container" unless target_stat.directory?
+        unless target_stat.directory?
+          Drydock.logger.debug(target_stat)
+          raise InvalidInstructionError, "#{target_path} exists, but is not a directory in the container"
+        end
 
+        Drydock.logger.info("    Processing #{source_files.size} files")
         container.archive_put(target_path) do |output|
 
           Gem::Package::TarWriter.new(output) do |tar|
