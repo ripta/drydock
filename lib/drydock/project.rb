@@ -22,7 +22,7 @@ module Drydock
       @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
     end
 
-    def copy(source_path, target_path, chmod: false, recursive: true)
+    def copy(source_path, target_path, chmod: false, no_cache: false, recursive: true)
       raise InvalidInstructionError, '`copy` cannot be called before `from`' unless chain
       log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))
 
@@ -40,7 +40,7 @@ module Drydock
 
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
-      chain.run("# COPY #{source_path} #{target_path}") do |container|
+      chain.run("# COPY #{source_path} #{target_path}", no_cache: no_cache) do |container|
         target_stat = container.archive_head(target_path)
         unless target_stat.directory?
           Drydock.logger.debug(target_stat)
