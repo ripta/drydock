@@ -36,9 +36,12 @@ module Drydock
 
       raise InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
 
-      recurse_glob = recursive ? "**/*" : "*"
-      source_files = File.directory?(source_path) ? Dir.glob("#{source_path}/#{recurse_glob}") : [source_path]
-      source_files.reject! { |path| File.directory?(path) }
+      source_files = if File.directory?(source_path)
+        FileManager.find(source_path, ignorefile, recursive: recursive)
+      else
+        [source_path]
+      end
+
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
       chain.run("# COPY #{source_path} #{target_path}") do |container|

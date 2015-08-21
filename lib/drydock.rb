@@ -16,6 +16,7 @@ require_relative 'drydock/container_config'
 require_relative 'drydock/image_repository'
 
 require_relative 'drydock/cli_flags'
+require_relative 'drydock/file_manager'
 require_relative 'drydock/ignorefile_definition'
 require_relative 'drydock/phase'
 require_relative 'drydock/phase_chain'
