@@ -39,10 +39,10 @@ module Drydock
       source_files = File.directory?(source_path) ? Dir.glob("#{source_path}/#{recurse_glob}") : [source_path]
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
-      target_stat = container.archive_head(target_path)
-      raise InvalidInstructionError, "#{target_path} must be a directory in the container" unless target_stat.directory?
-
       chain.run("# COPY #{source_path} #{target_path}") do |container|
+        target_stat = container.archive_head(target_path)
+        raise InvalidInstructionError, "#{target_path} must be a directory in the container" unless target_stat.directory?
+
         container.archive_put(target_path) do |output|
 
           Gem::Package::TarWriter.new(output) do |tar|
