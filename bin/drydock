@@ -1,11 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-require 'bundler'
-
-Bundler.setup
-
-$LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 require 'drydock'
 
 event_handler = Proc.new do |event, is_new, serial|
