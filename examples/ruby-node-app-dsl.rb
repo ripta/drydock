@@ -45,9 +45,9 @@ derive do
     copy 'Gemfile', build_root
     copy 'Gemfile.lock', build_root
 
-    cd build_root do
-      run 'bundle --path vendor'
-    end
+    # cd build_root do
+    #   run 'bundle --path vendor'
+    # end
   end
 
   derive do
