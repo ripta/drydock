@@ -101,7 +101,10 @@ module Drydock
           result_image: cached_image
         )
       else
-        Drydock.logger.info "    --> Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache"
+        if cached_image
+          Drydock.logger.info "    --> Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache"
+        end
+
         container = self.class.create_container(build_config)
         yield container if block_given?
         self << Phase.from(
