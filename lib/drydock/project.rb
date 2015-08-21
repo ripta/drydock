@@ -29,14 +29,14 @@ module Drydock
           "#{target_path.inspect}, chmod: #{chmod ? sprintf('%o', chmod) : false})"
       )
 
-      if source_path.starts_with?('/')
+      if source_path.start_with?('/')
         Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
       end
 
       raise InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
 
       recurse_glob = recursive ? "**/*" : "*"
-      source_files = File.dir?(source_path) ? Dir.glob("#{source_path}/#{recurse_glob}") : [source_path]
+      source_files = File.directory?(source_path) ? Dir.glob("#{source_path}/#{recurse_glob}") : [source_path]
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
       target_stat = container.archive_head(target_path)
