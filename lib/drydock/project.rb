@@ -24,11 +24,7 @@ module Drydock
 
     def copy(source_path, target_path, chmod: false, recursive: true)
       raise InvalidInstructionError, '`copy` cannot be called before `from`' unless chain
-
-      Drydock.logger.info(
-          "##{chain.serial}: copy(#{source_path.inspect}, " +
-          "#{target_path.inspect}, chmod: #{chmod ? sprintf('%o', chmod) : false})"
-      )
+      log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))
 
       if source_path.start_with?('/')
         Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
@@ -87,12 +83,10 @@ module Drydock
         end
       end
 
+      log_step('download_once', source_url, target_path, chmod: sprintf('%o', chmod))
+
       # TODO(rpasay): invalidate cache when the downloaded file changes,
       # and then force rebuild
-      Drydock.logger.info(
-          "##{chain.serial}: download_once(#{source_url.inspect}, " +
-          "#{target_path.inspect}, chmod: #{sprintf('%o', chmod)})"
-      )
       chain.run("# DOWNLOAD #{source_url}") do |container|
         container.archive_put do |output|
           Gem::Package::TarWriter.new(output) do |tar|
@@ -110,14 +104,14 @@ module Drydock
 
     def env(name, value)
       raise InvalidInstructionError, '`env` cannot be called before `from`' unless chain
-      Drydock.logger.info("##{chain.serial}: env(#{name.inspect}, #{value.inspect})")
+      log_step('env', name, value)
       chain.run("# SET ENV #{name}", env: ["#{name}=#{value}"])
       self
     end
 
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
-      Drydock.logger.info("#0: from(#{repo.inspect}, #{tag.inspect})")
+      log_step('from', repo, tag)
       @chain = PhaseChain.from_repo(repo, tag)
       self
     end
@@ -146,8 +140,7 @@ module Drydock
     def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
-      Drydock.logger.info("##{chain.serial}: run #{cmd.inspect}")
-      Drydock.logger.info("  opts = #{opts.inspect}") unless opts.empty?
+      log_step('run', cmd, opts)
       chain.run(cmd, opts, &blk)
       self
     end
@@ -176,6 +169,15 @@ module Drydock
 
     def ignorefile
       @ignorefile ||= IgnorefileDefinition.new(opts[:ignorefile])
+    end
+
+    def log_step(op, *args)
+      opts   = args.last.is_a?(Hash) ? args.pop : {}
+      optstr = opts.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
+
+      argstr = args.map(&:inspect).join(', ')
+
+      Drydock.logger.info("##{chain ? chain.serial : 0}: #{op}(#{argstr}#{optstr.empty? ? '' : ", #{optstr}"})")
     end
 
   end
