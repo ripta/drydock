@@ -40,27 +40,33 @@ module Drydock
 
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
-      chain.run("# COPY #{source_path} #{target_path}", no_cache: no_cache) do |container|
+      buffer = StringIO.new
+      log_info("Processing #{source_files.size} files in tree")
+      Gem::Package::TarWriter.new(buffer) do |tar|
+        source_files.each do |source_file|
+          File.open(source_file, 'r') do |input|
+            mode = chmod || input.stat.mode
+            tar.add_file(source_file, mode) do |tar_file|
+              tar_file.write(input.read)
+            end
+          end
+        end
+      end
+
+      buffer.rewind
+      digest = Digest::MD5.hexdigest(buffer.read)
+
+      log_info("Tree digest is #{digest}")
+      chain.run("# COPY #{source_path} #{target_path} DIGEST #{digest}", no_cache: no_cache) do |container|
         target_stat = container.archive_head(target_path)
         unless target_stat.directory?
           Drydock.logger.debug(target_stat)
           raise InvalidInstructionError, "#{target_path} exists, but is not a directory in the container"
         end
 
-        log_info("Processing #{source_files.size} files")
         container.archive_put(target_path) do |output|
-
-          Gem::Package::TarWriter.new(output) do |tar|
-            source_files.each do |source_file|
-              File.open(source_file, 'r') do |input|
-                mode = chmod || input.stat.mode
-                tar.add_file(source_file, mode) do |tar_file|
-                  tar_file.write(input.read)
-                end
-              end
-            end
-          end
-
+          buffer.rewind
+          output.write(buffer.read)
         end
       end
 
