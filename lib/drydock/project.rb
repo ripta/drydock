@@ -6,6 +6,7 @@ module Drydock
       auto_remove: true,
       cache: nil,
       event_handler: false,
+      ignorefile: '.dockerignore',
       logs: false
     }
 
@@ -168,6 +169,10 @@ module Drydock
 
     def cache
       opts[:cache] ||= Caches::NoCache.new
+    end
+
+    def ignorefile
+      @ignorefile ||= IgnorefileDefinition.new(opts[:ignorefile])
     end
 
   end
