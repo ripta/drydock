@@ -21,6 +21,30 @@ module Drydock
       @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
     end
 
+    def copy(source_path, target_path, chmod: false)
+      raise InvalidInstructionError, '`copy` cannot be called before `from`' unless chain
+
+      Drydock.logger.info(
+          "##{chain.serial}: copy(#{source_path.inspect}, " +
+          "#{target_path.inspect}, chmod: #{chmod ? sprintf('%o', chmod) : false})"
+      )
+
+      chain.run("# COPY #{source_path} #{target_path}") do |container|
+        container.archive_put do |output|
+          Gem::Package::TarWriter.new(output) do |tar|
+            File.open(source_path, 'r') do |input|
+              mode = chmod || input.stat.mode
+              tar.add_file(target_path, mode) do |tar_file|
+                tar_file.write(input.read)
+              end
+            end
+          end
+        end
+      end
+
+      self
+    end
+
     def done!
       throw :done
     end
@@ -87,6 +111,10 @@ module Drydock
 
     def derive(&blk)
       Drydock.build_on_chain(chain, &blk)
+    end
+
+    def mkdir(path)
+      run "mkdir -p #{path}"
     end
 
     def run(cmd, opts = {}, &blk)
