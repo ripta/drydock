@@ -47,7 +47,7 @@ module Drydock
           raise InvalidInstructionError, "#{target_path} exists, but is not a directory in the container"
         end
 
-        Drydock.logger.info("    Processing #{source_files.size} files")
+        Drydock.logger.info("    --> Processing #{source_files.size} files")
         container.archive_put(target_path) do |output|
 
           Gem::Package::TarWriter.new(output) do |tar|
