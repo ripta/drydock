@@ -21,7 +21,7 @@ module Drydock
       @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
     end
 
-    def copy(source_path, target_path, chmod: false)
+    def copy(source_path, target_path, chmod: false, recursive: true)
       raise InvalidInstructionError, '`copy` cannot be called before `from`' unless chain
 
       Drydock.logger.info(
@@ -29,16 +29,33 @@ module Drydock
           "#{target_path.inspect}, chmod: #{chmod ? sprintf('%o', chmod) : false})"
       )
 
+      if source_path.starts_with?('/')
+        Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
+      end
+
+      raise InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
+
+      recurse_glob = recursive ? "**/*" : "*"
+      source_files = File.dir?(source_path) ? Dir.glob("#{source_path}/#{recurse_glob}") : [source_path]
+      raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
+
+      target_stat = container.archive_head(target_path)
+      raise InvalidInstructionError, "#{target_path} must be a directory in the container" unless target_stat.directory?
+
       chain.run("# COPY #{source_path} #{target_path}") do |container|
-        container.archive_put do |output|
+        container.archive_put(target_path) do |output|
+
           Gem::Package::TarWriter.new(output) do |tar|
-            File.open(source_path, 'r') do |input|
-              mode = chmod || input.stat.mode
-              tar.add_file(target_path, mode) do |tar_file|
-                tar_file.write(input.read)
+            source_files.each do |source_file|
+              File.open(source_file, 'r') do |input|
+                mode = chmod || input.stat.mode
+                tar.add_file(source_file, mode) do |tar_file|
+                  tar_file.write(input.read)
+                end
               end
             end
           end
+
         end
       end
 
