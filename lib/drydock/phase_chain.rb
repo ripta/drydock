@@ -94,13 +94,14 @@ module Drydock
       build_config = self.class.build_container_opts(src_image.id, cmd, opts)
       cached_image = ImageRepository.find_by_config(build_config)
 
-      if cached_image
-        Drydock.logger.info "    { Using cached image ID #{cached_image.id.slice(0, 12)} }"
+      if cached_image && !opts.fetch(:no_cache, false)
+        Drydock.logger.info "    --> Using cached image ID #{cached_image.id.slice(0, 12)}"
         self << Phase.from(
           source_image: src_image,
           result_image: cached_image
         )
       else
+        Drydock.logger.info "    --> Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache"
         container = self.class.create_container(build_config)
         yield container if block_given?
         self << Phase.from(
