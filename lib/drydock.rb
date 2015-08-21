@@ -14,6 +14,7 @@ require_relative 'drydock/errors'
 
 require_relative 'drydock/container_config'
 require_relative 'drydock/image_repository'
+require_relative 'drydock/universal_file_mode'
 
 require_relative 'drydock/cli_flags'
 require_relative 'drydock/phase'
