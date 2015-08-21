@@ -66,6 +66,14 @@ module Docker
       @data.fetch('linkTarget')
     end
 
+    def method_missing(method_name, *method_args, &blk)
+      if mode.respond_to?(method_name)
+        mode.public_send(method_name, *method_args, &blk)
+      else
+        super
+      end
+    end
+
     def mode
       @mode ||= UniversalFileMode.new(@data.fetch('mode'))
     end
@@ -76,6 +84,10 @@ module Docker
 
     def name
       @data.fetch('name')
+    end
+
+    def respond_to?(method_name)
+      mode.respond_to?(method_name) || super
     end
 
     def size
