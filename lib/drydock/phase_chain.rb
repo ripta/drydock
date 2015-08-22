@@ -27,18 +27,22 @@ module Drydock
 
     def self.create_container(cfg)
       Docker::Container.create(cfg).tap do |c|
-        c.start
-        c.wait
-        c.streaming_logs(stdout: true, stderr: true) do |stream, chunk|
-          case stream
-          when :stdout
-            Drydock.logger.info "  (O) #{chunk.chomp}"
-          when :stderr
-            Drydock.logger.info "  (E) #{chunk.chomp}"
-          else
-            Drydock.logger.info "  (?/#{stream.inspect}) #{chunk.chomp}"
+        t = Thread.new do
+          c.attach(stream: true, stdout: true, stderr: true) do |stream, chunk|
+            case stream
+            when :stdout
+              Drydock.logger.info "    (O) #{chunk.chomp}"
+            when :stderr
+              Drydock.logger.info "    (E) #{chunk.chomp}"
+            else
+              Drydock.logger.info "    (?/#{stream.inspect}) #{chunk.chomp}"
+            end
           end
         end
+
+        c.start
+        c.wait
+        t.join
       end
     end
 
