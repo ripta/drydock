@@ -105,7 +105,7 @@ module Drydock
       # and then force rebuild
       chain.run("# DOWNLOAD #{source_url}") do |container|
         container.archive_put do |output|
-          Gem::Package::TarWriter.new(output) do |tar|
+          TarWriter.new(output) do |tar|
             cache.get(source_url) do |input|
               tar.add_file(target_path, chmod) do |tar_file|
                 tar_file.write(input.read)
