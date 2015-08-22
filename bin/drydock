@@ -2,13 +2,13 @@
 
 require 'drydock'
 
+opts = Drydock::RuntimeOptions.parse!(ARGV)
+
 STDOUT.sync = true
 Drydock.logger = Logger.new(STDOUT).tap do |l|
-  l.level = Logger::INFO
+  l.level = opts.log_level
   l.formatter = Drydock::Formatter.new
 end
-
-opts = Drydock::RuntimeOptions.parse!(ARGV)
 
 event_handler = Proc.new do |event, is_new, serial|
   timestamp = Time.at(event.time)
