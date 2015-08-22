@@ -41,12 +41,19 @@ derive do
   env 'BUILD_ROOT', build_root
   mkdir build_root
 
-  derive do
+  derive(label: 'gems') do
     copy 'Gemfile', build_root
     copy 'Gemfile.lock', build_root
 
     cd build_root do
       run 'bundle --path vendor'
+    end
+  end
+
+  derive(label: 'npm') do
+    copy 'package.json', build_root
+    cd build_root do
+      with(Plugins::NPM).install
     end
   end
 

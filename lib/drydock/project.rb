@@ -145,8 +145,8 @@ module Drydock
       self
     end
 
-    def derive(&blk)
-      Drydock.build_on_chain(chain, &blk)
+    def derive(opts = {}, &blk)
+      Drydock.build_on_chain(chain, opts, &blk)
     end
 
     def mkdir(path)
