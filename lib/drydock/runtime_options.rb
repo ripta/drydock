@@ -4,7 +4,7 @@ require 'optparse'
 module Drydock
   class RuntimeOptions
 
-    attr_accessor :includes, :log_level
+    attr_accessor :cache, :includes, :log_level
 
     def self.parse!(args)
       opts = new
@@ -15,7 +15,11 @@ module Drydock
         cfg.separator ''
         cfg.separator 'Runtime / build options:'
 
-        cfg.on('-I', '--include PATH', 'Load custom plugins from PATH') do |path|
+        cfg.on('-C', '--no-cache', 'Disable the build cache') do
+          opts.cache = false
+        end
+
+        cfg.on('-i', '--include PATH', 'Load custom plugins from PATH') do |path|
           opts.includes << path
         end
         
@@ -46,6 +50,7 @@ module Drydock
     end
 
     def initialize
+      @cache     = true
       @includes  = []
       @log_level = Logger::INFO
     end
