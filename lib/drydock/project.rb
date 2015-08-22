@@ -51,11 +51,12 @@ module Drydock
 
       buffer = StringIO.new
       log_info("Processing #{source_files.size} files in tree")
-      Gem::Package::TarWriter.new(buffer) do |tar|
+      TarWriter.new(buffer) do |tar|
         source_files.each do |source_file|
           File.open(source_file, 'r') do |input|
-            mode = chmod || input.stat.mode
-            tar.add_file(source_file, mode) do |tar_file|
+            stat = input.stat
+            mode = chmod || stat.mode
+            tar.add_entry(source_file, mode: stat.mode, mtime: stat.mtime) do |tar_file|
               tar_file.write(input.read)
             end
           end
