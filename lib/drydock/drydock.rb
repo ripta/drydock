@@ -15,7 +15,7 @@ module Drydock
       rescue => e
         Drydock.logger.error("#{e.class}: #{e.message}")
         e.backtrace.each do |backtrace|
-          Drydock.logger.error("  #{backtrace}")
+          Drydock.logger.debug("  #{backtrace}")
         end
       ensure
         project.finalize!
