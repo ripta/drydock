@@ -53,7 +53,7 @@ module Drydock
 
   def self.version
     version_file = File.join(File.dirname(__FILE__), '..', '..', 'VERSION')
-    File.exist?(version_file) ? File.read(version_file) : ""
+    File.exist?(version_file) ? File.read(version_file).chomp : ""
   end
 
 end
