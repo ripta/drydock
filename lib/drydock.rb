@@ -22,6 +22,7 @@ require_relative 'drydock/phase'
 require_relative 'drydock/phase_chain'
 require_relative 'drydock/project'
 require_relative 'drydock/stream_monitor'
+require_relative 'drydock/tar_writer'
 
 require_relative 'drydock/caches/filesystem_cache'
 require_relative 'drydock/caches/no_cache'

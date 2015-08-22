@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
 
 require 'docker'
+require_relative '../lib/drydock'
 
 def build_tar(*source_files)
   buffer = StringIO.new
-  Gem::Package::TarWriter.new(buffer) do |tar|
+  # Gem::Package::TarWriter
+  Drydock::TarWriter.new(buffer) do |tar|
     source_files.each do |source_file|
       File.open(source_file, 'r') do |input|
-        tar.add_file(source_file, input.stat.mode) do |tar_file|
+        tar.add_entry(source_file, mode: input.stat.mode, mtime: input.stat.mtime) do |tar_file|
           tar_file.write(input.read)
         end
       end
