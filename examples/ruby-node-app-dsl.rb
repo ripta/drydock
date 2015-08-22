@@ -1,7 +1,10 @@
 #!/usr/bin/env drydock
 
-app_root   = '/app'
-build_root = '/build'
+APP_ROOT   = '/app'
+BUILD_ROOT = '/build'
+REPO_NAME  = 'ripta/test'
+TAG_NAME   = 'v1.0'
+
 
 from 'gliderlabs/alpine', '3.2'
 
@@ -38,28 +41,26 @@ with Plugins::NPM do |npm|
 end
 
 derive do
-  env 'BUILD_ROOT', build_root
-  mkdir build_root
+  env 'BUILD_ROOT', BUILD_ROOT
+  mkdir BUILD_ROOT
 
-  derive(label: 'gems') do
-    copy 'Gemfile', build_root
-    copy 'Gemfile.lock', build_root
+  gem_image = derive do
+    copy 'Gemfile', BUILD_ROOT
+    copy 'Gemfile.lock', BUILD_ROOT
 
-    cd build_root do
+    cd BUILD_ROOT do
       run 'bundle --path vendor'
     end
   end
 
-  derive(label: 'npm') do
-    copy 'package.json', build_root
-    cd build_root do
+  npm_image = derive do
+    copy 'package.json', BUILD_ROOT
+    cd BUILD_ROOT do
       with(Plugins::NPM).install
     end
   end
 
-  derive do
-    copy '.', build_root
-  end
+  copy '.', BUILD_ROOT
 end
 
 # # Drydock.using(dd) { |base| ... }
