@@ -2,6 +2,13 @@
 
 require 'drydock'
 
+STDOUT.sync = true
+Drydock.logger = Logger.new(STDOUT).tap do |l|
+  l.level = Logger::INFO
+  l.formatter = Drydock::Formatter.new
+end
+
+
 event_handler = Proc.new do |event, is_new, serial|
   timestamp = Time.at(event.time)
   time_string = timestamp.strftime('%H:%M:%S')
@@ -17,12 +24,6 @@ event_handler = Proc.new do |event, is_new, serial|
   else
     Drydock.logger.debug "   --> #{short_id} #{event.status}"
   end
-end
-
-STDOUT.sync = true
-Drydock.logger = Logger.new(STDOUT).tap do |l|
-  l.level = Logger::INFO
-  l.formatter = Drydock::Formatter.new
 end
 
 opts = {
