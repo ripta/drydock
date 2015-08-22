@@ -14,12 +14,20 @@ module Drydock
       @chain   = opts.key?(:chain) && opts.delete(:chain).derive
       @plugins = {}
 
-      @serial = 0
+      @run_path = []
+      @serial  = 0
 
       @opts = DEFAULT_OPTIONS.clone
       opts.each_pair { |key, value| set(key, value) }
 
       @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
+    end
+
+    def cd(path, &blk)
+      @run_path << path
+      blk.call
+    ensure
+      @run_path.pop
     end
 
     def copy(source_path, target_path, chmod: false, no_cache: false, recursive: true)
@@ -147,6 +155,8 @@ module Drydock
     def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
+      cmd = build_cmd(cmd)
+
       log_step('run', cmd, opts)
       chain.run(cmd, opts, &blk)
       self
@@ -169,6 +179,14 @@ module Drydock
 
     private
     attr_reader :chain, :opts, :stream_monitor
+
+    def build_cmd(cmd)
+      if @run_path.empty?
+        cmd
+      else
+        "cd #{@run_path.join('/')} && #{cmd}"
+      end
+    end
 
     def cache
       opts[:cache] ||= Caches::NoCache.new
