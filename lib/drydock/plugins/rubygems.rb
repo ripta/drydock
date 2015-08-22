@@ -10,8 +10,9 @@ module Drydock
       end
 
       def install(pkg, opts = {})
-        flags = CliFlags.new(opts)
-        project.run("gem install #{pkg} #{flags}")
+        timeout = opts.delete(:timeout) || 120
+        flags   = CliFlags.new(opts)
+        project.run("gem install #{pkg} #{flags}", timeout: timeout)
       end
 
       def remove_source(uri)
@@ -19,8 +20,9 @@ module Drydock
       end
 
       def update_system(opts = {})
-        flags = CliFlags.new(opts)
-        project.run("gem update --system #{flags}")
+        timeout = opts.delete(:timeout) || 300
+        flags   = CliFlags.new(opts)
+        project.run("gem update --system #{flags}", timeout: timeout)
       end
 
     end
