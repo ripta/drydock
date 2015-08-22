@@ -6,7 +6,8 @@ module Drydock
     class APK < PackageManager
 
       def add(*pkgs)
-        project.run "apk add #{pkgs.join(' ')}"
+        opts = pkgs.last.is_a?(Hash) ? pkgs.pop : {}
+        project.run "apk add #{pkgs.join(' ')}", opts
       end
 
       def clean
