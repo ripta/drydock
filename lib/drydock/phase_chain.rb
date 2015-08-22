@@ -25,7 +25,9 @@ module Drydock
       end
     end
 
-    def self.create_container(cfg)
+    def self.create_container(cfg, timeout: nil)
+      timeout ||= Excon.defaults[:read_timeout]
+
       Docker::Container.create(cfg).tap do |c|
         t = Thread.new do
           c.attach(stream: true, stdout: true, stderr: true) do |stream, chunk|
@@ -41,7 +43,7 @@ module Drydock
         end
 
         c.start
-        c.wait
+        c.wait(timeout)
         t.join
       end
     end
