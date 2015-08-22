@@ -13,4 +13,3 @@ end
 
 gem 'docker-api', '~> 1.22', require: 'docker'
 gem 'excon', '~> 0.45'
-gem 'minitar', '~> 0.5'
