@@ -31,7 +31,7 @@ opts = {
 }
 
 Drydock.build(opts) do |project|
-  Drydock.logger.info "Drydock v#{Drydock.version}"
+  Drydock.logger.info Drydock.banner
 
   filename = ARGV[0] || 'Drydockfile'
   unless File.exist?(filename)

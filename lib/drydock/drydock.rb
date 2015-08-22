@@ -1,6 +1,10 @@
 
 module Drydock
 
+  def self.banner
+    "Drydock v#{Drydock.version}"
+  end
+
   def self.build(opts = {}, &blk)
     Project.new(opts).tap do |project|
       dryfile, dryfilename = yield
