@@ -10,7 +10,7 @@ module Drydock
       opts = new
 
       parser = OptionParser.new do |cfg|
-        cfg.banner = "Usage: $0 [options...] [drydock-filename]"
+        cfg.banner = "Usage: #{$0} [options...] [drydock-filename]"
 
         cfg.separator ''
         cfg.separator 'Runtime / build options:'
