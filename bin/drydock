@@ -23,7 +23,7 @@ event_handler = Proc.new do |event, is_new, serial|
   if is_new
     Drydock.logger.info "    --> #{short_id} #{event.status}"
   else
-    Drydock.logger.debug "   --> #{short_id} #{event.status}"
+    Drydock.logger.debug "    --> #{short_id} #{event.status}"
   end
 end
 
