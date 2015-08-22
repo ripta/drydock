@@ -7,6 +7,7 @@ module Drydock
       cache: nil,
       event_handler: false,
       ignorefile: '.dockerignore',
+      label: nil,
       logs: false
     }
 
