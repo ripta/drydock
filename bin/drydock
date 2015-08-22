@@ -34,6 +34,11 @@ Drydock.build(opts) do |project|
   Drydock.logger.info "Drydock v#{Drydock.version}"
 
   filename = ARGV[0] || 'Drydockfile'
+  unless File.exist?(filename)
+    Drydock.logger.error "Cannot find file #{filename} in #{Dir.pwd}"
+    exit 1
+  end
+
   contents = File.read(filename)
   Drydock.logger.info "Loaded #{contents.length} bytes from #{filename}"
 
