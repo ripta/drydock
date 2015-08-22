@@ -37,6 +37,7 @@ module Drydock
       else
         [source_path]
       end
+      source_files.sort!
 
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
