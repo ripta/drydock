@@ -111,10 +111,14 @@ module Drydock
 
         container = self.class.create_container(build_config)
         yield container if block_given?
+
+        result = container.commit
+        Drydock.logger.info "    --> Committed image ID #{result.id.slice(0, 12)}"
+
         self << Phase.from(
           source_image:    src_image,
           build_container: container,
-          result_image:    container.commit
+          result_image:    result
         )
       end
 
