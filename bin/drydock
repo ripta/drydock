@@ -8,6 +8,7 @@ Drydock.logger = Logger.new(STDOUT).tap do |l|
   l.formatter = Drydock::Formatter.new
 end
 
+opts = Drydock::RuntimeOptions.parse!(ARGV)
 
 event_handler = Proc.new do |event, is_new, serial|
   timestamp = Time.at(event.time)
@@ -26,15 +27,15 @@ event_handler = Proc.new do |event, is_new, serial|
   end
 end
 
-opts = {
+build_opts = {
   cache: Drydock::Caches::FilesystemCache.new,
   event_handler: event_handler
 }
 
-Drydock.build(opts) do |project|
+Drydock.build(build_opts) do |project|
   Drydock.logger.info Drydock.banner
 
-  filename = ARGV[0] || 'Drydockfile'
+  filename = ARGV.first || 'Drydockfile'
   unless File.exist?(filename)
     Drydock.logger.error "Cannot find file #{filename} in #{Dir.pwd}"
     exit 1
