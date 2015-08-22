@@ -37,6 +37,7 @@ module Drydock
 
         cfg.on('-V', '--version', 'Show version') do
           puts Drydock.banner
+          exit
         end
       end
 
