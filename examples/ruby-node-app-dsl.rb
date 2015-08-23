@@ -61,6 +61,18 @@ derive do
   end
 
   copy '.', BUILD_ROOT
+  # import_stream gem_image.export_stream(BUILD_ROOT + '/vendor'), BUILD_ROOT
+  # import_stream npm_image.export_stream(BUILD_ROOT + '/node_modules'), BUILD_ROOT
+
+  # import_stream BUILD_ROOT do |writer|
+  #   gem_image.export_stream(BUILD_ROOT + '/vendor') do |reader|
+  #     while chunk = reader.read(32 * 1024)
+  #       writer.write(chunk)
+  #     end
+  #   end
+  # end
+
+  # tag REPO_NAME, TAG_NAME
 end
 
 # # Drydock.using(dd) { |base| ... }
