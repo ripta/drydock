@@ -90,7 +90,7 @@ module Drydock
 
       children.map(&:finalize!) if children
 
-      Drydock.logger.info("##{serial}: Last image ID is #{last_image.id}")
+      Drydock.logger.info("##{serial}: Final image ID is #{last_image.id}")
       map(&:finalize!)
       freeze
     end
