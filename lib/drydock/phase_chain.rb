@@ -14,6 +14,8 @@ module Drydock
       ).tap do |cc|
         env = Array(opts[:env])
         cc[:Env].push(*env) unless env.empty?
+
+        (cc[:OnBuild] ||= []).push(opts[:on_build]) if opts.key?(:on_build)
       end
     end
 

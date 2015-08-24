@@ -44,6 +44,13 @@ derive do
   env 'BUILD_ROOT', BUILD_ROOT
   mkdir BUILD_ROOT
 
+  env 'APP_ROOT', APP_ROOT
+  mkdir APP_ROOT
+
+  on_build do
+    env 'APP_ROOT', APP_ROOT
+  end
+
   gem_image = derive do
     copy 'Gemfile', BUILD_ROOT
     copy 'Gemfile.lock', BUILD_ROOT
@@ -53,12 +60,12 @@ derive do
     end
   end
 
-  npm_image = derive do
-    copy 'package.json', BUILD_ROOT
-    cd BUILD_ROOT do
-      with(Plugins::NPM).install
-    end
-  end
+  # npm_image = derive do
+  #   copy 'package.json', BUILD_ROOT
+  #   cd BUILD_ROOT do
+  #     with(Plugins::NPM).install
+  #   end
+  # end
 
   copy '.', BUILD_ROOT
   # import_stream gem_image.export_stream(BUILD_ROOT + '/vendor'), BUILD_ROOT

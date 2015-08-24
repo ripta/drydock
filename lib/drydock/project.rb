@@ -154,6 +154,14 @@ module Drydock
       run "mkdir -p #{path}"
     end
 
+    # TODO(rpasay): on_build instructions should be deferred to the end
+    def on_build(instruction = nil, &blk)
+      raise InvalidInstructionError, '`on_build` cannot be called before `from`' unless chain
+      log_step('on_build', instruction)
+      chain.run("# ON_BUILD #{instruction}", on_build: instruction)
+      self
+    end
+
     def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
