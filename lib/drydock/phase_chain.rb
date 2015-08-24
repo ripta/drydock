@@ -58,6 +58,15 @@ module Drydock
       @chain  = []
       @from   = from
       @parent = parent
+      @children = []
+
+      if parent
+        parent.children << self
+      end
+    end
+
+    def children
+      @children
     end
 
     def containers
@@ -78,6 +87,8 @@ module Drydock
 
     def finalize!
       return self if frozen?
+
+      children.map(&:finalize!) if children
 
       Drydock.logger.info("##{serial}: Last image ID is #{last_image.id}")
       map(&:finalize!)

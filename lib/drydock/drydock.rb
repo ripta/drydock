@@ -27,11 +27,7 @@ module Drydock
 
   def self.build_on_chain(chain, opts = {}, &blk)
     Project.new(opts.merge(chain: chain)).tap do |project|
-      begin
-        project.instance_eval(&blk)
-      ensure
-        project.finalize!
-      end
+      project.instance_eval(&blk)
     end
   end
 
