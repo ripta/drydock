@@ -103,21 +103,21 @@ module Drydock
       cached_image = ImageRepository.find_by_config(build_config)
 
       if cached_image && !opts.fetch(:no_cache, false)
-        Drydock.logger.info "    --> Using cached image ID #{cached_image.id.slice(0, 12)}"
+        Drydock.logger.info(message: "Using cached image ID #{cached_image.id.slice(0, 12)}")
         self << Phase.from(
           source_image: src_image,
           result_image: cached_image
         )
       else
         if cached_image
-          Drydock.logger.info "    --> Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache"
+          Drydock.logger.info(message: "Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache")
         end
 
         container = self.class.create_container(build_config)
         yield container if block_given?
 
         result = container.commit
-        Drydock.logger.info "    --> Committed image ID #{result.id.slice(0, 12)}"
+        Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 
         self << Phase.from(
           source_image:    src_image,

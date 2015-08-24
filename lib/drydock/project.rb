@@ -207,8 +207,7 @@ module Drydock
     end
 
     def log_info(msg, indent: 0)
-      indentation = '    ' * (indent + 1)
-      Drydock.logger.info("#{indentation}--> #{msg}")
+      Drydock.logger.info(indent: indent, message: msg)
     end
 
     def log_step(op, *args)

@@ -5,7 +5,7 @@ require 'drydock'
 opts = Drydock::RuntimeOptions.parse!(ARGV)
 
 STDOUT.sync = true
-Drydock.logger = Logger.new(STDOUT).tap do |l|
+Drydock.logger = Drydock::Logger.new(STDOUT).tap do |l|
   l.level = opts.log_level
   l.formatter = Drydock::Formatter.new
 end

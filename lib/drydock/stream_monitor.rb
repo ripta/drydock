@@ -15,9 +15,9 @@ module Drydock
       end
 
       if is_new
-        Drydock.logger.info "    --> #{short_id} #{event.status}"
+        Drydock.logger.info(message: "#{short_id} #{event.status}")
       else
-        Drydock.logger.debug "    --> #{short_id} #{event.status}"
+        Drydock.logger.debug(message: "#{short_id} #{event.status}")
       end
     end
 
