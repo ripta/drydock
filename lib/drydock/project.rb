@@ -192,9 +192,9 @@ module Drydock
 
     def build_cmd(cmd)
       if @run_path.empty?
-        cmd
+        cmd.to_s.strip
       else
-        "cd #{@run_path.join('/')} && #{cmd}"
+        "cd #{@run_path.join('/')} && #{cmd}".strip
       end
     end
 
