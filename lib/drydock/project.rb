@@ -67,7 +67,7 @@ module Drydock
       buffer.rewind
       digest = Digest::MD5.hexdigest(buffer.read)
 
-      log_info("Tree digest is #{digest}")
+      log_info("Tree digest is md5:#{digest}")
       chain.run("# COPY #{source_path} #{target_path} DIGEST #{digest}", no_cache: no_cache) do |container|
         target_stat = container.archive_head(target_path)
         unless target_stat.directory?
