@@ -13,11 +13,13 @@ module Drydock
           project.instance_eval(dryfile, dryfilename)
         end
       rescue => e
-        Drydock.logger.error("#{e.class}: #{e.message}")
+        Drydock.logger.error("Error processing #{dryfilename}:")
+        Drydock.logger.error(message: "#{e.class}: #{e.message}")
         e.backtrace.each do |backtrace|
-          Drydock.logger.debug("  #{backtrace}")
+          Drydock.logger.debug(message: "#{backtrace}", indent: 1)
         end
       ensure
+        Drydock.logger.info("Cleaning up")
         project.finalize!
       end
     end

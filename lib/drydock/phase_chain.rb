@@ -79,6 +79,7 @@ module Drydock
     def finalize!
       return self if frozen?
 
+      Drydock.logger.info("##{serial}: Last image ID is #{last_image.id}")
       map(&:finalize!)
       freeze
     end
