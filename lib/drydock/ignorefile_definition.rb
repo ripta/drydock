@@ -1,12 +1,20 @@
 
 module Drydock
   class IgnorefileDefinition
+    extend Forwardable
 
-    def initialize(filename, dotfiles: false)
+    def_delegators :@rules, :count, :length, :size
+
+    def initialize(file_or_filename, dotfiles: false)
       @dotfiles = dotfiles
 
-      patterns = File.exist?(filename) ? File.readlines(filename) : []
-      @rules   = patterns.map do |pattern|
+      if file_or_filename.respond_to?(:readlines)
+        patterns = Array(file_or_filename.readlines)
+      else
+        patterns = File.exist?(file_or_filename) ? File.readlines(file_or_filename) : []
+      end
+
+      @rules = patterns.map do |pattern|
         pattern = pattern.chomp
         if pattern.start_with?('!')
           {pattern: pattern.slice(1..-1), exclude: true}
