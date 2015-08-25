@@ -4,7 +4,7 @@ module Drydock
     extend Forwardable
     include Enumerable
 
-    def_delegators :@chain, :<<, :at, :last, :length, :push, :size
+    def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
     def self.build_container_opts(image_id, cmd, opts = {})
       ContainerConfig.from(
@@ -90,7 +90,7 @@ module Drydock
 
       children.map(&:finalize!) if children
 
-      Drydock.logger.info("##{serial}: Final image ID is #{last_image.id}")
+      Drydock.logger.info("##{serial}: Final image ID is #{last_image.id}") unless empty?
       map(&:finalize!)
       freeze
     end
