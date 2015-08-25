@@ -1,6 +1,14 @@
 
 module Drydock
   class IgnorefileDefinition
+    class Rule < Struct.new(:pattern, :exclude)
+      alias_method :exclude?, :exclude
+
+      def match?(test)
+        File.fnmatch?(pattern, test)
+      end
+    end
+
     extend Forwardable
 
     def_delegators :@rules, :count, :length, :size
@@ -17,22 +25,36 @@ module Drydock
       @rules = patterns.map do |pattern|
         pattern = pattern.chomp
         if pattern.start_with?('!')
-          {pattern: pattern.slice(1..-1), exclude: true}
+          Rule.new(pattern.slice(1..-1), true)
         else
-          {pattern: pattern, exclude: false}
+          Rule.new(pattern, false)
         end
       end
     end
 
     def match?(filename)
-      @rules.any? do |rule|
-        if @dotfiles && filename.start_with?('.') && filename.size > 1
-          true
-        else
-          match = File.fnmatch?(rule[:pattern], filename)
-          rule[:exclude] ? !match : match
-        end
+      return false if excludes?(filename)
+      return true if includes?(filename)
+      return true if is_dotfile?(filename)
+      return false
+    end
+
+    private
+
+    def excludes?(filename)
+      @rules.select { |rule| rule.exclude? }.any? do |rule|
+        rule.match?(filename)
       end
+    end
+
+    def includes?(filename)
+      @rules.select { |rule| !rule.exclude? }.any? do |rule|
+        rule.match?(filename)
+      end
+    end
+
+    def is_dotfile?(filename)
+      @dotfiles && filename.start_with?('.') && filename.size > 1
     end
 
   end
