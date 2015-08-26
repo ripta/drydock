@@ -55,6 +55,8 @@ $ drydock ~/source/miniproject # project directory expects a file named Drydockf
 $ drydock ~/source/miniproject/drydock-definition.rb # expects a drydock-definition.rb
 ```
 
+Example `Drydockfile`s may be seen in `examples/`.
+
 ## Development Installation
 
 This is needed if you plan on hacking drydock:
