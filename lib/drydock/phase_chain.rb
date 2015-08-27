@@ -44,7 +44,7 @@ module Drydock
               end
             end
           rescue Docker::Error::TimeoutError
-            Drydock.logger.warn "Lost connection to stream; retrying"
+            Drydock.logger.warn(message: "Lost connection to stream; retrying")
             retry
           end
         end
