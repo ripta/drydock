@@ -16,7 +16,8 @@ module Drydock
 
       if message.respond_to?(:key?) && message.key?(:message)
         indentation = '    ' * (message[:indent].to_i + 1)
-        message = "#{indentation}--> #{message[:message]}"
+        annotation = message.fetch(:annotation, '-->')
+        message = "#{indentation}#{annotation} #{message[:message]}"
       end
 
       super(severity, message, progname)
