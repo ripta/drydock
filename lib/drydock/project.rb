@@ -199,7 +199,7 @@ module Drydock
     end
 
     def cache
-      opts[:cache] ||= Caches::NoCache.new
+      opts[:cache] ||= ObjectCaches::NoCache.new
     end
 
     def ignorefile

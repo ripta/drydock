@@ -2,7 +2,7 @@
 require_relative 'base'
 
 module Drydock
-  module Caches
+  module ObjectCaches
     class NoCache < Base
 
       def fetch(key, &blk)

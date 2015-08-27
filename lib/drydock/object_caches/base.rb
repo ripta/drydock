@@ -1,6 +1,6 @@
 
 module Drydock
-  module Caches
+  module ObjectCaches
     class Base
 
       def fetch(key, &blk)

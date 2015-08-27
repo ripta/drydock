@@ -11,7 +11,7 @@ Drydock.logger = Drydock::Logger.new(STDOUT).tap do |l|
 end
 
 build_opts = {event_handler: Drydock::StreamMonitor::SHORT_FORMAT}
-build_opts[:cache] = Drydock::Caches::FilesystemCache.new if opts.cache
+build_opts[:cache] = Drydock::ObjectCaches::FilesystemCache.new if opts.cache
 
 Drydock.build(build_opts) do |project|
   Drydock.logger.info Drydock.banner

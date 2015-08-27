@@ -25,8 +25,8 @@ require_relative 'drydock/project'
 require_relative 'drydock/stream_monitor'
 require_relative 'drydock/tar_writer'
 
-require_relative 'drydock/caches/filesystem_cache'
-require_relative 'drydock/caches/no_cache'
+require_relative 'drydock/object_caches/filesystem_cache'
+require_relative 'drydock/object_caches/no_cache'
 
 require_relative 'drydock/plugins/apk'
 require_relative 'drydock/plugins/npm'
