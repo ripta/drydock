@@ -25,20 +25,16 @@ module Drydock
 
     def initialize(event_handler)
       @thread = Thread.new do
-        previous_id = nil
-        serial      = 0
+        previous_ids = {}
+        serial_no    = 0
 
         Docker::Event.stream do |event|
-          if previous_id.nil?
-            serial += 1
-            event_handler.call event, true, serial
-          else
-            is_new = previous_id != event.id
-            serial += 1 if is_new
-            event_handler.call event, is_new, serial
-          end
+          serial_no += 1
 
-          previous_id = event.id
+          is_old = previous_ids.key?(event.id)
+          event_handler.call event, !is_old, serial_no
+
+          previous_ids[event.id] = true
         end
       end
     end
