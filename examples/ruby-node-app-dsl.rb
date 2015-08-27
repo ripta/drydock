@@ -52,10 +52,6 @@ derive do
   env 'APP_ROOT', APP_ROOT
   mkdir APP_ROOT
 
-  on_build do
-    env 'APP_ROOT', APP_ROOT
-  end
-
   gem_image = derive(label: 'rubygems', strategy: one_week_old) do
     copy 'Gemfile', BUILD_ROOT
     copy 'Gemfile.lock', BUILD_ROOT
