@@ -4,7 +4,23 @@ module Drydock
 
     extend Forwardable
 
-    SHORT_FORMAT = Proc.new do |event, is_new, serial|
+    CONTAINER_EVENTS = %i(
+      attach
+      commit copy create
+      destroy die
+      exec_create exec_start export
+      kill
+      oom
+      pause
+      rename resize restart
+      start stop
+      top
+      unpause
+    )
+
+    IMAGE_EVENTS = %i(delete import pull push tag untag)
+
+    SHORT_FORMAT = Proc.new do |event, is_new, serial, event_type|
       timestamp = Time.at(event.time)
       time_string = timestamp.strftime('%H:%M:%S')
       long_id = event.id.to_s
@@ -15,13 +31,24 @@ module Drydock
       end
 
       if is_new
-        Drydock.logger.info(message: "#{short_id} #{event.status}")
+        Drydock.logger.info(message: "#{event_type.to_s.capitalize} #{short_id} #{event.status}")
       else
-        Drydock.logger.debug(message: "#{short_id} #{event.status}")
+        Drydock.logger.debug(message: "#{event_type.to_s.capitalize} #{short_id} #{event.status}")
       end
     end
 
     def_delegators :@thread, :join, :kill, :run
+
+    def self.event_type_for(type)
+      case type.to_sym
+      when *CONTAINER_EVENTS
+        :container
+      when *IMAGE_EVENTS
+        :image
+      else
+        :object
+      end
+    end
 
     def initialize(event_handler)
       @thread = Thread.new do
@@ -32,7 +59,8 @@ module Drydock
           serial_no += 1
 
           is_old = previous_ids.key?(event.id)
-          event_handler.call event, !is_old, serial_no
+          event_type = self.class.event_type_for(event.status)
+          event_handler.call(event, !is_old, serial_no, event_type)
 
           previous_ids[event.id] = true
         end
