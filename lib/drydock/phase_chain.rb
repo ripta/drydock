@@ -32,15 +32,20 @@ module Drydock
 
       Docker::Container.create(cfg).tap do |c|
         t = Thread.new do
-          c.attach(stream: true, stdout: true, stderr: true) do |stream, chunk|
-            case stream
-            when :stdout
-              Drydock.logger.info "    (O) #{chunk.chomp}"
-            when :stderr
-              Drydock.logger.info "    (E) #{chunk.chomp}"
-            else
-              Drydock.logger.info "    (?/#{stream.inspect}) #{chunk.chomp}"
+          begin
+            c.attach(stream: true, stdout: true, stderr: true) do |stream, chunk|
+              case stream
+              when :stdout
+                Drydock.logger.info(message: "#{chunk.chomp}", annotation: '(O)')
+              when :stderr
+                Drydock.logger.info(message: "#{chunk.chomp}", annotation: '(E)')
+              else
+                Drydock.logger.info(message: "#{chunk.chomp}", annotation: '(?)')
+              end
             end
+          rescue Docker::Error::TimeoutError
+            Drydock.logger.warn "Lost connection to stream; retrying"
+            retry
           end
         end
 
