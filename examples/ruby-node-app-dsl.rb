@@ -40,6 +40,11 @@ with Plugins::NPM do |npm|
   npm.install('bower', 'gulp', global: true)
 end
 
+one_week_old = CachingStrategies::TimeLimited.new(
+  max_age:   1.week,
+  max_depth: 1
+)
+
 derive do
   env 'BUILD_ROOT', BUILD_ROOT
   mkdir BUILD_ROOT
@@ -51,7 +56,7 @@ derive do
     env 'APP_ROOT', APP_ROOT
   end
 
-  gem_image = derive do
+  gem_image = derive(label: 'rubygems', strategy: one_week_old) do
     copy 'Gemfile', BUILD_ROOT
     copy 'Gemfile.lock', BUILD_ROOT
 
@@ -60,16 +65,20 @@ derive do
     end
   end
 
-  # npm_image = derive do
-  #   copy 'package.json', BUILD_ROOT
-  #   cd BUILD_ROOT do
-  #     with(Plugins::NPM).install
-  #   end
-  # end
+  npm_image = if File.exist?('package.json')
+    derive(label: 'npm', strategy: one_week_old) do
+      copy 'package.json', BUILD_ROOT
+      cd BUILD_ROOT do
+        with(Plugins::NPM).install
+      end
+    end
+  end
 
+  import 'vendor',       from: BUILD_ROOT, in: gem_image, to: APP_ROOT
+  import 'node_modules', from: BUILD_ROOT, in: npm_image, to: APP_ROOT
+  # import_stream gem_image.export_stream(BUILD_ROOT / 'vendor'), APP_ROOT / 'vendor'
+  # import_stream npm_image.export_stream(BUILD_ROOT / 'node_modules'), APP_ROOT / 'node_modules'
   copy '.', BUILD_ROOT
-  # import_stream gem_image.export_stream(BUILD_ROOT + '/vendor'), BUILD_ROOT
-  # import_stream npm_image.export_stream(BUILD_ROOT + '/node_modules'), BUILD_ROOT
 
   # import_stream BUILD_ROOT do |writer|
   #   gem_image.export_stream(BUILD_ROOT + '/vendor') do |reader|
