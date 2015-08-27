@@ -7,7 +7,8 @@ contained in your project's `Drydockfile`.
 
 ## Why not Dockerfile?
 
-Dockerfiles are great to start out with, but:
+[Dockerfiles](https://docs.docker.com/reference/builder/) are great to start out
+with, but:
 
 1. **They are static,** which isn't necessarily a bad thing. I'm not opposed to
 a declarative approach to building images, but _sometimes_ it may be limiting.
