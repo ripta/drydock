@@ -36,11 +36,11 @@ module Drydock
             c.attach(stream: true, stdout: true, stderr: true) do |stream, chunk|
               case stream
               when :stdout
-                Drydock.logger.info(message: "#{chunk.chomp}", annotation: '(O)')
+                Drydock.logger.info(message: chunk.chomp, annotation: '(O)')
               when :stderr
-                Drydock.logger.info(message: "#{chunk.chomp}", annotation: '(E)')
+                Drydock.logger.info(message: chunk.chomp, annotation: '(E)')
               else
-                Drydock.logger.info(message: "#{chunk.chomp}", annotation: '(?)')
+                Drydock.logger.info(message: chunk.chomp, annotation: '(?)')
               end
             end
           rescue Docker::Error::TimeoutError
