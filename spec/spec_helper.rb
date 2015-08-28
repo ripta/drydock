@@ -2,12 +2,15 @@
 require 'bundler'
 # require 'rspec/collection_matchers'
 require 'rake'
+require 'fakefs/spec_helpers'
 
 Dir['./spec/support/**/*.rb'].each { |file| require file }
 
 require_relative '../lib/drydock'
 
 RSpec.configure do |config|
+  config.include FakeFS::SpecHelpers
+
   if config.files_to_run.one?
     config.default_formatter = 'doc'
   end
