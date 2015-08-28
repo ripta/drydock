@@ -16,6 +16,9 @@ module Drydock
         if File.exist?(filename)
           File.read(filename)
         else
+          dirname = File.dirname(filename)
+          FileUtils.mkdir_p(dirname)
+
           blk.call.tap do |contents|
             File.open(filename, 'w') do |file|
               file.write contents
