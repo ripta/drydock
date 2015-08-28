@@ -6,7 +6,7 @@ module Drydock
     class FilesystemCache < Base
 
       def initialize(dir = "~/.drydock")
-        @dir = File.expand_path(dir)
+        @dir = File.expand_path(File.join(dir.to_s, 'cache'))
         FileUtils.mkdir_p(@dir)
       end
 
