@@ -11,6 +11,7 @@ GEM
       excon (>= 0.38.0)
       json
     excon (0.45.4)
+    fakefs (0.6.7)
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
     git (1.2.9.1)
@@ -78,6 +79,7 @@ PLATFORMS
 DEPENDENCIES
   docker-api (~> 1.22)
   excon (~> 0.45)
+  fakefs
   jeweler (~> 2.0)
   pry (~> 0.10)
   rake (~> 10.0)
