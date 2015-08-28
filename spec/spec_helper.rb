@@ -2,7 +2,8 @@
 require 'bundler'
 # require 'rspec/collection_matchers'
 require 'rake'
-require 'fakefs/safe'
+require 'pp'
+require 'fakefs/spec_helpers'
 
 Dir['./spec/support/**/*.rb'].each { |file| require file }
 
