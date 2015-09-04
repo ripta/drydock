@@ -5,7 +5,6 @@ BUILD_ROOT = '/build'
 REPO_NAME  = 'ripta/test'
 TAG_NAME   = 'v1.0'
 
-
 from 'gliderlabs/alpine', '3.2'
 
 with Plugins::APK do |pkg|
