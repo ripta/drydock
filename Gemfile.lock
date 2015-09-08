@@ -7,7 +7,7 @@ GEM
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
-    docker-api (1.22.2)
+    docker-api (1.22.4)
       excon (>= 0.38.0)
       json
     excon (0.45.4)
