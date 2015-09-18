@@ -150,6 +150,10 @@ module Drydock
       Drydock.build_on_chain(chain, opts, &blk)
     end
 
+    def logger
+      Drydock.logger
+    end
+
     def mkdir(path)
       run "mkdir -p #{path}"
     end
