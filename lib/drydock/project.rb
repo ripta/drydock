@@ -158,10 +158,13 @@ module Drydock
       Drydock.logger
     end
 
+    # TODO(rpasay): add a #load method as an alternative to #import, which allows
+    # importing a full container, including things from /etc.
     def import(path, from: nil)
       mkdir(path)
 
       requires_from!(:import)
+      raise InvalidInstructionError, 'cannot `import` from `/`' if path == '/'
       raise InvalidInstructionError, '`import` requires a `from:` option' if from.nil?
       log_step('import', from: from.last_image.id)
 
