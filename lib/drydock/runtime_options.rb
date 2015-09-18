@@ -38,7 +38,6 @@ module Drydock
         cfg.on('-t SECONDS', '--timeout SECONDS',
             "Set transaction timeout to SECONDS (default = #{opts.read_timeout})") do |value|
           opts.read_timeout = value.to_i || 60
-          Excon.defaults[:read_timeout] = opts.read_timeout
         end
 
         cfg.on('-v', '--verbose', 'Run verbosely') do |value|
@@ -52,6 +51,7 @@ module Drydock
       end
 
       parser.parse!(args)
+      opts.set!
       opts
     end
 
@@ -59,7 +59,13 @@ module Drydock
       @cache        = true
       @includes     = []
       @log_level    = Logger::INFO
-      @read_timeout = Excon.defaults[:read_timeout] || 60
+
+      @read_timeout = Excon.defaults[:read_timeout]
+      @read_timeout = 120 if @read_timeout < 120
+    end
+
+    def set!
+      Excon.defaults[:read_timeout] = self.read_timeout
     end
 
   end
