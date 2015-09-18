@@ -24,6 +24,10 @@ module Drydock
       @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
     end
 
+    def build_id
+      chain ? chain.serial : 0
+    end
+
     def cd(path, &blk)
       @run_path << path
       blk.call
@@ -154,6 +158,31 @@ module Drydock
       Drydock.logger
     end
 
+    def import(path, from: nil)
+      mkdir(path)
+
+      requires_from!(:import)
+      raise InvalidInstructionError, '`import` requires a `from:` option' if from.nil?
+      log_step('import', from: from.last_image.id)
+
+      total_size = 0
+      chain.run("# IMPORT #{path}", no_cache: true) do |target_container|
+        target_container.archive_put(path) do |output|
+          from.send(:chain).run("# EXPORT #{path}", no_commit: true) do |source_container|
+            source_container.archive_get(path) do |chunk|
+              output.write(chunk.to_s).tap { |b| total_size += b }
+            end
+          end
+        end
+      end
+
+      log_info("Wrote #{Formatters.number(total_size)} bytes")
+    end
+
+    def last_image
+      chain ? chain.last_image : nil
+    end
+
     def mkdir(path)
       run "mkdir -p #{path}"
     end
@@ -221,6 +250,10 @@ module Drydock
       argstr = args.map(&:inspect).join(', ')
 
       Drydock.logger.info("##{chain ? chain.serial : 0}: #{op}(#{argstr}#{optstr.empty? ? '' : ", #{optstr}"})")
+    end
+
+    def requires_from!(instruction)
+      raise InvalidInstructionError, "`#{instruction}` cannot be called before `from`" unless chain
     end
 
   end
