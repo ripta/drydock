@@ -11,6 +11,7 @@ end
 require_relative 'drydock/drydock'
 require_relative 'drydock/logger'
 require_relative 'drydock/errors'
+require_relative 'drydock/formatters'
 require_relative 'drydock/runtime_options'
 
 require_relative 'drydock/container_config'
