@@ -8,6 +8,10 @@ module Drydock
   def self.build(opts = {}, &blk)
     Project.new(opts).tap do |project|
       dryfile, dryfilename = yield
+
+      Dir.chdir(File.dirname(dryfilename))
+      Drydock.logger.info("Working directory set to #{Dir.pwd}")
+
       begin
         catch :done do
           project.instance_eval(dryfile, dryfilename)
