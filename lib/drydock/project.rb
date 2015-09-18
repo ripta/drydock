@@ -183,7 +183,7 @@ module Drydock
 
     def with(plugin, &blk)
       (@plugins[plugin] ||= plugin.new(self)).tap do |instance|
-        yield instance
+        yield instance if block_given?
       end
     end
 
