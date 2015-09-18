@@ -115,32 +115,47 @@ module Drydock
 
     def run(cmd, opts = {}, &blk)
       src_image = last ? last.result_image : @from
+      no_commit = opts.fetch(:no_commit, false)
+
+      no_cache = opts.fetch(:no_cache,  false)
+      no_cache = true if no_commit
 
       build_config = self.class.build_container_opts(src_image.id, cmd, opts)
       cached_image = ImageRepository.find_by_config(build_config)
 
-      if cached_image && !opts.fetch(:no_cache, false)
+      if cached_image && !no_cache
         Drydock.logger.info(message: "Using cached image ID #{cached_image.id.slice(0, 12)}")
-        self << Phase.from(
-          source_image: src_image,
-          result_image: cached_image
-        )
+
+        if no_commit
+          Drydock.logger.info(message: "Skipping commit phase")
+        else
+          self << Phase.from(
+            source_image: src_image,
+            result_image: cached_image
+          )
+        end
       else
-        if cached_image
+        if cached_image && no_commit
+          Drydock.logger.info(message: "Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_commit")
+        elsif cached_image && no_cache
           Drydock.logger.info(message: "Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache")
         end
 
         container = self.class.create_container(build_config)
         yield container if block_given?
 
-        result = container.commit
-        Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
+        if no_commit
+          Drydock.logger.info(message: "Skipping commit phase")
+        else
+          result = container.commit
+          Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 
-        self << Phase.from(
-          source_image:    src_image,
-          build_container: container,
-          result_image:    result
-        )
+          self << Phase.from(
+            source_image:    src_image,
+            build_container: container,
+            result_image:    result
+          )
+        end
       end
 
       self
