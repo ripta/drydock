@@ -17,6 +17,8 @@ Drydock.build(build_opts) do |project|
   Drydock.logger.info Drydock.banner
 
   filename = ARGV.first || 'Drydockfile'
+  filename = "#{filename}/Drydockfile" if File.directory?(filename)
+
   unless File.exist?(filename)
     Drydock.logger.error "Cannot find file #{filename} in #{Dir.pwd}"
     exit 1
