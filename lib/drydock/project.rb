@@ -166,7 +166,7 @@ module Drydock
       requires_from!(:import)
       raise InvalidInstructionError, 'cannot `import` from `/`' if path == '/'
       raise InvalidInstructionError, '`import` requires a `from:` option' if from.nil?
-      log_step('import', from: from.last_image.id)
+      log_step('import', path, from: from.last_image.id)
 
       total_size = 0
       chain.run("# IMPORT #{path}", no_cache: true) do |target_container|
@@ -179,7 +179,7 @@ module Drydock
         end
       end
 
-      log_info("Wrote #{Formatters.number(total_size)} bytes")
+      log_info("Imported #{Formatters.number(total_size)} bytes")
     end
 
     def last_image
