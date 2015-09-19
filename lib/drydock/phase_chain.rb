@@ -162,7 +162,7 @@ module Drydock
     end
 
     def serial
-      @parent ? "#{@parent.serial}.#{size + 1}" : "#{size + 1}"
+      @parent ? "#{@parent.serial}.#{@parent.children.index(self) + 1}.#{size + 1}" : "#{size + 1}"
     end
 
   end
