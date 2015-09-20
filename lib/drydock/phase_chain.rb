@@ -165,5 +165,9 @@ module Drydock
       @parent ? "#{@parent.serial}.#{@parent.children.index(self) + 1}.#{size + 1}" : "#{size + 1}"
     end
 
+    def tag(repo, tag = 'latest')
+      last_image.tag(repo: repo, tag: tag)
+    end
+
   end
 end

@@ -238,6 +238,14 @@ module Drydock
       opts[key] = value || blk
     end
 
+    def tag(repo, tag = 'latest')
+      requires_from!(:tag)
+      log_step('tag', repo, tag)
+
+      chain.tag(repo, tag)
+      self
+    end
+
     def with(plugin, &blk)
       (@plugins[plugin] ||= plugin.new(self)).tap do |instance|
         yield instance if block_given?
