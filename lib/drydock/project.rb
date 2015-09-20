@@ -238,11 +238,11 @@ module Drydock
       opts[key] = value || blk
     end
 
-    def tag(repo, tag = 'latest')
+    def tag(repo, tag = 'latest', force: false)
       requires_from!(:tag)
-      log_step('tag', repo, tag)
+      log_step('tag', repo, tag, force: force)
 
-      chain.tag(repo, tag)
+      chain.tag(repo, tag, force: force)
       self
     end
 
