@@ -130,6 +130,17 @@ module Drydock
       self
     end
 
+    def expose(*ports, tcp: [], udp: [])
+      requires_from!(:expose)
+
+      Array(tcp).flatten.each { |p| ports << "#{p}/tcp" }
+      Array(udp).flatten.each { |p| ports << "#{p}/udp" }
+
+      log_step('expose', *ports)
+
+      chain.run("# SET PORTS #{ports.inspect}", expose: ports)
+    end
+
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
       log_step('from', repo, tag)

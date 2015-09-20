@@ -17,6 +17,13 @@ module Drydock
         env = Array(opts[:env])
         cc[:Env].push(*env) unless env.empty?
 
+        if opts.key?(:expose)
+          cc[:ExposedPorts] ||= {}
+          opts[:expose].each do |port|
+            cc[:ExposedPorts][port] = {}
+          end
+        end
+
         (cc[:OnBuild] ||= []).push(opts[:on_build]) if opts.key?(:on_build)
       end
     end
