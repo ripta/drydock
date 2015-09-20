@@ -65,6 +65,8 @@ module Drydock
       @parent = parent
       @children = []
 
+      @ephemeral_containers = []
+
       if parent
         parent.children << self
       end
@@ -90,10 +92,15 @@ module Drydock
       @chain.each(&blk)
     end
 
+    def ephemeral_containers
+      @ephemeral_containers
+    end
+
     def finalize!
       return self if frozen?
 
       children.map(&:finalize!) if children
+      ephemeral_containers.map(&:remove)
 
       Drydock.logger.info("##{serial}: Final image ID is #{last_image.id}") unless empty?
       map(&:finalize!)
@@ -146,6 +153,7 @@ module Drydock
 
         if no_commit
           Drydock.logger.info(message: "Skipping commit phase")
+          ephemeral_containers << container
         else
           result = container.commit
           Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
