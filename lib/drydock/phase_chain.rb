@@ -7,8 +7,10 @@ module Drydock
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
     def self.build_container_opts(image_id, cmd, opts = {})
+      cmd = ['/bin/sh', '-c', cmd.to_s] unless cmd.is_a?(Array)
+
       ContainerConfig.from(
-        Cmd: ['/bin/sh', '-c', cmd],
+        Cmd: cmd,
         Tty: opts.fetch(:tty, false),
         Image: image_id
       ).tap do |cc|
