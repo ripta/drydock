@@ -160,6 +160,9 @@ module Drydock
 
     # TODO(rpasay): add a #load method as an alternative to #import, which allows
     # importing a full container, including things from /etc.
+    # TODO(rpasay): do not always append /. to the #archive_get calls; must check
+    # the type of `path` inside the container first.
+    # TODO(rpasay): break this large method into smaller ones.
     def import(path, from: nil, force: false, spool: false)
       mkdir(path)
 
@@ -175,7 +178,7 @@ module Drydock
         log_info("Spooling to #{spool_file.path}")
 
         from.send(:chain).run("# EXPORT #{path}", no_commit: true) do |source_container|
-          source_container.archive_get(path) do |chunk|
+          source_container.archive_get(path + "/.") do |chunk|
             spool_file.write(chunk.to_s).tap { |b| total_size += b }
           end
         end
@@ -192,7 +195,7 @@ module Drydock
         chain.run("# IMPORT #{path}", no_cache: true) do |target_container|
           target_container.archive_put(path) do |output|
             from.send(:chain).run("# EXPORT #{path}", no_commit: true) do |source_container|
-              source_container.archive_get(path) do |chunk|
+              source_container.archive_get(path + "/.") do |chunk|
                 output.write(chunk.to_s).tap { |b| total_size += b }
               end
             end
