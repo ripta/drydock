@@ -4,6 +4,7 @@ module Drydock
 
     DEFAULT_OPTIONS = {
       auto_remove: true,
+      author: nil,
       cache: nil,
       event_handler: false,
       ignorefile: '.dockerignore',
