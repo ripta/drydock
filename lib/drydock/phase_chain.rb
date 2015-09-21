@@ -132,7 +132,6 @@ module Drydock
     end
 
     def images
-      return [] if empty?
       [root_image] + map(&:result_image)
     end
 
