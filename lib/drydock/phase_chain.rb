@@ -164,7 +164,9 @@ module Drydock
           Drydock.logger.info(message: "Skipping commit phase")
           ephemeral_containers << container
         else
-          result = container.commit
+          # TODO(rpasay): when committing, we should copy the config, but with
+          # the command from the previous image preserved.
+          result = container.commit # commit(run: {config: {Cmd: ...}}, comment: ..., author: ...)
           Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 
           self << Phase.from(
