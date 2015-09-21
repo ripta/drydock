@@ -179,6 +179,20 @@ module Drydock
           Drydock.logger.info(message: "Skipping commit phase")
           ephemeral_containers << container
         else
+          if opts.key?(:command)
+            Drydock.logger.info("Command override: #{opts[:command].inspect}")
+          else
+            src_image.refresh!
+            if src_image.info && src_image.info.key?('Config')
+              src_image_config = src_image.info['Config']
+              opts[:command]   = src_image_config['Cmd'] if src_image_config.key?('Cmd')
+            end
+
+            Drydock.logger.info("Command retrieval: #{opts[:command].inspect}")
+            Drydock.logger.info("Source image info: #{src_image.info.class} #{src_image.info.inspect}")
+            Drydock.logger.info("Source image config: #{src_image.info['Config'].inspect}")
+          end
+
           commit_config = self.class.build_commit_opts(opts)
           
           result = container.commit(commit_config)
