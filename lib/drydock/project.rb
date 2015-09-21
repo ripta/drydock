@@ -157,6 +157,17 @@ module Drydock
       self
     end
 
+    # Set multiple environment variables at once. `pairs` should be a
+    # hash-like enumerable.
+    def envs(pairs = {})
+      requires_from!(:envs)
+      log_step('envs', pairs)
+
+      values = pairs.map { |name, value| "#{name}=#{value}" }
+      chain.run("# SET ENVS #{pairs.inspect}", env: values)
+      self
+    end
+
     # Expose one or more ports.
     #
     # When `ports` is specified, the format must be: ##/type where ## is the port
