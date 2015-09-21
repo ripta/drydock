@@ -45,6 +45,19 @@ module Drydock
       @run_path.pop
     end
 
+    # Set the command to automatically execute when the image is run.
+    def cmd(command)
+      requires_from!(:cmd)
+      log_step('cmd', command)
+
+      unless command.is_a?(Array)
+        command = ['/bin/sh', '-c', command.to_s]
+      end
+
+      chain.run("# CMD #{command.inspect}", command: command)
+      self
+    end
+
     # Copies files from `source_path` on the the build machine, into `target_path`
     # in the container. This instruction automatically commits the result.
     #
