@@ -25,15 +25,19 @@ module Drydock
       @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
     end
 
+    # Set the author for commits. This is not an instruction, per se, and only
+    # takes into effect after instructions that cause a commit.
     def author(name: nil, email: nil)
       value = email ? "#{name} <#{email}>" : name.to_s
       set :author, value
     end
 
+    # Retrieve the current build ID for this project.
     def build_id
       chain ? chain.serial : 0
     end
 
+    # Change directories for operations that require a directory.
     def cd(path, &blk)
       @run_path << path
       blk.call
@@ -41,6 +45,17 @@ module Drydock
       @run_path.pop
     end
 
+    # Copies files from `source_path` on the the build machine, into `target_path`
+    # in the container. This instruction automatically commits the result.
+    #
+    # When `chmod` is `false` (the default), the original file mode from its
+    # source file is kept when copying into the container. Otherwise, the mode
+    # provided will be used to override *all* file and directory modes.
+    #
+    # When `no_cache` is `false` (the default), the hash digest of the source path
+    # is used as the cache key. When `true`, the image is rebuilt every time.
+    #
+    # The `copy` instruction always respects the `ignorefile`.
     def copy(source_path, target_path, chmod: false, no_cache: false, recursive: true)
       raise InvalidInstructionError, '`copy` cannot be called before `from`' unless chain
       log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))
@@ -94,10 +109,15 @@ module Drydock
       self
     end
 
+    # Meta instruction to signal to the builder that the build is done.
     def done!
       throw :done
     end
 
+    # Download (and cache) a file from `source_url`, and copy it into the
+    # `target_path` in the container with a specific `chmod` (defaults to 0644).
+    #
+    # The cache currently cannot be disabled.
     def download_once(source_url, target_path, chmod: 0644)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
@@ -129,6 +149,7 @@ module Drydock
       self
     end
 
+    # Set an environment variable.
     def env(name, value)
       raise InvalidInstructionError, '`env` cannot be called before `from`' unless chain
       log_step('env', name, value)
@@ -136,6 +157,13 @@ module Drydock
       self
     end
 
+    # Expose one or more ports.
+    #
+    # When `ports` is specified, the format must be: ##/type where ## is the port
+    # number and type is either tcp or udp. For example, "80/tcp", "53/udp".
+    #
+    # Otherwise, when the `tcp` or `udp` options are specified, only the port
+    # numbers are required.
     def expose(*ports, tcp: [], udp: [])
       requires_from!(:expose)
 
@@ -147,6 +175,8 @@ module Drydock
       chain.run("# SET PORTS #{ports.inspect}", expose: ports)
     end
 
+    # Build on top of the `from` image. This must be the first instruction of
+    # the project, although non-instructions may appear before this.
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
       log_step('from', repo, tag)
@@ -154,6 +184,8 @@ module Drydock
       self
     end
 
+    # Finalize everything. This will be automatically invoked at the end of
+    # the build, and should not be called manually.
     def finalize!
       if chain
         chain.finalize!
@@ -167,14 +199,20 @@ module Drydock
       self
     end
 
+    # Derive a new project based on the current state of the build. This
+    # instruction returns a project that can be referred to elsewhere.
     def derive(opts = {}, &blk)
       Drydock.build_on_chain(chain, opts, &blk)
     end
 
+    # Access to the logger object.
     def logger
       Drydock.logger
     end
 
+    # Import a `path` from a different project. The `from` option should be
+    # project, usually the result of a `derive` instruction.
+    #
     # TODO(rpasay): add a #load method as an alternative to #import, which allows
     # importing a full container, including things from /etc.
     # TODO(rpasay): do not always append /. to the #archive_get calls; must check
@@ -223,12 +261,20 @@ module Drydock
       log_info("Imported #{Formatters.number(total_size)} bytes")
     end
 
+    # The last image object built in this project.
     def last_image
       chain ? chain.last_image : nil
     end
 
-    def mkdir(path)
-      run "mkdir -p #{path}"
+    # Create a new directory specified by `path`. When `chmod` is given, the new
+    # directory will be chmodded. Otherwise, the default umask is used to determine
+    # the path's mode.
+    def mkdir(path, chmod: nil)
+      if chmod
+        run "mkdir -p #{path} && chmod #{chmod} #{path}"
+      else
+        run "mkdir -p #{path}"
+      end
     end
 
     # TODO(rpasay): on_build instructions should be deferred to the end
@@ -239,6 +285,20 @@ module Drydock
       self
     end
 
+    # This instruction is used to run the command `cmd` against the current
+    # project. The `opts` may be one of:
+    #
+    # * `no_commit`, when true, the container will not be committed to a
+    #   new image. Most of the time, you want this to be false (default).
+    # * `no_cache`, when true, the container will be rebuilt every time.
+    #   Most of the time, you want this to be false (default). When
+    #   `no_commit` is true, this option is automatically set to true.
+    # * `env`, which can be used to specify a set of environment variables.
+    #   For normal usage, you should use the `env` or `envs` instructions.
+    # * `expose`, which can be used to specify a set of ports to expose. For
+    #   normal usage, you should use the `expose` instruction instead.
+    # * `on_build`, which can be used to specify low-level on-build options. For
+    #   normal usage, you should use the `on_build` instruction instead.
     def run(cmd, opts = {}, &blk)
       raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
 
@@ -249,6 +309,7 @@ module Drydock
       self
     end
 
+    # Set project options.
     def set(key, value = nil, &blk)
       key = key.to_sym
       raise ArgumentError, "unknown option #{key.inspect}" unless opts.key?(key)
@@ -258,6 +319,11 @@ module Drydock
       opts[key] = value || blk
     end
 
+    # Tag the current state of the project with a repo and tag.
+    #
+    # When `force` is false (default), this instruction will raise an error if
+    # the tag already exists. When true, the tag will be overwritten without
+    # any warnings.
     def tag(repo, tag = 'latest', force: false)
       requires_from!(:tag)
       log_step('tag', repo, tag, force: force)
@@ -266,6 +332,16 @@ module Drydock
       self
     end
 
+    # Use a `plugin` to issue other commands. The block form can be used to issue
+    # multiple commands:
+    #
+    #   with Plugins::APK do |apk|
+    #     apk.update
+    #   end
+    # 
+    # In cases of single commands, the above is the same as:
+    #
+    #   with(Plugins::APK).update
     def with(plugin, &blk)
       (@plugins[plugin] ||= plugin.new(self)).tap do |instance|
         yield instance if block_given?
