@@ -53,4 +53,20 @@ RSpec.describe Drydock::PhaseChain do
 
   end
 
+  describe '#run' do
+
+    let(:chain) { described_class.from_repo('alpine', '3.2') }
+    
+    context 'when running normally' do
+
+      it 'runs a simple command successfully' do
+        expect { chain.run('/bin/hostname') }.not_to raise_error
+        expect(chain.images.size).to eq(2)
+        expect { chain.finalize! }.not_to raise_error
+      end
+
+    end
+
+  end
+
 end
