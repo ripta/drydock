@@ -44,10 +44,10 @@ module Drydock
       return false if self['Labels'] != other['Labels']
       return false if self['Entrypoint'] != other['Entrypoint']
 
-      my_ports = Array(self['ExposedPorts'])
-      other_ports = Array(other['ExposedPorts'])
+      my_ports = self['ExposedPorts'] || {}
+      other_ports = other['ExposedPorts'] || {}
       return false if my_ports.length != other_ports.length
-      my_ports.each do |my_port|
+      my_ports.keys.each do |my_port|
         return false unless other_ports.key?(my_port)
       end
 
