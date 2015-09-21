@@ -6,6 +6,19 @@ module Drydock
 
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
+    def self.build_commit_opts(opts = {})
+      {}.tap do |commit|
+        if opts.key?(:command)
+          commit['run'] = {
+            Cmd: opts[:command]
+          }
+        end
+
+        commit[:author]  = opts.fetch(:author, '')  if opts.key?(:author)
+        commit[:comment] = opts.fetch(:comment, '') if opts.key?(:comment)
+      end
+    end
+
     def self.build_container_opts(image_id, cmd, opts = {})
       cmd = ['/bin/sh', '-c', cmd.to_s] unless cmd.is_a?(Array)
 
@@ -164,14 +177,8 @@ module Drydock
           Drydock.logger.info(message: "Skipping commit phase")
           ephemeral_containers << container
         else
-          commit_config = {
-            'run' => {
-              Cmd: "#{cmd} # COMMIT"
-            },
-            comment: "#{cmd} # COMMENT",
-            author: "Ripta Pasay <ripta+docker@pasay.name>"
-          }
-
+          commit_config = self.class.build_commit_opts(opts)
+          
           result = container.commit(commit_config)
           Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 
