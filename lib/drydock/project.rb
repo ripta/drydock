@@ -25,6 +25,11 @@ module Drydock
       @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
     end
 
+    def author(name: nil, email: nil)
+      value = email ? "#{name} <#{email}>" : name.to_s
+      set :author, value
+    end
+
     def build_id
       chain ? chain.serial : 0
     end
