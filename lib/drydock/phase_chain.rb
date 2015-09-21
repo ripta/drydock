@@ -136,7 +136,7 @@ module Drydock
     end
 
     def last_image
-      @chain.last.result_image
+      @chain.last ? @chain.last.result_image : nil
     end
 
     def root_image
