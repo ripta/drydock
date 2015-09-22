@@ -76,20 +76,12 @@ RSpec.describe Drydock::PhaseChain do
     end
 
     it 'sets a comment or author when provided' do
-      Drydock.logger = Drydock::Logger.new(STDOUT).tap do |l|
-        l.level = Logger::DEBUG
-        l.formatter = Drydock::Formatter.new
-      end
-
       expect { chain.run('/bin/hostname', comment: 'Some random comment', author: 'John Doe') }.not_to raise_error
       chain.last_image.tap do |image|
         image.refresh!
         expect(image.info['Comment']).to eq('Some random comment')
         expect(image.info['Author']).to eq('John Doe')
       end
-
-      Drydock.logger = nil
-
       expect { chain.destroy! }.not_to raise_error
     end
 
