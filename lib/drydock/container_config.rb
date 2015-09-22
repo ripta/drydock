@@ -54,7 +54,7 @@ module Drydock
       end
 
       my_vols = self['Volumes'] || {}
-      other_vols = self['Volumes'] || {}
+      other_vols = other['Volumes'] || {}
       return false if my_vols.keys.size != other_vols.keys.size
       my_vols.keys.each do |my_vol|
         return false unless other_vols.key?(my_vol)
