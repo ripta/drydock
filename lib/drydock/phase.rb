@@ -13,6 +13,8 @@ module Drydock
 
     def self.from(hsh)
       h = hsh.to_h
+      extra_keys = h.keys - members
+      raise ArgumentError, "unknown options: #{extra_keys.join(', ')}" unless extra_keys.empty?
       new(*h.values_at(*members))
     end
 
