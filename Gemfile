@@ -5,6 +5,9 @@ group :development do
   gem 'rake', '~> 10.0'
   gem 'jeweler', '~> 2.0'
   gem 'pry', '~> 0.10'
+
+  gem 'simplecov'
+  gem 'simplecov-rcov', '~> 0.2.3'
 end
 
 group :test do
