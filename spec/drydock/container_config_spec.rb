@@ -113,6 +113,27 @@ RSpec.describe Drydock::ContainerConfig do
       end
     end
 
+    context 'different users' do
+      it_behaves_like 'different configs' do
+        let(:config1) {
+          {
+            Hostname:   "host1",
+            Domainname: "domain1",
+            Image:      "image1",
+            User:       "user1"
+          }
+        }
+        let(:config2) {
+          {
+            Hostname:   "host1",
+            Domainname: "domain1",
+            Image:      "image1",
+            User:       "user2"
+          }
+        }
+      end
+    end
+
   end
 
 end
