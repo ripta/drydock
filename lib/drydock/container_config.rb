@@ -46,15 +46,15 @@ module Drydock
 
       my_ports = self['ExposedPorts'] || {}
       other_ports = other['ExposedPorts'] || {}
-      return false if my_ports.length != other_ports.length
+      return false if my_ports.keys.size != other_ports.keys.size
       my_ports.keys.each do |my_port|
         return false unless other_ports.key?(my_port)
       end
 
-      my_vols = Array(self['Volumes'])
-      other_vols = Array(self['Volumes'])
-      return false if my_vols.length != other_vols.length
-      my_vols.each do |my_vol|
+      my_vols = self['Volumes'] || {}
+      other_vols = self['Volumes'] || {}
+      return false if my_vols.keys.size != other_vols.keys.size
+      my_vols.keys.each do |my_vol|
         return false unless other_vols.key?(my_vol)
       end
 
