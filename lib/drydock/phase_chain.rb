@@ -155,10 +155,11 @@ module Drydock
       src_image = last ? last.result_image : @from
       no_commit = opts.fetch(:no_commit, false)
 
-      no_cache = opts.fetch(:no_cache,  false)
+      no_cache = opts.fetch(:no_cache, false)
       no_cache = true if no_commit
 
       build_config = self.class.build_container_opts(src_image.id, cmd, opts)
+      Drydock.logger.info(build_config.inspect)
       cached_image = ImageRepository.find_by_config(build_config)
 
       if cached_image && !no_cache
@@ -201,7 +202,9 @@ module Drydock
           end
 
           commit_config = self.class.build_commit_opts(opts)
-          
+          Drydock.logger.info(opts.inspect)
+          Drydock.logger.info(commit_config.inspect)
+
           result = container.commit(commit_config)
           Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 

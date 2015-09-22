@@ -10,6 +10,10 @@ RSpec.describe Drydock::PhaseChain do
 
   describe '.from_repo' do
 
+    it 'takes a repo name forced without a tag' do
+      expect { described_class.from_repo('alpine', nil) }.not_to raise_error
+    end
+
     it 'takes a repo name without a tag' do
       expect { described_class.from_repo('alpine') }.not_to raise_error
     end
@@ -56,17 +60,46 @@ RSpec.describe Drydock::PhaseChain do
   describe '#run' do
 
     let(:chain) { described_class.from_repo('alpine', '3.2') }
-    
+
     it 'runs a simple command successfully' do
+      expect(chain.images.size).to eq(1)
       expect { chain.run('/bin/hostname') }.not_to raise_error
       expect(chain.images.size).to eq(2)
-      expect { chain.finalize! }.not_to raise_error
+      expect { chain.destroy! }.not_to raise_error
     end
 
     it 'runs a command without committing successfully' do
+      expect(chain.images.size).to eq(1)
       expect { chain.run('/bin/hostname', no_commit: true) }.not_to raise_error
       expect(chain.images.size).to eq(1)
-      expect  { chain.finalize! }.not_to raise_error
+      expect { chain.destroy! }.not_to raise_error
+    end
+
+    it 'sets a comment or author when provided' do
+      Drydock.logger = Drydock::Logger.new(STDOUT).tap do |l|
+        l.level = Logger::DEBUG
+        l.formatter = Drydock::Formatter.new
+      end
+
+      expect { chain.run('/bin/hostname', comment: 'Some random comment', author: 'John Doe') }.not_to raise_error
+      chain.last_image.tap do |image|
+        image.refresh!
+        expect(image.info['Comment']).to eq('Some random comment')
+        expect(image.info['Author']).to eq('John Doe')
+      end
+
+      Drydock.logger = nil
+
+      expect { chain.destroy! }.not_to raise_error
+    end
+
+    it 'sets a command' do
+      expect { chain.run('/bin/hostname', command: ['/bin/ls', '/']) }.not_to raise_error
+      chain.last_image.tap do |image|
+        image.refresh!
+        expect(image.info['Config']['Cmd']).to eq(['/bin/ls', '/'])
+      end
+      expect { chain.destroy! }.not_to raise_error
     end
 
   end
