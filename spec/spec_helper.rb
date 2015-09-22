@@ -4,12 +4,23 @@ require 'bundler'
 require 'rake'
 require 'pp'
 require 'fakefs/spec_helpers'
+require 'simplecov'
+require 'simplecov-rcov'
+
+unless ENV.key?('RCOV')
+  SimpleCov.start {
+    add_filter '/vendor/'
+    add_filter '/spec/'
+  }
+end
 
 Dir['./spec/support/**/*.rb'].each { |file| require file }
 
 require_relative '../lib/drydock'
 
 RSpec.configure do |config|
+  SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
+
   if config.files_to_run.one?
     config.default_formatter = 'doc'
   end
