@@ -134,6 +134,97 @@ RSpec.describe Drydock::ContainerConfig do
       end
     end
 
+    context 'differing OpenStdin' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {OpenStdin: false} }
+        let(:config2) { {OpenStdin: true } }
+      end
+    end
+
+    context 'differing OpenStdin, reversed' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {OpenStdin: true } }
+        let(:config2) { {OpenStdin: false} }
+      end
+    end
+
+    context 'differing Env' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Env: envs1} }
+        let(:config2) { {Env: envs2} }
+      end
+    end
+
+    context 'differing Cmd' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Cmd: cmd1} }
+        let(:config2) { {Cmd: cmd2} }
+      end
+    end
+
+    context 'differing Cmd parts' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Cmd: cmd1} }
+        let(:config2) { {Cmd: cmd3} }
+      end
+    end
+
+    context 'differing Labels' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Labels: labels1} }
+        let(:config2) { {Labels: labels2} }
+      end
+    end
+
+    context 'differing Labels' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Labels: labels1} }
+        let(:config2) { {Labels: labels3} }
+      end
+    end
+
+    context 'differing ExposedPorts' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {ExposedPorts: ports1} }
+        let(:config2) { {ExposedPorts: ports2} }
+      end
+    end
+
+    context 'differing number of ExposedPorts' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {ExposedPorts: ports1} }
+        let(:config2) { {ExposedPorts: ports3} }
+      end
+    end
+
+    context 'differing Entrypoint' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Entrypoint: entrypoint1} }
+        let(:config2) { {Entrypoint: entrypoint2} }
+      end
+    end
+
+    context 'differing Entrypoint parts' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Entrypoint: entrypoint1} }
+        let(:config2) { {Entrypoint: entrypoint3} }
+      end
+    end
+
+    context 'differing Volumes' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Volumes: volumes1} }
+        let(:config2) { {Volumes: volumes2} }
+      end
+    end
+
+    context 'differing number of Volumes' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {Volumes: volumes1} }
+        let(:config2) { {Volumes: volumes3} }
+      end
+    end
+
   end
 
 end
