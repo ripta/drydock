@@ -19,4 +19,49 @@ RSpec.describe Drydock::Phase do
 
   end
 
+  let(:build_container)     { double('BuildContainer') }
+  let(:no_build_container)  { described_class.from(source_image: '123', result_image: '456') }
+  let(:has_build_container) { described_class.from(source_image: '123', result_image: '456', build_container: build_container) }
+
+  describe '#cached?' do
+
+    context 'when a build container is missing' do
+      subject { no_build_container.cached? }
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when a build container is present' do
+      subject { has_build_container.cached? }
+      it { is_expected.to be_falsey }
+    end
+
+  end
+
+  describe '#built?' do
+
+    context 'when a build container is missing' do
+      subject { no_build_container.built? }
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when a build container is present' do
+      subject { has_build_container.built? }
+      it { is_expected.to be_truthy }
+    end
+
+  end
+
+  describe 'finalize!' do
+
+    it 'when a build container is missing' do
+      expect { no_build_container.finalize! }.not_to raise_error
+    end
+
+    it 'when a build container is present' do
+      expect(build_container).to receive(:remove).with(no_args)
+      expect { has_build_container.finalize! }.not_to raise_error
+    end
+
+  end
+
 end
