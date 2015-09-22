@@ -112,6 +112,14 @@ module Drydock
       self.class.new(last_image, self)
     end
 
+    def destroy!
+      return self if frozen?
+      children.map(&:destroy!) if children
+
+      map(&:result_image).map(&:remove)
+      finalize!
+    end
+
     def each(&blk)
       @chain.each(&blk)
     end
