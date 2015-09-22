@@ -94,6 +94,25 @@ RSpec.describe Drydock::PhaseChain do
       expect { chain.destroy! }.not_to raise_error
     end
 
+    it 'sets an environment' do
+      expect { chain.run('/bin/hostname', env: ["APP_ROOT=/app", "BUILD_ROOT=/build"]) }.not_to raise_error
+      chain.last_image.tap do |image|
+        image.refresh!
+        expect(image.info['Config']['Env']).to include('APP_ROOT=/app')
+        expect(image.info['Config']['Env']).to include('BUILD_ROOT=/build')
+      end
+      expect { chain.destroy! }.not_to raise_error
+    end
+
+    it 'exposes a port' do
+      expect { chain.run('/bin/hostname', expose: ['80/tcp']) }.not_to raise_error
+      chain.last_image.tap do |image|
+        image.refresh!
+        expect(image.info['Config']['ExposedPorts']).to eq("80/tcp" => {})
+      end
+      expect { chain.destroy! }.not_to raise_error
+    end
+
   end
 
 end
