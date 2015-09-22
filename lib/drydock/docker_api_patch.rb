@@ -35,11 +35,13 @@ module Docker
       query = { 'path' => path }
       response = connection.raw_request(:head, path_for(:archive), query, response_block: blk)
 
-      return {} if response.nil?
-      return {} if response.headers.empty?
-      return {} unless response.headers.key?('X-Docker-Container-Path-Stat')
+      return if response.nil?
+      return if response.headers.empty?
+      return unless response.headers.key?('X-Docker-Container-Path-Stat')
 
       ContainerPathStat.new(response.headers['X-Docker-Container-Path-Stat'])
+    rescue Docker::Error::NotFoundError
+      nil
     end
 
     def archive_put(path = '/', overwrite: false, &blk)
