@@ -104,6 +104,15 @@ RSpec.describe Drydock::ContainerConfig do
       end
     end
 
+
+
+    context 'with nil' do
+      it_behaves_like 'different configs' do
+        let(:config1) { {} }
+        let(:config2) { nil }
+      end
+    end
+
   end
 
 end
