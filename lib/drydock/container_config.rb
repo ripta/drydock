@@ -18,6 +18,8 @@ module Drydock
     }
 
     def self.from(hash)
+      return nil if hash.nil?
+
       self.new.tap do |cfg|
         DEFAULTS.each_pair do |k, v|
           cfg[k] = v
