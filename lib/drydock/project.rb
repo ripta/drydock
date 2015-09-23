@@ -122,6 +122,11 @@ module Drydock
       self
     end
 
+    def destroy!
+      chain.destroy! if chain
+      finalize!
+    end
+
     # Meta instruction to signal to the builder that the build is done.
     def done!
       throw :done
