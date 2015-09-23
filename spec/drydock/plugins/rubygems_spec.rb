@@ -41,4 +41,13 @@ RSpec.describe Drydock::Plugins::Rubygems do
 
   end
 
+  describe '#update_system' do
+
+    it 'updates rubygems' do
+      expect(project).to receive(:run).with('gem update --system ', timeout: 200)
+      expect { plugin.update_system(timeout: 200) }.not_to raise_error
+    end
+
+  end
+
 end
