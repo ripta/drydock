@@ -2,11 +2,19 @@
 RSpec.describe Drydock::RuntimeOptions do
 
   describe '.parse!' do
-    it 'parses accepts build options' do
+    it 'accepts build options' do
       opts = described_class.parse!(%w{--no-cache -i test.rb -q})
       expect(opts.cache).to be_falsey
       expect(opts.includes).to include('test.rb')
       expect(opts.log_level).to eq(Logger::ERROR)
+    end
+
+    it 'accepts extra build arguments' do
+      opts = described_class.parse!(%w{--build-args version=2.0.3 --build-args validate=true})
+
+      expect(opts.build_args['version']).to eq('2.0.3')
+      expect(opts.build_args[:version]).to  eq('2.0.3')
+      expect(opts.build_args[:validate]).to eq('true')
     end
 
     it 'converts timeout to integer' do
