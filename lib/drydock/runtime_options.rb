@@ -4,7 +4,7 @@ require 'optparse'
 module Drydock
   class RuntimeOptions
 
-    attr_accessor :build_args, :cache, :includes, :log_level, :read_timeout
+    attr_accessor :build_opts, :cache, :includes, :log_level, :read_timeout
 
     def self.parse!(args)
       opts = new
@@ -15,10 +15,10 @@ module Drydock
         cfg.separator ''
         cfg.separator 'Runtime / build options:'
 
-        cfg.on('-b', '--build-args KEY=VALUE', 'KEY=VALUE build-time arguments', 'can be used multiple times') do |kv|
+        cfg.on('-b', '--build-opts KEY=VALUE', 'KEY=VALUE build-time options', 'can be specified multiple times') do |kv|
           key, value = kv.split('=', 2)
-          opts.build_args[key.to_s]   = value
-          opts.build_args[key.to_sym] = value
+          opts.build_opts[key.to_s]   = value
+          opts.build_opts[key.to_sym] = value
         end
 
         cfg.on('-C', '--no-cache', 'Disable the build cache') do
@@ -62,7 +62,7 @@ module Drydock
     end
 
     def initialize
-      @build_args   = {}
+      @build_opts   = {}
       @cache        = true
       @includes     = []
       @log_level    = Logger::INFO

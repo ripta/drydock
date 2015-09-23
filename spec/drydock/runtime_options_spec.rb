@@ -10,11 +10,11 @@ RSpec.describe Drydock::RuntimeOptions do
     end
 
     it 'accepts extra build arguments' do
-      opts = described_class.parse!(%w{--build-args version=2.0.3 --build-args validate=true})
+      opts = described_class.parse!(%w{--build-opts version=2.0.3 --build-opts validate=true})
 
-      expect(opts.build_args['version']).to eq('2.0.3')
-      expect(opts.build_args[:version]).to  eq('2.0.3')
-      expect(opts.build_args[:validate]).to eq('true')
+      expect(opts.build_opts['version']).to eq('2.0.3')
+      expect(opts.build_opts[:version]).to  eq('2.0.3')
+      expect(opts.build_opts[:validate]).to eq('true')
     end
 
     it 'converts timeout to integer' do
