@@ -70,7 +70,7 @@ module Drydock
     #
     # The `copy` instruction always respects the `ignorefile`.
     def copy(source_path, target_path, chmod: false, no_cache: false, recursive: true)
-      raise InvalidInstructionError, '`copy` cannot be called before `from`' unless chain
+      requires_from!(:copy)
       log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))
 
       if source_path.start_with?('/')
@@ -137,7 +137,7 @@ module Drydock
     #
     # The cache currently cannot be disabled.
     def download_once(source_url, target_path, chmod: 0644)
-      raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
+      requires_from!(:download_once)
 
       unless cache.key?(source_url)
         cache.set(source_url) do |obj|
@@ -169,7 +169,7 @@ module Drydock
 
     # Set an environment variable.
     def env(name, value)
-      raise InvalidInstructionError, '`env` cannot be called before `from`' unless chain
+      requires_from!(:env)
       log_step('env', name, value)
       chain.run("# SET ENV #{name}", env: ["#{name}=#{value}"])
       self
@@ -308,7 +308,7 @@ module Drydock
 
     # TODO(rpasay): on_build instructions should be deferred to the end
     def on_build(instruction = nil, &blk)
-      raise InvalidInstructionError, '`on_build` cannot be called before `from`' unless chain
+      requires_from!(:on_build)
       log_step('on_build', instruction)
       chain.run("# ON_BUILD #{instruction}", on_build: instruction)
       self
@@ -329,7 +329,7 @@ module Drydock
     # * `on_build`, which can be used to specify low-level on-build options. For
     #   normal usage, you should use the `on_build` instruction instead.
     def run(cmd, opts = {}, &blk)
-      raise InvalidInstructionError, '`run` cannot be called before `from`' unless chain
+      requires_from!(:run)
 
       cmd = build_cmd(cmd)
 
