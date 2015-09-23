@@ -117,8 +117,8 @@ module Drydock
       children.map(&:destroy!) if children
       ephemeral_containers.map(&:remove)
 
-      map(&:result_image).map(&:remove)
-      finalize!
+      map(&:destroy!)
+      freeze
     end
 
     def each(&blk)

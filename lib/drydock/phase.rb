@@ -26,9 +26,16 @@ module Drydock
       build_container.nil?
     end
 
+    def destroy!
+      build_container.remove if built?
+      result_image.remove    if result_image
+      self
+    end
+
     def finalize!
-      return unless built?
+      return self unless built?
       build_container.remove
+      self
     end
 
   end
