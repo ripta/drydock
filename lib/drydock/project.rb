@@ -34,7 +34,7 @@ module Drydock
 
     # Retrieve the current build ID for this project.
     def build_id
-      chain ? chain.serial : 0
+      chain ? chain.serial : '0'
     end
 
     # Change directories for operations that require a directory.
