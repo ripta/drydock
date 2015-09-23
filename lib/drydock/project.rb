@@ -12,17 +12,17 @@ module Drydock
       logs: false
     }
 
-    def initialize(opts = {})
-      @chain   = opts.key?(:chain) && opts.delete(:chain).derive
+    def initialize(build_opts = {})
+      @chain   = build_opts.key?(:chain) && build_opts.delete(:chain).derive
       @plugins = {}
 
       @run_path = []
       @serial  = 0
 
-      @opts = DEFAULT_OPTIONS.clone
-      opts.each_pair { |key, value| set(key, value) }
+      @build_opts = DEFAULT_OPTIONS.clone
+      build_opts.each_pair { |key, value| set(key, value) }
 
-      @stream_monitor = opts[:event_handler] ? StreamMonitor.new(opts[:event_handler]) : nil
+      @stream_monitor = build_opts[:event_handler] ? StreamMonitor.new(build_opts[:event_handler]) : nil
     end
 
     # Set the author for commits. This is not an instruction, per se, and only
@@ -336,11 +336,11 @@ module Drydock
     # Set project options.
     def set(key, value = nil, &blk)
       key = key.to_sym
-      raise ArgumentError, "unknown option #{key.inspect}" unless opts.key?(key)
+      raise ArgumentError, "unknown option #{key.inspect}" unless build_opts.key?(key)
       raise ArgumentError, "one of value or block is required" if value.nil? && blk.nil?
       raise ArgumentError, "only one of value or block may be provided" if value && blk
 
-      opts[key] = value || blk
+      build_opts[key] = value || blk
     end
 
     # Tag the current state of the project with a repo and tag.
@@ -373,7 +373,7 @@ module Drydock
     end
 
     private
-    attr_reader :chain, :opts, :stream_monitor
+    attr_reader :chain, :build_opts, :stream_monitor
 
     def build_cmd(cmd)
       if @run_path.empty?
@@ -384,11 +384,11 @@ module Drydock
     end
 
     def cache
-      opts[:cache] ||= ObjectCaches::NoCache.new
+      build_opts[:cache] ||= ObjectCaches::NoCache.new
     end
 
     def ignorefile
-      @ignorefile ||= IgnorefileDefinition.new(opts[:ignorefile])
+      @ignorefile ||= IgnorefileDefinition.new(build_opts[:ignorefile])
     end
 
     def log_info(msg, indent: 0)
