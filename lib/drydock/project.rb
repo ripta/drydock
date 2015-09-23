@@ -333,8 +333,12 @@ module Drydock
 
       cmd = build_cmd(cmd)
 
-      log_step('run', cmd, opts)
-      chain.run(cmd, opts, &blk)
+      run_opts = opts.dup
+      run_opts[:author]  = opts[:author]  || build_opts[:author]
+      run_opts[:comment] = opts[:comment] || build_opts[:comment]
+
+      log_step('run', cmd, run_opts)
+      chain.run(cmd, run_opts, &blk)
       self
     end
 
