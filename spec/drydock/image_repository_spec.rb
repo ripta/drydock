@@ -29,7 +29,7 @@ RSpec.describe Drydock::ImageRepository do
 
     after(:each) do
       container.remove
-      # run_image.remove
+      run_image.remove
     end
 
     it 'returns the latest image' do
