@@ -80,7 +80,7 @@ module Drydock
       raise InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
 
       source_files = if File.directory?(source_path)
-        FileManager.find(source_path, ignorefile, recursive: recursive)
+        FileManager.find(source_path, ignorefile, prepend_path: true, recursive: recursive)
       else
         [source_path]
       end
@@ -108,6 +108,11 @@ module Drydock
       log_info("Tree digest is md5:#{digest}")
       chain.run("# COPY #{source_path} #{target_path} DIGEST #{digest}", no_cache: no_cache) do |container|
         target_stat = container.archive_head(target_path)
+
+        unless target_stat
+          raise InvalidInstructionError, "#{target_path} does not exist"
+        end
+
         unless target_stat.directory?
           Drydock.logger.debug(target_stat)
           raise InvalidInstructionError, "#{target_path} exists, but is not a directory in the container"
