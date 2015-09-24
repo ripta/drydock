@@ -27,10 +27,10 @@ RSpec.describe Drydock::Project do
     email = 'john@doe.int'
     author = 'John Doe <john@doe.int>'
 
-    expect { project.from('alpine')                   }.not_to raise_error
-    expect { project.author(name: name, email: email) }.not_to raise_error
-    expect { project.run('ls /')                      }.not_to raise_error
+    project.from('alpine')
+    project.author(name: name, email: email)
 
+    expect { project.run('ls /') }.not_to raise_error
     expect(project.last_image).not_to be_nil
 
     image = Docker::Image.get(project.last_image.id)
@@ -41,8 +41,18 @@ RSpec.describe Drydock::Project do
   it 'build ID is incremented at every build step' do
     expect(project.build_id).to eq('0')
 
-    expect { project.from('alpine') }.not_to raise_error
+    project.from('alpine')
     expect(project.build_id).to eq('1')
+  end
+
+  it 'copies asset files into an image' do
+    asset_path = File.expand_path('./spec/assets')
+
+    project.from('alpine')
+    expect { project.copy(asset_path, '/', chmod: false, no_cache: true, recursive: true) }.not_to raise_error
+
+    expect(project.last_image).not_to be_nil
+    expect(project.last_image.id).not_to be_empty
   end
 
 end
