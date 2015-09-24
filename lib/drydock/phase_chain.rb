@@ -56,15 +56,13 @@ module Drydock
         t = Thread.new do
           begin
             c.attach(stream: true, stdout: true, stderr: true) do |stream, chunk|
-              chunk.split(/\n/).each do |line|
-                case stream
-                when :stdout
-                  Drydock.logger.info(message: line, annotation: '(O)')
-                when :stderr
-                  Drydock.logger.info(message: line, annotation: '(E)')
-                else
-                  Drydock.logger.info(message: line, annotation: '(?)')
-                end
+              case stream
+              when :stdout
+                Drydock.logger.info(message: chunk, annotation: '(O)')
+              when :stderr
+                Drydock.logger.info(message: chunk, annotation: '(E)')
+              else
+                Drydock.logger.info(message: chunk, annotation: '(?)')
               end
             end
           rescue Docker::Error::TimeoutError
