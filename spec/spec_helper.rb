@@ -1,6 +1,6 @@
 
 require 'bundler'
-# require 'rspec/collection_matchers'
+require 'rspec/collection_matchers'
 require 'rake'
 require 'pp'
 require 'fakefs/spec_helpers'
