@@ -110,7 +110,9 @@ module Drydock
         target_stat = container.archive_head(target_path)
 
         unless target_stat
-          raise InvalidInstructionError, "#{target_path} does not exist"
+          exec_out, exec_err, exec_code = container.exec("mkdir #{target_path}", detach: false)
+          Drydock.logger.info(messages: exec_out, annotation: '(O)', indent: 2)
+          Drydock.logger.info(messages: exec_err, annotation: '(E)', indent: 2)
         end
 
         unless target_stat.directory?
