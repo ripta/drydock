@@ -53,21 +53,17 @@ RSpec.describe Docker::Container do
   describe '#archive_head' do
     let(:container) { described_class.create('Image' => 'alpine:latest', 'Cmd' => ['/bin/touch', '/real_file']) }
 
+    before(:each) { container.tap(&:start).tap(&:wait) }
     after(:each) { container.remove }
 
     context 'when the file does not exist' do
       it 'is not found' do
-        container.start
-        container.wait
         expect(container.archive_head('/not_a_file')).to eq(nil)
       end
     end
 
     context 'when the file is found' do
       it 'returns the stat results' do
-        container.start
-        container.wait
-
         stat = container.archive_head('/real_file')
         expect(stat).to be_a(Docker::ContainerPathStat)
         expect(stat.name).to eq('real_file')
@@ -75,6 +71,17 @@ RSpec.describe Docker::Container do
         expect(stat.mode.file_mode).to eq(0644)
         expect(stat.mode.regular?).to be_truthy
         expect(stat.mode.directory?).to be_falsey
+      end
+    end
+
+    context 'when a link is found' do
+      it 'returns the stat results' do
+        stat = container.archive_head('/etc/mtab')
+        expect(stat).to be_a(Docker::ContainerPathStat)
+        expect(stat).to respond_to(:link?)
+        expect(stat.mode.link?).to be_truthy
+        expect(stat.link?).to be_truthy
+        expect(stat.link_target).to eq('/proc/mounts')
       end
     end
   end
