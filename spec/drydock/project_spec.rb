@@ -61,4 +61,14 @@ RSpec.describe Drydock::Project do
     expect(hash_output).to include('60fde9c2310b0d4cad4dab8d126b04387efba289')
   end
 
+  it 'autocreates the target path on copy' do
+    project.from('alpine')
+    expect {
+      project.copy(asset_path, '/assets', chmod: false, no_cache: true, recursive: true)
+    }.to raise_error(Drydock::InvalidInstructionError)
+
+    expect(project.last_image).not_to be_nil
+    expect(project.last_image.id).not_to be_empty
+  end
+
 end
