@@ -2,7 +2,9 @@
 RSpec.describe Drydock::Project do
 
   let(:project) { described_class.new }
-  after(:each)  { project.destroy! }
+  after(:each) { project.destroy! if project }
+
+  let(:asset_path) { 'spec/assets' }
 
   it 'require a `from` before a `run`' do
     expect { project.run('ls /') }.to raise_error(Drydock::InvalidInstructionError)
@@ -46,13 +48,17 @@ RSpec.describe Drydock::Project do
   end
 
   it 'copies asset files into an image' do
-    asset_path = File.expand_path('./spec/assets')
-
     project.from('alpine')
     expect { project.copy(asset_path, '/', chmod: false, no_cache: true, recursive: true) }.not_to raise_error
 
     expect(project.last_image).not_to be_nil
     expect(project.last_image.id).not_to be_empty
+
+    hash_container = project.last_image.run('sha1sum /spec/assets/hello-world.txt')
+    hash_output = hash_container.tap(&:wait).streaming_logs(stdout: true, stderr: true)
+    hash_container.remove
+
+    expect(hash_output).to include('60fde9c2310b0d4cad4dab8d126b04387efba289')
   end
 
 end
