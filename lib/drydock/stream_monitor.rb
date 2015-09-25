@@ -37,7 +37,7 @@ module Drydock
       end
     end
 
-    def_delegators :@thread, :join, :kill, :run
+    def_delegators :@thread, :alive?, :join, :kill, :run
 
     def self.event_type_for(type)
       case type.to_sym
