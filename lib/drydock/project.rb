@@ -109,15 +109,14 @@ module Drydock
       chain.run("# COPY #{source_path} #{target_path} DIGEST #{digest}", no_cache: no_cache) do |container|
         target_stat = container.archive_head(target_path)
 
+        # TODO(rpasay): cannot autocreate the target, because `container` here is already dead
         unless target_stat
-          exec_out, exec_err, exec_code = container.exec(["mkdir #{target_path}"], detach: false)
-          Drydock.logger.info(messages: exec_out, annotation: '(O)', indent: 2)
-          Drydock.logger.info(messages: exec_err, annotation: '(E)', indent: 2)
+          raise InvalidInstructionError, "Target path #{target_path.inspect} does not exist"
         end
 
         unless target_stat.directory?
           Drydock.logger.debug(target_stat)
-          raise InvalidInstructionError, "#{target_path} exists, but is not a directory in the container"
+          raise InvalidInstructionError, "Target path #{target_path.inspect} exists, but is not a directory in the container"
         end
 
         container.archive_put(target_path) do |output|

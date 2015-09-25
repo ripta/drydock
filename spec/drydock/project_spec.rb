@@ -67,8 +67,7 @@ RSpec.describe Drydock::Project do
       project.copy(asset_path, '/assets', chmod: false, no_cache: true, recursive: true)
     }.to raise_error(Drydock::InvalidInstructionError)
 
-    expect(project.last_image).not_to be_nil
-    expect(project.last_image.id).not_to be_empty
+    expect(project.last_image).to be_nil
   end
 
 end
