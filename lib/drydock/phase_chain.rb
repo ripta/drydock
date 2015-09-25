@@ -49,7 +49,7 @@ module Drydock
       end
     end
 
-    def self.create_container(cfg, timeout: nil)
+    def self.create_container(cfg, timeout: nil, &blk)
       timeout ||= Excon.defaults[:read_timeout]
 
       Docker::Container.create(cfg).tap do |c|
@@ -72,6 +72,9 @@ module Drydock
         end
 
         c.start
+
+        blk.call(c) if blk
+
         c.wait(timeout)
         t.join
       end
