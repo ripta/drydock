@@ -21,8 +21,6 @@ module Drydock
     IMAGE_EVENTS = %i(delete import pull push tag untag)
 
     SHORT_FORMAT = Proc.new do |event, is_new, serial, event_type|
-      timestamp = Time.at(event.time)
-      time_string = timestamp.strftime('%H:%M:%S')
       long_id = event.id.to_s
       short_id = if long_id.include?(':') || long_id.include?('/')
         long_id
