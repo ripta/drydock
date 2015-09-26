@@ -68,9 +68,16 @@ RSpec.describe Docker::Container do
         expect(stat).to be_a(Docker::ContainerPathStat)
         expect(stat.name).to eq('real_file')
         expect(stat.size).to eq(0)
+
         expect(stat.mode.file_mode).to eq(0644)
         expect(stat.mode.regular?).to be_truthy
         expect(stat.mode.directory?).to be_falsey
+
+        expect(stat.mode.flags).to be_empty
+        expect(stat.mode.short_flags).to be_empty
+        expect(stat.mode.to_s).to eq('')
+
+        expect(stat.mtime).not_to be_nil
       end
     end
 
@@ -79,9 +86,16 @@ RSpec.describe Docker::Container do
         stat = container.archive_head('/etc/mtab')
         expect(stat).to be_a(Docker::ContainerPathStat)
         expect(stat).to respond_to(:link?)
+
         expect(stat.mode.link?).to be_truthy
         expect(stat.link?).to be_truthy
         expect(stat.link_target).to eq('/proc/mounts')
+
+        expect(stat.mode.flags).to eq([:link])
+        expect(stat.mode.short_flags).to eq(['L'])
+        expect(stat.mode.to_s).to eq('L')
+
+        expect(stat.mtime).not_to be_nil
       end
     end
   end
