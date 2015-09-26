@@ -20,21 +20,6 @@ module Drydock
 
     IMAGE_EVENTS = %i(delete import pull push tag untag)
 
-    SHORT_FORMAT = Proc.new do |event, is_new, serial, event_type|
-      long_id = event.id.to_s
-      short_id = if long_id.include?(':') || long_id.include?('/')
-        long_id
-      else 
-        long_id.slice(0, 12)
-      end
-
-      if is_new
-        Drydock.logger.info(message: "#{event_type.to_s.capitalize} #{short_id} #{event.status}")
-      else
-        Drydock.logger.debug(message: "#{event_type.to_s.capitalize} #{short_id} #{event.status}")
-      end
-    end
-
     def_delegators :@thread, :alive?, :join, :kill, :run
 
     def self.event_type_for(type)
