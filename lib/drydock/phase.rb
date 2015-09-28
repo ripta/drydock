@@ -27,8 +27,8 @@ module Drydock
     end
 
     def destroy!
-      build_container.remove if built?
       result_image.remove    if result_image
+      build_container.remove if built?
       self
     end
 
