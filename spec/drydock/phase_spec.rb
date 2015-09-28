@@ -58,7 +58,7 @@ RSpec.describe Drydock::Phase do
     end
 
     it 'when a build container is present' do
-      expect(build_container).to receive(:remove).with(no_args)
+      expect(build_container).to receive(:remove).with(hash_including(:force))
       expect { has_build_container.finalize! }.not_to raise_error
     end
 
