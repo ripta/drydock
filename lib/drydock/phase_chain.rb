@@ -115,10 +115,10 @@ module Drydock
 
     def destroy!
       return self if frozen?
-      children.map(&:destroy!) if children
+      children.reverse_each(&:destroy!) if children
       ephemeral_containers.map(&:remove)
 
-      map(&:destroy!)
+      reverse_each(&:destroy!)
       freeze
     end
 
