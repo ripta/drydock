@@ -158,7 +158,7 @@ module Drydock
 
       # TODO(rpasay): invalidate cache when the downloaded file changes,
       # and then force rebuild
-      chain.run("# DOWNLOAD #{source_url}") do |container|
+      chain.run("# DOWNLOAD #{source_url} #{target_path}") do |container|
         container.archive_put do |output|
           TarWriter.new(output) do |tar|
             cache.get(source_url) do |input|
