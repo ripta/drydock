@@ -113,12 +113,12 @@ module Drydock
       self.class.new(last_image, self)
     end
 
-    def destroy!
+    def destroy!(force: false)
       return self if frozen?
-      children.reverse_each(&:destroy!) if children
-      ephemeral_containers.map(&:remove)
+      children.reverse_each { |c| c.destroy!(force: force) } if children
+      ephemeral_containers.map { |c| c.remove(force: force) }
 
-      reverse_each(&:destroy!)
+      reverse_each { |c| c.destroy!(force: force) }
       freeze
     end
 
@@ -130,14 +130,14 @@ module Drydock
       @ephemeral_containers
     end
 
-    def finalize!
+    def finalize!(force: false)
       return self if frozen?
 
-      children.map(&:finalize!) if children
-      ephemeral_containers.map(&:remove)
+      children.map { |c| c.finalize!(force: force) } if children
+      ephemeral_containers.map { |c| c.remove(force: force) }
 
       Drydock.logger.info("##{serial}: Final image ID is #{last_image.id}") unless empty?
-      map(&:finalize!)
+      map { |p| p.finalize!(force: force) }
       freeze
     end
 

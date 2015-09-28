@@ -128,9 +128,9 @@ module Drydock
       self
     end
 
-    def destroy!
-      chain.destroy! if chain
-      finalize!
+    def destroy!(force: false)
+      chain.destroy!(force: force) if chain
+      finalize!(force: force)
     end
 
     # Meta instruction to signal to the builder that the build is done.
@@ -221,9 +221,9 @@ module Drydock
 
     # Finalize everything. This will be automatically invoked at the end of
     # the build, and should not be called manually.
-    def finalize!
+    def finalize!(force: false)
       if chain
-        chain.finalize!
+        chain.finalize!(force: force)
       end
 
       if stream_monitor
