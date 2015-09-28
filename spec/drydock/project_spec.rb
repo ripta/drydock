@@ -2,7 +2,7 @@
 RSpec.describe Drydock::Project do
 
   let(:project) { described_class.new }
-  after(:each) { project.destroy! if project }
+  after(:each) { project.destroy!(force: true) if project }
 
   let(:asset_path) { 'spec/assets' }
 
