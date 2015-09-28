@@ -1,6 +1,13 @@
 
 RSpec.describe Drydock::Project do
 
+  before(:each) {
+    Drydock.logger = Drydock::Logger.new(STDOUT).tap do |l|
+      l.level = ::Logger::DEBUG
+      l.formatter = Drydock::Formatter.new
+    end
+  }
+
   let(:project) { described_class.new }
   after(:each) { project.destroy! if project }
 
@@ -74,6 +81,21 @@ RSpec.describe Drydock::Project do
     expect(Excon).to receive(:get).once.with('http://httpbin.org/ip', hash_including(:response_block))
 
     project.set :cache, Drydock::ObjectCaches::InMemoryCache.new
+    project.set :event_handler do |event, is_new, serial, event_type|
+      long_id = event.id.to_s
+      short_id = if long_id.include?(':') || long_id.include?('/')
+        long_id
+      else 
+        long_id.slice(0, 12)
+      end
+
+      if is_new
+        Drydock.logger.info(message: "#{event_type.to_s.capitalize} #{short_id} #{event.status}")
+      else
+        Drydock.logger.debug(message: "#{event_type.to_s.capitalize} #{short_id} #{event.status}")
+      end
+    end
+
     project.from('alpine')
     expect {
       project.download_once('http://httpbin.org/ip', '/etc/ip_address.json',   chmod: 0600)
