@@ -21,6 +21,13 @@ require_relative '../lib/drydock'
 RSpec.configure do |config|
   SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
 
+  if ENV.key?('RSPEC_DEBUG')
+    Drydock.logger = Drydock::Logger.new(STDOUT).tap do |l|
+      l.level = ::Logger::DEBUG
+      l.formatter = Drydock::Formatter.new
+    end
+  end
+
   if config.files_to_run.one?
     config.default_formatter = 'doc'
   end
