@@ -5,6 +5,10 @@ module Drydock
   module ObjectCaches
     class NoCache < Base
 
+      def clear
+        true
+      end
+
       def fetch(key, &blk)
         blk.call
       end
@@ -22,6 +26,8 @@ module Drydock
           File.open('/dev/null', 'w') do |file|
             blk.call file
           end
+        else
+          # :noop:
         end
 
         nil

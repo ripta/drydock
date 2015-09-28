@@ -10,6 +10,16 @@ module Drydock
         FileUtils.mkdir_p(@dir)
       end
 
+      def clear
+        begin
+          FileUtils.remove_entry(@dir)
+          true
+        rescue => e
+          Drydock.logger.error("Cannot clear #{self.class} at #{@dir.inspect}: #{e}")
+          return false
+        end
+      end
+
       def fetch(key, &blk)
         filename = build_path(key)
 

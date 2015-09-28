@@ -3,6 +3,10 @@ module Drydock
   module ObjectCaches
     class Base
 
+      def clear
+        raise NotImplementedError, '#clear must be overridden in the subclass'
+      end
+
       def fetch(key, &blk)
         raise NotImplementedError, '#fetch must be overridden in the subclass'
       end
