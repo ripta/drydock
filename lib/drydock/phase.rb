@@ -27,7 +27,15 @@ module Drydock
     end
 
     def destroy!(force: false)
-      result_image.remove(force: force)    if result_image
+      if result_image
+        begin
+          result_image.remove(force: force)
+        rescue Docker::Error::NotFoundError => e
+          # Ignore, because the image could have been deleted by another phase in
+          # another derived chain.
+        end
+      end
+
       build_container.remove(force: force) if built?
       self
     end
