@@ -31,7 +31,7 @@ module Drydock
 
   def self.build_on_chain(chain, opts = {}, &blk)
     Project.new(opts.merge(chain: chain)).tap do |project|
-      project.instance_eval(&blk)
+      project.instance_eval(&blk) if blk
     end
   end
 
