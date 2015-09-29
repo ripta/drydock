@@ -81,4 +81,76 @@ RSpec.describe Drydock::Project do
     }.not_to raise_error
   end
 
+  it 'sets the raw Cmd' do
+    project.from('alpine')
+    project.cmd(['/bin/bash'])
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Cmd']).to eq(['/bin/bash'])
+  end
+
+  it 'sets the shell Cmd' do
+    project.from('alpine')
+    project.cmd('/bin/ls')
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Cmd']).to eq(['/bin/sh', '-c', '/bin/ls'])
+  end
+
+  it 'keeps the shell Cmd even after another build command' do
+    project.from('alpine')
+    project.cmd('/bin/ls')
+    project.run('/bin/date')
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Cmd']).to eq(['/bin/sh', '-c', '/bin/ls'])
+    expect(image.info['ContainerConfig']['Cmd']).to eq(['/bin/sh', '-c', '/bin/date'])
+  end
+
+  it 'sets the Env' do
+    project.from('alpine')
+    project.env('APP_ROOT_TEST', '/app/current')
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Env']).to include('APP_ROOT_TEST=/app/current')
+  end
+
+  it 'sets the Env with multiple values' do
+    project.from('alpine')
+    project.env('APP_ROOT_TEST', '/app/current')
+    project.env('BUILD_ROOT',    '/tmp/build')
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Env']).to include('APP_ROOT_TEST=/app/current')
+    expect(image.info['Config']['Env']).to include('BUILD_ROOT=/tmp/build')
+  end
+
+  it 'sets the ExposedPorts' do
+    project.from('alpine')
+    project.expose(tcp: [80, 443], udp: 53)
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['ExposedPorts']).to include('80/tcp')
+    expect(image.info['Config']['ExposedPorts']).to include('443/tcp')
+    expect(image.info['Config']['ExposedPorts']).to include('53/udp')
+  end
+
 end
