@@ -1,0 +1,65 @@
+
+module Drydock
+
+  def self.banner
+    "Drydock v#{Drydock.version}"
+  end
+
+  def self.build(opts = {}, &blk)
+    Project.new(opts).tap do |project|
+      dryfile, dryfilename = yield
+
+      Dir.chdir(File.dirname(dryfilename))
+      Drydock.logger.info("Working directory set to #{Dir.pwd}")
+
+      begin
+        catch :done do
+          project.instance_eval(dryfile, dryfilename)
+        end
+      rescue => e
+        Drydock.logger.error("Error processing #{dryfilename}:")
+        Drydock.logger.error(message: "#{e.class}: #{e.message}")
+        e.backtrace.each do |backtrace|
+          Drydock.logger.debug(message: "#{backtrace}", indent: 1)
+        end
+      ensure
+        Drydock.logger.info("Cleaning up")
+        project.finalize!
+      end
+    end
+  end
+
+  def self.build_on_chain(chain, opts = {}, &blk)
+    Project.new(opts.merge(chain: chain)).tap do |project|
+      project.instance_eval(&blk) if blk
+    end
+  end
+
+  def self.from(repo, opts = {}, &blk)
+    opts = opts.clone
+    tag  = opts.delete(:tag, 'latest')
+
+    build(opts).tap do |project|
+      project.from(repo, tag)
+      yield project
+    end
+  end
+
+  def self.logger
+    @logger ||= Logger.new(File.new('/dev/null', 'w+'))
+  end
+
+  def self.logger=(logger)
+    @logger = logger
+  end
+
+  def self.using(project)
+    raise NotImplementedError, "TODO(rpasay)"
+  end
+
+  def self.version
+    version_file = File.join(File.dirname(__FILE__), '..', '..', 'VERSION')
+    File.exist?(version_file) ? File.read(version_file).chomp : ""
+  end
+
+end

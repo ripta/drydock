@@ -1,0 +1,6 @@
+.bundle
+.dockerignore
+.git
+Dockerfile
+pkg
+vendor
