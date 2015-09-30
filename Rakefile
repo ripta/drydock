@@ -14,7 +14,7 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
-  gem.name = "drydock"
+  gem.name = "dry-dock"
   gem.homepage = "http://github.com/ripta/drydock"
   gem.license = "MIT"
   gem.summary = %Q{Docker Image Pipeline DSL}
