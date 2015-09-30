@@ -95,8 +95,8 @@ DEPENDENCIES
   rake (~> 10.0)
   rspec (~> 3.0)
   rspec-collection_matchers
-  simplecov
-  simplecov-rcov (~> 0.2.3)
+  simplecov (~> 0.9)
+  simplecov-rcov (~> 0.2)
 
 BUNDLED WITH
    1.10.5

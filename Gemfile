@@ -6,8 +6,8 @@ group :development do
   gem 'jeweler', '~> 2.0'
   gem 'pry', '~> 0.10'
 
-  gem 'simplecov'
-  gem 'simplecov-rcov', '~> 0.2.3'
+  gem 'simplecov', '~> 0.9'
+  gem 'simplecov-rcov', '~> 0.2'
 end
 
 group :test do
