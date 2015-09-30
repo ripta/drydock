@@ -111,16 +111,16 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rake>, ["~> 10.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 2.0"])
       s.add_development_dependency(%q<pry>, ["~> 0.10"])
-      s.add_development_dependency(%q<simplecov>, [">= 0"])
-      s.add_development_dependency(%q<simplecov-rcov>, ["~> 0.2.3"])
+      s.add_development_dependency(%q<simplecov>, ["~> 0.9"])
+      s.add_development_dependency(%q<simplecov-rcov>, ["~> 0.2"])
     else
       s.add_dependency(%q<docker-api>, ["~> 1.22"])
       s.add_dependency(%q<excon>, ["~> 0.45"])
       s.add_dependency(%q<rake>, ["~> 10.0"])
       s.add_dependency(%q<jeweler>, ["~> 2.0"])
       s.add_dependency(%q<pry>, ["~> 0.10"])
-      s.add_dependency(%q<simplecov>, [">= 0"])
-      s.add_dependency(%q<simplecov-rcov>, ["~> 0.2.3"])
+      s.add_dependency(%q<simplecov>, ["~> 0.9"])
+      s.add_dependency(%q<simplecov-rcov>, ["~> 0.2"])
     end
   else
     s.add_dependency(%q<docker-api>, ["~> 1.22"])
@@ -128,8 +128,8 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rake>, ["~> 10.0"])
     s.add_dependency(%q<jeweler>, ["~> 2.0"])
     s.add_dependency(%q<pry>, ["~> 0.10"])
-    s.add_dependency(%q<simplecov>, [">= 0"])
-    s.add_dependency(%q<simplecov-rcov>, ["~> 0.2.3"])
+    s.add_dependency(%q<simplecov>, ["~> 0.9"])
+    s.add_dependency(%q<simplecov-rcov>, ["~> 0.2"])
   end
 end
 
