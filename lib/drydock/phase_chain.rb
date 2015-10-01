@@ -161,7 +161,6 @@ module Drydock
       no_cache = true if no_commit
 
       build_config = self.class.build_container_opts(src_image.id, cmd, opts)
-      Drydock.logger.info(build_config.inspect)
       cached_image = ImageRepository.find_by_config(build_config)
 
       if cached_image && !no_cache
