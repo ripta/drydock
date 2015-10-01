@@ -210,8 +210,6 @@ module Drydock
           end
 
           commit_config = self.class.build_commit_opts(opts)
-          Drydock.logger.info(opts.inspect)
-          Drydock.logger.info(commit_config.inspect)
 
           result = container.commit(commit_config)
           Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
