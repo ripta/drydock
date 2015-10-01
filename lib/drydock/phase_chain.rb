@@ -39,11 +39,10 @@ module Drydock
 
         (cc[:OnBuild] ||= []).push(opts[:on_build]) if opts.key?(:on_build)
 
+        cc[:MetaOptions] ||= {}
         [:connect_timeout, :read_timeout].each do |key|
-          if opts.key?(key)
-            cc[:meta_options] ||= {}
-            cc[:meta_options][key] = opts[key]
-          end
+          cc[:MetaOptions][key] = opts[key] if opts.key?(key)
+          cc[:MetaOptions][key] = opts[:timeout] if opts.key?(:timeout)
         end
       end
     end
@@ -57,9 +56,9 @@ module Drydock
     end
 
     def self.create_container(cfg, &blk)
-      meta_options = cfg.fetch(:meta_options, {})
+      meta_options = cfg[:MetaOptions] || {}
       timeout = meta_options.fetch(:read_timeout, Excon.defaults[:read_timeout]) || 60
-
+      
       Docker::Container.create(cfg).tap do |c|
         t = Thread.new do
           begin
