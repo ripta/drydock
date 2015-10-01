@@ -205,9 +205,9 @@ module Drydock
               opts[:command]   = src_image_config['Cmd'] if src_image_config.key?('Cmd')
             end
 
-            Drydock.logger.info(message: "Command retrieval: #{opts[:command].inspect}")
-            Drydock.logger.info(message: "Source image info: #{src_image.info.class} #{src_image.info.inspect}")
-            Drydock.logger.info(message: "Source image config: #{src_image.info['Config'].inspect}")
+            Drydock.logger.debug(message: "Command retrieval: #{opts[:command].inspect}")
+            Drydock.logger.debug(message: "Source image info: #{src_image.info.class} #{src_image.info.inspect}")
+            Drydock.logger.debug(message: "Source image config: #{src_image.info['Config'].inspect}")
           end
 
           commit_config = self.class.build_commit_opts(opts)
