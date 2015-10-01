@@ -3,6 +3,7 @@ module Drydock
   class ContainerConfig < ::Hash
 
     DEFAULTS = {
+      'MetaOptions'  => {},
       'OpenStdin'    => false,
       'AttachStdin'  => false,
       'AttachStdout' => false,
