@@ -173,6 +173,20 @@ module Drydock
       self
     end
 
+    def drydock(version = '>= 0')
+      raise InvalidInstructionError, '`drydock` must be called before `from`' if chain
+      log_step('drydock', version)
+      
+      requirement = Gem::Requirement.create(version)
+      current     = Gem::Version.create(Drydock.version)
+
+      unless requirement.satisfied_by?(current)
+        raise InsufficientVersionError, "build requires #{version.inspect}, but you're on #{Drydock.version.inspect}"
+      end
+
+      self
+    end
+
     # Set an environment variable.
     def env(name, value)
       requires_from!(:env)
