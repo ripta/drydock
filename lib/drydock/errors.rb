@@ -6,4 +6,6 @@ module Drydock
 
   class ExecutionError < OperationError; end
   class InvalidCommandExecutionError < ExecutionError; end
+
+  class InsufficientVersionError < OperationError; end
 end
