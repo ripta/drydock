@@ -55,11 +55,15 @@ module Drydock
       end
     end
 
+    # TODO(rpasay): Break this large method apart.
     def self.create_container(cfg, &blk)
       meta_options = cfg[:MetaOptions] || {}
       timeout = meta_options.fetch(:read_timeout, Excon.defaults[:read_timeout]) || 60
       
       Docker::Container.create(cfg).tap do |c|
+        # The call to Container.create merely creates a container, to be
+        # scheduled to run. Start a separate thread that attaches to the
+        # container's streams and mirror them to the logger.
         t = Thread.new do
           begin
             c.attach(stream: true, stdout: true, stderr: true) do |stream, chunk|
@@ -78,12 +82,44 @@ module Drydock
           end
         end
 
-        c.start
+        # TODO(rpasay): RACE CONDITION POSSIBLE - the thread above may be
+        # scheduled but not run before this block gets executed, which can
+        # cause a loss of log output. However, forcing `t` to be run once
+        # before this point seems to cause an endless wait (ruby 2.1.5).
+        # Need to dig deeper in the future.
+        # 
+        # TODO(rpasay): More useful `blk` handling here. This method only
+        # returns after the container terminates, which isn't useful when
+        # you want to do stuff to it, e.g., spawn a new exec container.
+        #
+        # The following block starts the container, and waits for it to finish.
+        # An error is raised if no exit code is returned or if the exit code
+        # is non-zero.
+        begin
+          c.start
+          blk.call(c) if blk
+          
+          results = c.wait(timeout)
 
-        blk.call(c) if blk
+          unless results
+            raise InvalidCommandExecutionError, {container: c.id, message: "Container did not return anything (API BUG?)"}
+          end
 
-        c.wait(timeout)
-        t.join
+          unless results.key?('StatusCode')
+            raise InvalidCommandExecutionError, {container: c.id, message: "Container did not return a status code (API BUG?)"}
+          end
+
+          unless results['StatusCode'] == 0
+            raise InvalidCommandExecutionError, {container: c.id, message: "Container exited with code #{results['StatusCode']}"}
+          end
+        rescue
+          # on error, kill the streaming logs and reraise the exception
+          t.kill
+          raise
+        ensure
+          # always rejoin the thread
+          t.join
+        end
       end
     end
 
