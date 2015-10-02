@@ -36,4 +36,14 @@ RSpec.describe Drydock::Project do
     expect(v2_output).to include("'/tmp/VERSION': No such file or directory")
   end
 
+  it 'succeeds running a real command' do
+    project.from('alpine')
+    expect { project.run('ls /') }.not_to raise_error
+  end
+
+  it 'fails running a non-existant command' do
+    project.from('alpine')
+    expect { project.run('whatever-gonna-error /') }.to raise_error(Drydock::InvalidCommandExecutionError)
+  end
+
 end
