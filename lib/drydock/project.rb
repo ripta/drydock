@@ -28,6 +28,10 @@ module Drydock
     # Set the author for commits. This is not an instruction, per se, and only
     # takes into effect after instructions that cause a commit.
     def author(name: nil, email: nil)
+      if (name.nil? || name.empty?) && (email.nil? || name.empty?)
+        raise InvalidInstructionArgumentError, 'at least one of `name:` or `email:` must be provided'
+      end
+
       value = email ? "#{name} <#{email}>" : name.to_s
       set :author, value
     end
