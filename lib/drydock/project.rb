@@ -228,6 +228,10 @@ module Drydock
     # the project, although non-instructions may appear before this.
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
+
+      repo = repo.to_s
+      tag  = tag.to_s
+
       log_step('from', repo, tag)
       @chain = PhaseChain.from_repo(repo, tag)
       self
