@@ -1,0 +1,10 @@
+sudo: required
+services:
+- docker
+language: ruby
+rvm:
+- 2.1.5
+before_install:
+- gem update --system 2.2.2
+- gem --version
+script: bundle exec rspec
