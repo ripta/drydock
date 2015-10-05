@@ -2,4 +2,5 @@
 .bundle
 coverage
 pkg
+rdoc
 vendor
