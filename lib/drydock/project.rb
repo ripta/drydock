@@ -366,6 +366,9 @@ module Drydock
     # * +author+, a string, preferably in the format of "Name <email@domain.com>".
     #   If provided, this overrides 
     # * +comment+, an arbitrary string used as a comment for the resulting image
+    #
+    # If +run+ results in a container being created and +&blk+ is provided, the
+    # container will be yielded to the block.
     def run(cmd, opts = {}, &blk)
       requires_from!(:run)
 
