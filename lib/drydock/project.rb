@@ -62,17 +62,17 @@ module Drydock
       self
     end
 
-    # Copies files from `source_path` on the the build machine, into `target_path`
+    # Copies files from +source_path+ on the the build machine, into +target_path+
     # in the container. This instruction automatically commits the result.
     #
-    # When `chmod` is `false` (the default), the original file mode from its
+    # When +chmod+ is +false+ (the default), the original file mode from its
     # source file is kept when copying into the container. Otherwise, the mode
     # provided will be used to override *all* file and directory modes.
     #
-    # When `no_cache` is `false` (the default), the hash digest of the source path
-    # is used as the cache key. When `true`, the image is rebuilt every time.
+    # When +no_cache+ is +false+ (the default), the hash digest of the source path
+    # is used as the cache key. When +true+, the image is rebuilt every time.
     #
-    # The `copy` instruction always respects the `ignorefile`.
+    # The +copy+ instruction always respects the +ignorefile+.
     def copy(source_path, target_path, chmod: false, no_cache: false, recursive: true)
       requires_from!(:copy)
       log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))
@@ -113,7 +113,7 @@ module Drydock
       chain.run("# COPY #{source_path} #{target_path} DIGEST #{digest}", no_cache: no_cache) do |container|
         target_stat = container.archive_head(target_path)
 
-        # TODO(rpasay): cannot autocreate the target, because `container` here is already dead
+        # TODO(rpasay): cannot autocreate the target, because +container+ here is already dead
         unless target_stat
           raise InvalidInstructionError, "Target path #{target_path.inspect} does not exist"
         end
@@ -142,8 +142,8 @@ module Drydock
       throw :done
     end
 
-    # Download (and cache) a file from `source_url`, and copy it into the
-    # `target_path` in the container with a specific `chmod` (defaults to 0644).
+    # Download (and cache) a file from +source_url+, and copy it into the
+    # +target_path+ in the container with a specific +chmod+ (defaults to 0644).
     #
     # The cache currently cannot be disabled.
     def download_once(source_url, target_path, chmod: 0644)
@@ -191,7 +191,8 @@ module Drydock
       self
     end
 
-    # Set an environment variable.
+    # Set an environment variable, which will be persisted in future images
+    # (unless it is specifically overwritten) and derived projects.
     def env(name, value)
       requires_from!(:env)
       log_step('env', name, value)
@@ -199,8 +200,9 @@ module Drydock
       self
     end
 
-    # Set multiple environment variables at once. `pairs` should be a
-    # hash-like enumerable.
+    # Set multiple environment variables at once. +pairs+ should be a
+    # hash-like enumerable. The values will be persisted in future images
+    # and derived projects, unless specifically overwritten.
     def envs(pairs = {})
       requires_from!(:envs)
       log_step('envs', pairs)
@@ -212,10 +214,10 @@ module Drydock
 
     # Expose one or more ports.
     #
-    # When `ports` is specified, the format must be: ##/type where ## is the port
+    # When +ports+ is specified, the format must be: ##/type where ## is the port
     # number and type is either tcp or udp. For example, "80/tcp", "53/udp".
     #
-    # Otherwise, when the `tcp` or `udp` options are specified, only the port
+    # Otherwise, when the +tcp+ or +udp+ options are specified, only the port
     # numbers are required.
     def expose(*ports, tcp: [], udp: [])
       requires_from!(:expose)
@@ -228,7 +230,7 @@ module Drydock
       chain.run("# SET PORTS #{ports.inspect}", expose: ports)
     end
 
-    # Build on top of the `from` image. This must be the first instruction of
+    # Build on top of the +from+ image. This must be the first instruction of
     # the project, although non-instructions may appear before this.
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
@@ -267,13 +269,15 @@ module Drydock
       Drydock.logger
     end
 
-    # Import a `path` from a different project. The `from` option should be
-    # project, usually the result of a `derive` instruction.
+    # Import a +path+ from a different project. The +from+ option should be
+    # project, usually the result of a +derive+ instruction.
     #
     # TODO(rpasay): add a #load method as an alternative to #import, which allows
     # importing a full container, including things from /etc.
+    #
     # TODO(rpasay): do not always append /. to the #archive_get calls; must check
-    # the type of `path` inside the container first.
+    # the type of +path+ inside the container first.
+    #
     # TODO(rpasay): break this large method into smaller ones.
     def import(path, from: nil, force: false, spool: false)
       mkdir(path)
@@ -323,7 +327,7 @@ module Drydock
       chain ? chain.last_image : nil
     end
 
-    # Create a new directory specified by `path`. When `chmod` is given, the new
+    # Create a new directory specified by +path+. When +chmod+ is given, the new
     # directory will be chmodded. Otherwise, the default umask is used to determine
     # the path's mode.
     def mkdir(path, chmod: nil)
@@ -342,20 +346,26 @@ module Drydock
       self
     end
 
-    # This instruction is used to run the command `cmd` against the current
-    # project. The `opts` may be one of:
+    # This instruction is used to run the command +cmd+ against the current
+    # project. The +opts+ may be one of:
     #
-    # * `no_commit`, when true, the container will not be committed to a
+    # * +no_commit+, when true, the container will not be committed to a
     #   new image. Most of the time, you want this to be false (default).
-    # * `no_cache`, when true, the container will be rebuilt every time.
+    # * +no_cache+, when true, the container will be rebuilt every time.
     #   Most of the time, you want this to be false (default). When
-    #   `no_commit` is true, this option is automatically set to true.
-    # * `env`, which can be used to specify a set of environment variables.
-    #   For normal usage, you should use the `env` or `envs` instructions.
-    # * `expose`, which can be used to specify a set of ports to expose. For
-    #   normal usage, you should use the `expose` instruction instead.
-    # * `on_build`, which can be used to specify low-level on-build options. For
-    #   normal usage, you should use the `on_build` instruction instead.
+    #   +no_commit+ is true, this option is automatically set to true.
+    # * +env+, which can be used to specify a set of environment variables.
+    #   For normal usage, you should use the +env+ or +envs+ instructions.
+    # * +expose+, which can be used to specify a set of ports to expose. For
+    #   normal usage, you should use the +expose+ instruction instead.
+    # * +on_build+, which can be used to specify low-level on-build options. For
+    #   normal usage, you should use the +on_build+ instruction instead.
+    #
+    # Additional +opts+ are also recognized:
+    #
+    # * +author+, a string, preferably in the format of "Name <email@domain.com>".
+    #   If provided, this overrides 
+    # * +comment+, an arbitrary string used as a comment for the resulting image
     def run(cmd, opts = {}, &blk)
       requires_from!(:run)
 
@@ -382,7 +392,7 @@ module Drydock
 
     # Tag the current state of the project with a repo and tag.
     #
-    # When `force` is false (default), this instruction will raise an error if
+    # When +force+ is false (default), this instruction will raise an error if
     # the tag already exists. When true, the tag will be overwritten without
     # any warnings.
     def tag(repo, tag = 'latest', force: false)
@@ -393,7 +403,7 @@ module Drydock
       self
     end
 
-    # Use a `plugin` to issue other commands. The block form can be used to issue
+    # Use a +plugin+ to issue other commands. The block form can be used to issue
     # multiple commands:
     #
     #   with Plugins::APK do |apk|
