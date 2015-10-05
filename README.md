@@ -72,6 +72,4 @@ $ bundle
 ## Roadmap
 
 1. Customizable caching subsystem.
-2. Derived docker images from a previous build step.
-3. Composable docker images.
 4. Customizable caching rules.
