@@ -38,8 +38,10 @@ Drydockfiles are written in ruby.
 
 ## Production Installation
 
-Either (a) `gem install drydock`, or (b) add "drydock" to your project's Gemfile,
-and run `bundle`.
+Either (a) `gem install dry-dock`, or (b) add "dry-dock" to your project's Gemfile,
+and run `bundle`. Sorry, but the gem name `drydock` was already taken by a defunct
+gem, and I'm too lazy to contact them; the binary and name of the project, however,
+are both `drydock`.
 
 In your project's root directory, you'll want to create a `Drydockfile` containing
 drydock functions. When you're ready, build an image using:
