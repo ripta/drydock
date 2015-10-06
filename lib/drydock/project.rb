@@ -271,6 +271,48 @@ module Drydock
 
     # Set an environment variable, which will be persisted in future images
     # (unless it is specifically overwritten) and derived projects.
+    # 
+    # Subsequent commands can refer to the environment variable by preceeding
+    # the variable with a `$` sign, e.g.:
+    #
+    # ```
+    #   env 'APP_ROOT', '/app'
+    #   mkdir '$APP_ROOT'
+    #   run ['some-command', '--install-into=$APP_ROOT']
+    # ```
+    #
+    # Multiple calls to this instruction will build on top of one another.
+    # That is, after the following two instructions:
+    # 
+    # ```
+    #   env 'APP_ROOT',   '/app'
+    #   env 'BUILD_ROOT', '/build'
+    # ```
+    #
+    # the resulting image will have both `APP_ROOT` and `BUILD_ROOT` set.
+    #
+    # ```
+    #   # 1
+    #   env 'APP_ROOT', '/app'
+    #   # 2
+    #   env 'APP_ROOT', '/home/jdoe/app'
+    #   # 3
+    # ```
+    #
+    # At `#1`, `APP_ROOT` is not set (assuming no other instruction comes before
+    # it). At `#2`, `APP_ROOT` is set to '/app'. At `#3`, `APP_ROOT` is set to
+    # `/home/jdoe/app`, and its previous value is no longer available.
+    #
+    # Note that the environment variable is not evaluated in ruby; in fact, the
+    # `$` sign should be passed as-is to the instruction. As with shell
+    # programming, the variable name should **not** be preceeded by the `$`
+    # sign when declared, but **must be** when referenced.
+    #
+    # @param [String] name The name of the environment variable. By convention,
+    #   the name should be uppercased and underscored. The name should **not**
+    #   be preceeded by a `$` sign in this context.
+    # @param [String] value The value of the variable. No extra quoting should be
+    #   necessary here.
     def env(name, value)
       requires_from!(:env)
       log_step('env', name, value)
@@ -278,9 +320,30 @@ module Drydock
       self
     end
 
-    # Set multiple environment variables at once. `pairs` should be a
-    # hash-like enumerable. The values will be persisted in future images
-    # and derived projects, unless specifically overwritten.
+    # Set multiple environment variables at once. The values will be persisted in
+    # future images and derived projects, unless specifically overwritten.
+    #
+    # The following instruction:
+    #
+    # ```
+    #   envs APP_ROOT: '/app', BUILD_ROOT: '/tmp/build'
+    # ```
+    #
+    # is equivalent to the more verbose:
+    #
+    # ```
+    #   env 'APP_ROOT', '/app'
+    #   env 'BUILD_ROOT', '/tmp/build'
+    # ```
+    #
+    # When the same key appears more than once in the same {#envs} instruction,
+    # the same rules for ruby hashes are used, which most likely (but not guaranteed
+    # between ruby version) means the last value set is used.
+    #
+    # See also notes for {#env}.
+    #
+    # @param [Hash, #map] pairs A hash-like enumerable, where `#map` yields exactly
+    #   two elements. See {#env} for any restrictions of the name (key) and value.
     def envs(pairs = {})
       requires_from!(:envs)
       log_step('envs', pairs)
@@ -290,13 +353,15 @@ module Drydock
       self
     end
 
-    # Expose one or more ports.
+    # Expose one or more ports. The values will be persisted in future images
     #
     # When `ports` is specified, the format must be: ##/type where ## is the port
     # number and type is either tcp or udp. For example, "80/tcp", "53/udp".
     #
     # Otherwise, when the `tcp` or `udp` options are specified, only the port
     # numbers are required.
+    #
+    # @param [Array<String>] ports 
     def expose(*ports, tcp: [], udp: [])
       requires_from!(:expose)
 
