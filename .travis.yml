@@ -5,6 +5,8 @@ language: ruby
 rvm:
 - 2.1.5
 before_install:
+- sudo service docker stop
+- sudo apt-get purge lxc-docker
 - curl -sSL https://get.docker.com/ | sudo sh
 - sudo ls /etc/apt/sources.list.d/
 - sudo cat /etc/apt/sources.list.d/*
