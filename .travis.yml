@@ -5,6 +5,7 @@ language: ruby
 rvm:
 - 2.1.5
 before_install:
+- apt-cache search docker
 - apt-cache policy docker-engine
 - apt-get install docker-engine=1.8.0
 - docker version
