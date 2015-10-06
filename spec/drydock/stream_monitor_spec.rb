@@ -30,6 +30,7 @@ RSpec.describe Drydock::StreamMonitor do
       expect(monitor).not_to be_nil
       expect(run_image).not_to be_nil
 
+      sleep 1
       expect(events).to have_at_least(1).item
 
       event_statuses = events.map(&:status).sort
