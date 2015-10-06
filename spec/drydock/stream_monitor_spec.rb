@@ -30,7 +30,12 @@ RSpec.describe Drydock::StreamMonitor do
       expect(monitor).not_to be_nil
       expect(run_image).not_to be_nil
 
-      expect(events).to have(5).items
+      expect(events).to have_at_least(1).item
+
+      event_statuses = events.map(&:status).sort
+      expect(event_statuses).to include('create')
+      expect(event_statuses).to include('pull')
+      expect(event_statuses).to include('start')
 
       commit_event = events.find { |evt| evt.status == 'commit' }
       expect(commit_event).not_to be_nil
