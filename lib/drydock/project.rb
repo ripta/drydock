@@ -420,8 +420,59 @@ module Drydock
       self
     end
 
-    # Derive a new project based on the current state of the build. This
-    # instruction returns a project that can be referred to elsewhere.
+    # Derive a new project based on the current state of the current project.
+    # This instruction returns the new project that can be referred to elsewhere,
+    # and most useful when combined with other inter-project instructions,
+    # such as {#import}.
+    #
+    # For example:
+    #
+    # ```
+    #   from 'some-base-image'
+    #
+    #   APP_ROOT = '/app'
+    #   mkdir APP_ROOT
+    #
+    #   # 1:
+    #   ruby_build = derive {
+    #     copy 'Gemfile', APP_ROOT
+    #     run 'bundle install --path vendor'
+    #   }
+    #
+    #   # 2:
+    #   js_build = derive {
+    #     copy 'package.json', APP_ROOT
+    #     run 'npm install'
+    #   }
+    #
+    #   # 3:
+    #   derive {
+    #     import APP_ROOT, from: ruby_build
+    #     import APP_ROOT, from: js_build
+    #     tag 'jdoe/app', 'latest', force: true
+    #   }
+    # ```
+    #
+    # In the example above, an image is created with a new directory `/app`.
+    # From there, the build branches out into three directions:
+    #
+    # 1. Create a new project referred to as `ruby_build`. The result of this
+    #    project is an image with `/app`, a `Gemfile` in it, and a `vendor`
+    #    directory containing vendored gems.
+    # 2. Create a new project referred to as `js_build`. The result of this
+    #    project is an image with `/app`, a `package.json` in it, and a
+    #    `node_modules` directory containing vendored node.js modules.
+    #    This project does **not** contain any of the contents of `ruby_build`.
+    # 3. Create an anonymous project containing only the empty `/app` directory.
+    #    Onto that, we'll import the contents of `/app` from `ruby_build` into
+    #    this anonymous project. We'll do the same with the contents of `/app`
+    #    from `js_build`. Finally, the resulting image is given the tag
+    #    `jdoe/app:latest`.
+    #
+    # Because each derived project lives on its own and only depends on the
+    # root project (whose end state is essentially the {#mkdir} instruction),
+    # when `Gemfile` changes but `package.json` does not, only the first
+    # derived project will be rebuilt (and following that, the third as well).
     def derive(opts = {}, &blk)
       Drydock.build_on_chain(chain, opts, &blk)
     end
