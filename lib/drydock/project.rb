@@ -7,14 +7,23 @@ module Drydock
       author: nil,
       cache: nil,
       event_handler: false,
-      ignorefile: '.dockerignore',
-      label: nil,
-      logs: false
+      ignorefile: '.dockerignore'
     }
 
     # Create a new project. **Do not use directly.**
     #
     # @api private
+    # @param [Hash] build_opts Build-time options
+    # @option build_opts [Boolean] :auto_remove Whether intermediate images
+    #   created during the build of this project should be automatically removed.
+    # @option build_opts [String] :author The default author field when an
+    #   author is not provided explicitly with {#author}.
+    # @option build_opts [ObjectCaches::Base] :cache An object cache manager.
+    # @option build_opts [#call] :event_handler A handler that responds to a
+    #   `#call` message with four arguments: `[event, is_new, serial_no, event_type]`
+    #   most useful to override logging or 
+    # @option build_opts [PhaseChain] :chain A phase chain manager.
+    # @option build_opts [String] :ignorefile The name of the ignore-file to load.
     def initialize(build_opts = {})
       @chain   = build_opts.key?(:chain) && build_opts.delete(:chain).derive
       @plugins = {}
@@ -473,6 +482,7 @@ module Drydock
     # root project (whose end state is essentially the {#mkdir} instruction),
     # when `Gemfile` changes but `package.json` does not, only the first
     # derived project will be rebuilt (and following that, the third as well).
+    #
     def derive(opts = {}, &blk)
       Drydock.build_on_chain(chain, opts, &blk)
     end
