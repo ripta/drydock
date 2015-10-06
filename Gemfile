@@ -11,6 +11,7 @@ group :development do
 end
 
 group :test do
+  gem 'codeclimate-test-reporter', require: false
   gem 'rspec', '~> 3.0'
   gem 'rspec-collection_matchers'
   gem 'fakefs', require: false

@@ -7,6 +7,9 @@ require 'fakefs/spec_helpers'
 require 'simplecov'
 require 'simplecov-rcov'
 
+require 'codeclimate-test-reporter'
+CodeClimate::TestReporter.start
+
 unless ENV.key?('RCOV')
   SimpleCov.start {
     add_filter '/vendor/'

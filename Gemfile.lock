@@ -3,6 +3,8 @@ GEM
   specs:
     addressable (2.3.8)
     builder (3.2.2)
+    codeclimate-test-reporter (0.4.8)
+      simplecov (>= 0.7.1, < 1.0.0)
     coderay (1.1.0)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
@@ -87,6 +89,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  codeclimate-test-reporter
   docker-api (~> 1.22)
   excon (~> 0.45)
   fakefs

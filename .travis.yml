@@ -10,3 +10,6 @@ before_install:
 - docker version
 - docker info
 script: bundle exec rspec
+addons:
+  code_climate:
+    repo_token: e1dfe86e3cc086b44532f7f1122f585fe828e141767ac41e833b365b21fd275a
