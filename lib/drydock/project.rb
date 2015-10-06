@@ -289,7 +289,8 @@ module Drydock
     #   env 'BUILD_ROOT', '/build'
     # ```
     #
-    # the resulting image will have both `APP_ROOT` and `BUILD_ROOT` set.
+    # the resulting image will have both `APP_ROOT` and `BUILD_ROOT` set. Later
+    # instructions overwrites previous instructions of the same name:
     #
     # ```
     #   # 1
@@ -361,7 +362,16 @@ module Drydock
     # Otherwise, when the `tcp` or `udp` options are specified, only the port
     # numbers are required.
     #
-    # @param [Array<String>] ports 
+    # @example Different ways of exposing port 53 UDP and ports 80 and 443 TCP:
+    #   expose '53/udp', '80/tcp', '443/tcp'
+    #   expose udp: 53, tcp: [80, 443]
+    # @param [Array<String>] ports An array of strings of port specifications.
+    #   Each port specification must look like `#/type`, where `#` is the port
+    #   number, and `type` is either `udp` or `tcp`.
+    # @param [Integer, Array<Integer>] tcp A TCP port number to open, or an array
+    #   of TCP port numbers to open.
+    # @param [Integer, Array<Integer>] udp A UDP port number to open, or an array
+    #   of UDP port numbers to open.
     def expose(*ports, tcp: [], udp: [])
       requires_from!(:expose)
 
