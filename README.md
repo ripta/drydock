@@ -69,6 +69,61 @@ $ git clone git@github.com:ripta/drydock.git
 $ bundle
 ```
 
+## Drydockfile Syntax
+
+As previously mentioned, Drydockfiles are ruby. The contents of Drydockfile are
+evaluated in the context of an instance of `Drydock::Project`; you can refer to
+the documentation for it for more in-depth information.
+
+Because Drydockfiles are ruby, most constructs should work as-is: you can declare
+constants and refer to them later; call `Kernel#abort` to exit the program and
+stop the build; and write plugins to be called from within the Drydockfile.
+
+It would help if you understand ruby and
+[Dockerfiles](https://docs.docker.com/reference/builder/) before jumping in.
+
+All instructions are evaluated in the order that they are seen; syntax errors or
+any logical errors might not be caught until execution arrives at that point.
+
+1. `drydock(version = '>= 0')`
+
+    **This instruction is *optional*, but if specified, must appear at the beginning**
+    **of the file.** 
+
+    This instruction is used to restrict the version of `drydock` required to
+    run the `Drydockfile`. When not specified, any version of `drydock` is
+    allowed to run the file.
+
+    The version specifier understands any bundler-compatible (and therefore
+    [gem-compatible](http://guides.rubygems.org/patterns/#semantic-versioning))
+    version specification; it even understands the twiddle-waka operator.
+
+1. `from(repo, tag = 'latest')`
+
+    **This is the only required instruction and must appear before other instructions.**
+    If the `drydock` instruction is provided, `from` should come after it.
+
+    The `repo` name may be any valid docker repository name, and may optionally
+    include the registry address, e.g., `quay.io/john/app`. The name *must not*
+    contain the tag name.
+
+    When no `tag` is provided, `latest` is assumed.
+
+1. `author(name:, email:)`
+
+    This instruction affects **all instructions after it**, but nothing before it.
+
+    At least one of `name:` or `email:` must be given. If one is provided, the
+    other is optional.
+
+    If no author instruction is provided, the author field is left blank by default.
+
+4. `run(cmd, opts = {}, &blk)`
+
+    This instruction will run any `cmd` given and commit the result.
+
+
+
 ## Roadmap
 
 1. Customizable caching subsystem.
