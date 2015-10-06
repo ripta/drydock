@@ -345,7 +345,7 @@ module Drydock
     #
     # @param [Hash, #map] pairs A hash-like enumerable, where `#map` yields exactly
     #   two elements. See {#env} for any restrictions of the name (key) and value.
-    def envs(pairs = {})
+    def envs(pairs)
       requires_from!(:envs)
       log_step('envs', pairs)
 
