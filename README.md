@@ -1,6 +1,8 @@
 # drydock
 
-(WORK IN PROGRESS)
+(WORK IN PROGRESS — ALPHA-RELEASE SOFTWARE)
+
+![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)
 
 A ruby DSL to build your own docker images. Images are built based on instructions
 contained in your project's `Drydockfile`.
@@ -85,8 +87,9 @@ It would help if you understand ruby and
 All instructions are evaluated in the order that they are seen; syntax errors or
 any logical errors might not be caught until execution arrives at that point.
 
-For a complete and updated list of instructions, see the public API methods
-of the {Drydock::Project} class.
+For a complete and updated list of Drydockfile instructions, see the public API
+methods of the {Drydock::Project} class or head to the
+[automatically-generated ruby docs](http://www.rubydoc.info/gems/dry-dock).
 
 
 ## Roadmap
