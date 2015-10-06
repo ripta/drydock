@@ -484,10 +484,17 @@ module Drydock
     # derived project will be rebuilt (and following that, the third as well).
     #
     def derive(opts = {}, &blk)
-      Drydock.build_on_chain(chain, opts, &blk)
+      new_opts = build_opts.merge(opts).merge(chain: chain)
+
+      Project.new(new_opts).tap do |project|
+        project.instance_eval(&blk) if blk
+      end
     end
 
     # Access to the logger object.
+    #
+    # @return [Logger] A logger object on which one could call `#info`, `#error`,
+    #   and the likes.
     def logger
       Drydock.logger
     end
