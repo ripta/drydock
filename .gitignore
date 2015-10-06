@@ -1,6 +1,8 @@
 *.swp
 .bundle
+.yardoc
 coverage
+doc
 pkg
 rdoc
 vendor
