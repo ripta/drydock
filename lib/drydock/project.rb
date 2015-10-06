@@ -12,6 +12,9 @@ module Drydock
       logs: false
     }
 
+    # Create a new project. **Do not use directly.**
+    #
+    # @api private
     def initialize(build_opts = {})
       @chain   = build_opts.key?(:chain) && build_opts.delete(:chain).derive
       @plugins = {}
@@ -27,6 +30,17 @@ module Drydock
 
     # Set the author for commits. This is not an instruction, per se, and only
     # takes into effect after instructions that cause a commit.
+    #
+    # This instruction affects **all instructions after it**, but nothing before it.
+    #
+    # At least one of `name` or `email` must be given. If one is provided, the
+    # other is optional.
+    #
+    # If no author instruction is provided, the author field is left blank by default.
+    #
+    # @param [String] name The name of the author or maintainer of the image.
+    # @param [String] email The email of the author or maintainer.
+    # @raise [InvalidInstructionArgumentError] when neither name nor email is provided
     def author(name: nil, email: nil)
       if (name.nil? || name.empty?) && (email.nil? || name.empty?)
         raise InvalidInstructionArgumentError, 'at least one of `name:` or `email:` must be provided'
@@ -36,20 +50,45 @@ module Drydock
       set :author, value
     end
 
-    # Retrieve the current build ID for this project.
+    # Retrieve the current build ID for this project. If no image has been built,
+    # returns the string '0'.
     def build_id
       chain ? chain.serial : '0'
     end
 
     # Change directories for operations that require a directory.
-    def cd(path, &blk)
+    #
+    # @param [String] path The path to change directories to.
+    # @yield block containing instructions to run inside the new directory
+    def cd(path = '/', &blk)
       @run_path << path
       blk.call
     ensure
       @run_path.pop
     end
 
-    # Set the command to automatically execute when the image is run.
+    # Set the command that is automatically executed by default when the image
+    # is run through the `docker run` command.
+    #
+    # {#cmd} corresponds to the `CMD` Dockerfile instruction. This instruction
+    # does **not** run the command, but rather provides the default command to
+    # be run when the image is run without specifying a command.
+    #
+    # As with the `CMD` Dockerfile instruction, the {#cmd} instruction has three
+    # forms:
+    #
+    # * `['executable', 'param1', 'param2', '...']`, which would run the
+    #   executable directly when the image is run;
+    # * `['param1', 'param2', '...']`, which would pass the parameters to the
+    #   executable provided in the {#entrypoint} instruction; or
+    # * `'executable param1 param2'`, which would run the executable inside
+    #   a subshell.
+    #
+    # The first two forms are preferred over the last one.
+    #
+    # @param [String, Array<String>] command The command set to run. When a
+    #   `String` is provided, the command is run inside a shell (`/bin/sh`).
+    #   When an `Array` is given, the command is run as-is given.
     def cmd(command)
       requires_from!(:cmd)
       log_step('cmd', command)
@@ -65,14 +104,33 @@ module Drydock
     # Copies files from `source_path` on the the build machine, into `target_path`
     # in the container. This instruction automatically commits the result.
     #
-    # When `chmod` is `false` (the default), the original file mode from its
-    # source file is kept when copying into the container. Otherwise, the mode
-    # provided will be used to override *all* file and directory modes.
-    #
-    # When `no_cache` is `false` (the default), the hash digest of the source path
-    # is used as the cache key. When `true`, the image is rebuilt every time.
-    #
     # The `copy` instruction always respects the `ignorefile`.
+    #
+    # When `no_cache` is `true` (also see parameter explanation below), then any
+    # instruction after {#copy} will also be rebuilt *every time*.
+    #
+    # @param [String] source_path The source path on the build machine (where
+    #   `drydock` is running) from which to copy files.
+    # @param [String] target_path The target path inside the image to which to
+    #   copy the files. This path **must already exist** before copying begins.
+    # @param [Integer, Boolean] chmod When `false` (the default), the original file
+    #   mode from its source file is kept when copying into the container. Otherwise,
+    #   the mode provided (in integer octal form) will be used to override *all*
+    #   file and directory modes.
+    # @param [Boolean] no_cache When `false` (the default), the hash digest of the
+    #   source path—taking into account all its files, directories, and contents—is
+    #   used as the cache key. When `true`, the image is rebuilt *every* time.
+    # @param [Boolean] recursive When `true`, then `source_path` is expected to be
+    #   a directory, at which point all its contents would be recursively searched.
+    #   When `false`, then `source_path` is expected to be a file.
+    #
+    # @raise [InvalidInstructionError] when the `source_path` does not exist
+    # @raise [InvalidInstructionError] when the `source_path` is an empty directory
+    #   with nothing to copy
+    # @raise [InvalidInstructionError] when the `target_path` does not exist in the
+    #   container
+    # @raise [InvalidInstructionError] when the `target_path` exists in the container,
+    #   but is not actually a directory
     def copy(source_path, target_path, chmod: false, no_cache: false, recursive: true)
       requires_from!(:copy)
       log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))
@@ -132,12 +190,18 @@ module Drydock
       self
     end
 
+    # Destroy the images and containers created, and attempt to return the docker
+    # state as it was before the project.
+    #
+    # @api private
     def destroy!(force: false)
       chain.destroy!(force: force) if chain
       finalize!(force: force)
     end
 
     # Meta instruction to signal to the builder that the build is done.
+    #
+    # @api private
     def done!
       throw :done
     end
@@ -177,6 +241,20 @@ module Drydock
       self
     end
 
+    # **This instruction is *optional*, but if specified, must appear at the
+    # beginning of the file.** 
+    #
+    # This instruction is used to restrict the version of `drydock` required to
+    # run the `Drydockfile`. When not specified, any version of `drydock` is
+    # allowed to run the file.
+    #
+    # The version specifier understands any bundler-compatible (and therefore
+    # [gem-compatible](http://guides.rubygems.org/patterns/#semantic-versioning))
+    # version specification; it even understands the twiddle-waka (`~>`) operator.
+    #
+    # @example
+    #   drydock '~> 0.5'
+    # @param [String] version The version specification to use.
     def drydock(version = '>= 0')
       raise InvalidInstructionError, '`drydock` must be called before `from`' if chain
       log_step('drydock', version)
@@ -230,8 +308,15 @@ module Drydock
       chain.run("# SET PORTS #{ports.inspect}", expose: ports)
     end
 
-    # Build on top of the `from` image. This must be the first instruction of
-    # the project, although non-instructions may appear before this.
+    # Build on top of the `from` image. **This must be the first instruction of
+    # the project,** although non-instructions may appear before this.
+    #
+    # If the `drydock` instruction is provided, `from` should come after it.
+    # 
+    # @param [#to_s] repo The name of the repository, which may be any valid docker
+    #   repository name, and may optionally include the registry address, e.g.,
+    #   `johndoe/thing` or `quay.io/jane/app`. The name *must not* contain the tag name.
+    # @param [#to_s] tag The tag to use.
     def from(repo, tag = 'latest')
       raise InvalidInstructionError, '`from` must only be called once per project' if chain
 
@@ -245,6 +330,8 @@ module Drydock
 
     # Finalize everything. This will be automatically invoked at the end of
     # the build, and should not be called manually.
+    #
+    # @api private
     def finalize!(force: false)
       if chain
         chain.finalize!(force: force)
@@ -272,13 +359,14 @@ module Drydock
     # Import a `path` from a different project. The `from` option should be
     # project, usually the result of a `derive` instruction.
     #
-    # TODO(rpasay): add a #load method as an alternative to #import, which allows
-    # importing a full container, including things from /etc.
+    # @todo Add a #load method as an alternative to #import
+    #   Doing so would allow importing a full container, including things from
+    #   /etc, some of which may be mounted from the host.
     #
-    # TODO(rpasay): do not always append /. to the #archive_get calls; must check
-    # the type of `path` inside the container first.
+    # @todo Do not always append /. to the #archive_get calls
+    #   We must check the type of `path` inside the container first.
     #
-    # TODO(rpasay): break this large method into smaller ones.
+    # @todo Break this large method into smaller ones.
     def import(path, from: nil, force: false, spool: false)
       mkdir(path)
 
@@ -322,14 +410,18 @@ module Drydock
       log_info("Imported #{Formatters.number(total_size)} bytes")
     end
 
-    # The last image object built in this project.
+    # Retrieve the last image object built in this project.
+    #
+    # If no image has been built, returns `nil`.
     def last_image
       chain ? chain.last_image : nil
     end
 
-    # Create a new directory specified by `path`. When `chmod` is given, the new
-    # directory will be chmodded. Otherwise, the default umask is used to determine
-    # the path's mode.
+    # Create a new directory specified by `path` in the image.
+    #
+    # @param [String] path The path to create inside the image.
+    # @param [String] chmod The mode to which the new directory will be chmodded.
+    #   If not specified, the default umask is used to determine the mode.
     def mkdir(path, chmod: nil)
       if chmod
         run "mkdir -p #{path} && chmod #{chmod} #{path}"
@@ -338,7 +430,7 @@ module Drydock
       end
     end
 
-    # TODO(rpasay): on_build instructions should be deferred to the end
+    # @todo on_build instructions should be deferred to the end.
     def on_build(instruction = nil, &blk)
       requires_from!(:on_build)
       log_step('on_build', instruction)
@@ -409,13 +501,17 @@ module Drydock
     # Use a `plugin` to issue other commands. The block form can be used to issue
     # multiple commands:
     #
+    # ```
     #   with Plugins::APK do |apk|
     #     apk.update
     #   end
+    # ```
     # 
     # In cases of single commands, the above is the same as:
     #
+    # ```
     #   with(Plugins::APK).update
+    # ```
     def with(plugin, &blk)
       (@plugins[plugin] ||= plugin.new(self)).tap do |instance|
         yield instance if block_given?
