@@ -5,6 +5,9 @@ language: ruby
 rvm:
 - 2.1.5
 before_install:
+- sudo cat /etc/apt/sources.list
+- sudo ls /etc/apt/sources.list.d/
+- sudo cat /etc/apt/sources.list.d/*
 - sudo apt-get update
 - apt-cache search docker
 - sudo apt-get install docker-engine=1.8.0
