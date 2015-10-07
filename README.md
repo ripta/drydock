@@ -1,6 +1,9 @@
 # drydock
 
-(WORK IN PROGRESS)
+WORK IN PROGRESS — ALPHA-RELEASE SOFTWARE
+SOME FEATURES REQUIRE DOCKER 1.8.0 OR NEWER
+
+![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)
 
 A ruby DSL to build your own docker images. Images are built based on instructions
 contained in your project's `Drydockfile`.
@@ -38,8 +41,10 @@ Drydockfiles are written in ruby.
 
 ## Production Installation
 
-Either (a) `gem install drydock`, or (b) add "drydock" to your project's Gemfile,
-and run `bundle`.
+Either (a) `gem install dry-dock`, or (b) add "dry-dock" to your project's Gemfile,
+and run `bundle`. Sorry, but the gem name `drydock` was already taken by a defunct
+gem, and I'm too lazy to contact them; the binary and name of the project, however,
+are both `drydock`.
 
 In your project's root directory, you'll want to create a `Drydockfile` containing
 drydock functions. When you're ready, build an image using:
@@ -67,9 +72,28 @@ $ git clone git@github.com:ripta/drydock.git
 $ bundle
 ```
 
+## Drydockfile Syntax
+
+As previously mentioned, Drydockfiles are ruby. The contents of Drydockfile are
+evaluated in the context of an instance of `Drydock::Project`; you can refer to
+the documentation for it for more in-depth information.
+
+Because Drydockfiles are ruby, most constructs should work as-is: you can declare
+constants and refer to them later; call `Kernel#abort` to exit the program and
+stop the build; and write plugins to be called from within the Drydockfile.
+
+It would help if you understand ruby and
+[Dockerfiles](https://docs.docker.com/reference/builder/) before jumping in.
+
+All instructions are evaluated in the order that they are seen; syntax errors or
+any logical errors might not be caught until execution arrives at that point.
+
+For a complete and updated list of Drydockfile instructions, see the public API
+methods of the {Drydock::Project} class or head to the
+[automatically-generated ruby docs](http://www.rubydoc.info/gems/dry-dock).
+
+
 ## Roadmap
 
 1. Customizable caching subsystem.
-2. Derived docker images from a previous build step.
-3. Composable docker images.
 4. Customizable caching rules.

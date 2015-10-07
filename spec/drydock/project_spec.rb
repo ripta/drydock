@@ -61,6 +61,27 @@ RSpec.describe Drydock::Project do
     expect(hash_output).to include('60fde9c2310b0d4cad4dab8d126b04387efba289')
   end
 
+  it 'fails to change working directory if it does not exist' do
+    project.from('alpine')
+    expect { project.cd('/app') }.not_to raise_error
+    expect { project.cd('/app') { project.run('pwd') } }.to raise_error(Drydock::InvalidCommandExecutionError)
+  end
+
+  it 'correctly changes working directories' do
+    project.from('alpine')
+    project.mkdir('/app')
+    expect { project.cd('/app') { project.run('pwd') } }.not_to raise_error
+  end
+
+  it 'complains when version check does not pass' do
+    expect { project.drydock('~> 901.301') }.to raise_error(Drydock::InsufficientVersionError)
+  end
+
+  it 'requires version check to go before #from instruction' do
+    project.from('alpine')
+    expect { project.drydock('~> 0.1') }.to raise_error(Drydock::InvalidInstructionError)
+  end
+
   it 'autocreates the target path on copy' do
     project.from('alpine')
     expect {
@@ -116,6 +137,18 @@ RSpec.describe Drydock::Project do
     expect(image.info['ContainerConfig']['Cmd']).to eq(['/bin/sh', '-c', '/bin/date'])
   end
 
+  it 'sets the raw Entrypoint' do
+    project.from('alpine')
+    project.entrypoint(['/bin/bash'])
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Entrypoint']).to eq(['/bin/bash'])
+  end
+
+
   it 'sets the Env' do
     project.from('alpine')
     project.env('APP_ROOT_TEST', '/app/current')
@@ -127,10 +160,11 @@ RSpec.describe Drydock::Project do
     expect(image.info['Config']['Env']).to include('APP_ROOT_TEST=/app/current')
   end
 
-  it 'sets the Env with multiple values' do
+  it 'sets the Env with multiple values, and retained after other commands' do
     project.from('alpine')
     project.env('APP_ROOT_TEST', '/app/current')
     project.env('BUILD_ROOT',    '/tmp/build')
+    project.run('touch /hello-world')
 
     expect(project.last_image).not_to be_nil
 
@@ -138,6 +172,19 @@ RSpec.describe Drydock::Project do
     expect(image).not_to be_nil
     expect(image.info['Config']['Env']).to include('APP_ROOT_TEST=/app/current')
     expect(image.info['Config']['Env']).to include('BUILD_ROOT=/tmp/build')
+  end
+
+  it 'sets multiple Envs in one go, and retained after other commands' do
+    project.from('alpine')
+    project.envs(APP_ROOT: '/app', BUILD_ROOT: '/build')
+    project.run('touch /hello-world')
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Env']).to include('APP_ROOT=/app')
+    expect(image.info['Config']['Env']).to include('BUILD_ROOT=/build')
   end
 
   it 'sets the ExposedPorts' do
