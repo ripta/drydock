@@ -1,7 +1,9 @@
 
+require 'attr_extras/explicit'
 require 'docker'
 require 'excon'
 require 'fileutils'
+require 'memoist'
 
 require_relative 'drydock/docker_api_patch'
 
