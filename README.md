@@ -3,7 +3,8 @@
 WORK IN PROGRESS — ALPHA-RELEASE SOFTWARE
 SOME FEATURES REQUIRE DOCKER 1.8.0 OR NEWER
 
-![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)
+[![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)](https://travis-ci.org/ripta/drydock)
+[![Code Climate](https://codeclimate.com/github/ripta/drydock/badges/gpa.svg)](https://codeclimate.com/github/ripta/drydock)
 
 A ruby DSL to build your own docker images. Images are built based on instructions
 contained in your project's `Drydockfile`.
