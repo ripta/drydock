@@ -128,7 +128,7 @@ module Drydock
     #   the mode provided (in integer octal form) will be used to override *all*
     #   file and directory modes.
     # @param [Boolean] no_cache When `false` (the default), the hash digest of the
-    #   source path—taking into account all its files, directories, and contents—is
+    #   source path--taking into account all its files, directories, and contents--is
     #   used as the cache key. When `true`, the image is rebuilt *every* time.
     # @param [Boolean] recursive When `true`, then `source_path` is expected to be
     #   a directory, at which point all its contents would be recursively searched.
@@ -151,11 +151,12 @@ module Drydock
 
       raise InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
 
-      source_files = if File.directory?(source_path)
-        FileManager.find(source_path, ignorefile, prepend_path: true, recursive: recursive)
-      else
-        [source_path]
-      end
+      source_files =
+        if File.directory?(source_path)
+          FileManager.find(source_path, ignorefile, prepend_path: true, recursive: recursive)
+        else
+          [source_path]
+        end
       source_files.sort!
 
       raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
@@ -167,7 +168,7 @@ module Drydock
           File.open(source_file, 'r') do |input|
             stat = input.stat
             mode = chmod || stat.mode
-            tar.add_entry(source_file, mode: stat.mode, mtime: stat.mtime) do |tar_file|
+            tar.add_entry(source_file, mode: mode, mtime: stat.mtime) do |tar_file|
               tar_file.write(input.read)
             end
           end
@@ -225,7 +226,7 @@ module Drydock
 
       unless cache.key?(source_url)
         cache.set(source_url) do |obj|
-          chunked = Proc.new do |chunk, remaining_bytes, total_bytes|
+          chunked = proc do |chunk, _remaining_bytes, _total_bytes|
             obj.write(chunk)
           end
           Excon.get(source_url, response_block: chunked)
@@ -507,7 +508,7 @@ module Drydock
     # derived project will be rebuilt (and following that, the third as well).
     #
     def derive(opts = {}, &blk)
-      clean_opts  = build_opts.delete_if { |k, v| v.nil? }
+      clean_opts  = build_opts.delete_if { |_, v| v.nil? }
       derive_opts = clean_opts.merge(opts).merge(chain: chain)
 
       Project.new(derive_opts).tap do |project|
@@ -598,7 +599,7 @@ module Drydock
     end
 
     # @todo on_build instructions should be deferred to the end.
-    def on_build(instruction = nil, &blk)
+    def on_build(instruction = nil, &_blk)
       requires_from!(:on_build)
       log_step('on_build', instruction)
       chain.run("# ON_BUILD #{instruction}", on_build: instruction)
@@ -681,11 +682,12 @@ module Drydock
     # ```
     def with(plugin, &blk)
       (@plugins[plugin] ||= plugin.new(self)).tap do |instance|
-        yield instance if block_given?
+        blk.call(instance) if blk
       end
     end
 
     private
+
     attr_reader :chain, :build_opts, :stream_monitor
 
     def build_cmd(cmd)
