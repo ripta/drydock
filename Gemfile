@@ -17,5 +17,7 @@ group :test do
   gem 'fakefs', require: false
 end
 
+gem 'attr_extras', '~> 4.4'
 gem 'docker-api', '~> 1.22', require: 'docker'
 gem 'excon', '~> 0.45'
+gem 'memoist', '~> 0.12'
