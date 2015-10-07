@@ -484,9 +484,10 @@ module Drydock
     # derived project will be rebuilt (and following that, the third as well).
     #
     def derive(opts = {}, &blk)
-      new_opts = build_opts.merge(opts).merge(chain: chain)
+      clean_opts  = build_opts.delete_if { |k, v| v.nil? }
+      derive_opts = clean_opts.merge(opts).merge(chain: chain)
 
-      Project.new(new_opts).tap do |project|
+      Project.new(derive_opts).tap do |project|
         project.instance_eval(&blk) if blk
       end
     end
