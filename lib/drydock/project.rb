@@ -93,7 +93,8 @@ module Drydock
     # * `'executable param1 param2'`, which would run the executable inside
     #   a subshell.
     #
-    # The first two forms are preferred over the last one.
+    # The first two forms are preferred over the last one. See also {#entrypoint}
+    # to see how the instruction interacts with this one.
     #
     # @param [String, Array<String>] command The command set to run. When a
     #   `String` is provided, the command is run inside a shell (`/bin/sh`).
@@ -275,6 +276,28 @@ module Drydock
         raise InsufficientVersionError, "build requires #{version.inspect}, but you're on #{Drydock.version.inspect}"
       end
 
+      self
+    end
+
+    # Sets the entrypoint command for an image. 
+    #
+    # {#entrypoint} corresponds to the `ENTRYPOINT` Dockerfile instruction. This
+    # instruction does **not** run the command, but rather provides the default
+    # command to be run when the image is run without specifying a command.
+    #
+    # As with the {#cmd} instruction, {#entrypoint} has three forms, of which the
+    # first two forms are preferred over the last one.
+    #
+    # @param (see #cmd)
+    def entrypoint(command)
+      requires_from!(:entrypoint)
+      log_step('entrypoint', command)
+
+      unless command.is_a?(Array)
+        command = ['/bin/sh', '-c', command.to_s]
+      end
+
+      chain.run("# ENTRYPOINT #{command.inspect}", entrypoint: command)
       self
     end
 

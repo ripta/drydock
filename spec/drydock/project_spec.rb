@@ -116,6 +116,18 @@ RSpec.describe Drydock::Project do
     expect(image.info['ContainerConfig']['Cmd']).to eq(['/bin/sh', '-c', '/bin/date'])
   end
 
+  it 'sets the raw Entrypoint' do
+    project.from('alpine')
+    project.entrypoint(['/bin/bash'])
+
+    expect(project.last_image).not_to be_nil
+
+    image = Docker::Image.get(project.last_image.id)
+    expect(image).not_to be_nil
+    expect(image.info['Config']['Entrypoint']).to eq(['/bin/bash'])
+  end
+
+
   it 'sets the Env' do
     project.from('alpine')
     project.env('APP_ROOT_TEST', '/app/current')

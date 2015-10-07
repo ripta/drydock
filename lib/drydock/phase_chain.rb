@@ -9,9 +9,13 @@ module Drydock
     def self.build_commit_opts(opts = {})
       {}.tap do |commit|
         if opts.key?(:command)
-          commit['run'] = {
-            Cmd: opts[:command]
-          }
+          commit['run'] ||= {}
+          commit['run'][:Cmd] = opts[:command]
+        end
+
+        if opts.key?(:entrypoint)
+          commit['run'] ||= {}
+          commit['run'][:Entrypoint] = opts[:entrypoint]
         end
 
         commit[:author]  = opts.fetch(:author, '')  if opts.key?(:author)
@@ -247,7 +251,8 @@ module Drydock
           Drydock.logger.info(message: "Skipping commit phase")
           ephemeral_containers << container
         else
-          self.class.propagate_config!(src_image, 'Cmd', opts, :command)
+          self.class.propagate_config!(src_image, 'Cmd',        opts, :command)
+          self.class.propagate_config!(src_image, 'Entrypoint', opts, :entrypoint)
           commit_config = self.class.build_commit_opts(opts)
 
           result = container.commit(commit_config)
