@@ -21,7 +21,7 @@ module Drydock
     # @option build_opts [ObjectCaches::Base] :cache An object cache manager.
     # @option build_opts [#call] :event_handler A handler that responds to a
     #   `#call` message with four arguments: `[event, is_new, serial_no, event_type]`
-    #   most useful to override logging or 
+    #   most useful to override logging.
     # @option build_opts [PhaseChain] :chain A phase chain manager.
     # @option build_opts [String] :ignorefile The name of the ignore-file to load.
     def initialize(build_opts = {})
@@ -253,7 +253,7 @@ module Drydock
     end
 
     # **This instruction is *optional*, but if specified, must appear at the
-    # beginning of the file.** 
+    # beginning of the file.**
     #
     # This instruction is used to restrict the version of `drydock` required to
     # run the `Drydockfile`. When not specified, any version of `drydock` is
@@ -280,7 +280,7 @@ module Drydock
       self
     end
 
-    # Sets the entrypoint command for an image. 
+    # Sets the entrypoint command for an image.
     #
     # {#entrypoint} corresponds to the `ENTRYPOINT` Dockerfile instruction. This
     # instruction does **not** run the command, but rather provides the default
@@ -304,7 +304,7 @@ module Drydock
 
     # Set an environment variable, which will be persisted in future images
     # (unless it is specifically overwritten) and derived projects.
-    # 
+    #
     # Subsequent commands can refer to the environment variable by preceeding
     # the variable with a `$` sign, e.g.:
     #
@@ -316,7 +316,7 @@ module Drydock
     #
     # Multiple calls to this instruction will build on top of one another.
     # That is, after the following two instructions:
-    # 
+    #
     # ```
     #   env 'APP_ROOT',   '/app'
     #   env 'BUILD_ROOT', '/build'
@@ -420,7 +420,7 @@ module Drydock
     # the project,** although non-instructions may appear before this.
     #
     # If the `drydock` instruction is provided, `from` should come after it.
-    # 
+    #
     # @param [#to_s] repo The name of the repository, which may be any valid docker
     #   repository name, and may optionally include the registry address, e.g.,
     #   `johndoe/thing` or `quay.io/jane/app`. The name *must not* contain the tag name.
@@ -624,7 +624,7 @@ module Drydock
     # Additional `opts` are also recognized:
     #
     # * `author`, a string, preferably in the format of "Name <email@domain.com>".
-    #   If provided, this overrides 
+    #   If provided, this overrides the author name set with {#author}.
     # * `comment`, an arbitrary string used as a comment for the resulting image
     #
     # If `run` results in a container being created and `&blk` is provided, the
@@ -674,7 +674,7 @@ module Drydock
     #     apk.update
     #   end
     # ```
-    # 
+    #
     # In cases of single commands, the above is the same as:
     #
     # ```
