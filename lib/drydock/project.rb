@@ -179,7 +179,7 @@ module Drydock
       digest = Digest::MD5.hexdigest(buffer.read)
 
       log_info("Tree digest is md5:#{digest}")
-      chain.run("# COPY #{source_path} #{target_path} DIGEST #{digest}", no_cache: no_cache) do |container|
+      chain.run("# COPY #{recursive ? 'dir' : 'file'}:md5:#{digest} TO #{target_path}", no_cache: no_cache) do |container|
         target_stat = container.archive_head(target_path)
 
         # TODO(rpasay): cannot autocreate the target, because `container` here is already dead
@@ -237,7 +237,8 @@ module Drydock
 
       # TODO(rpasay): invalidate cache when the downloaded file changes,
       # and then force rebuild
-      chain.run("# DOWNLOAD #{source_url} #{target_path}") do |container|
+      digest = Digest::MD5.hexdigest(source_url)
+      chain.run("# DOWNLOAD file:md5:#{digest} #{target_path}") do |container|
         container.archive_put do |output|
           TarWriter.new(output) do |tar|
             cache.get(source_url) do |input|
