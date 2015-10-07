@@ -145,57 +145,13 @@ module Drydock
       requires_from!(:copy)
       log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))
 
-      if source_path.start_with?('/')
-        Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
-      end
+      Instructions::Copy.new(chain, source_path, target_path).tap do |ins|
+        ins.chmod      = chmod if chmod
+        ins.ignorefile = ignorefile
+        ins.no_cache   = no_cache
+        ins.recursive  = recursive
 
-      fail InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
-
-      source_files =
-        if File.directory?(source_path)
-          FileManager.find(source_path, ignorefile, prepend_path: true, recursive: recursive)
-        else
-          [source_path]
-        end
-      source_files.sort!
-
-      fail InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
-
-      buffer = StringIO.new
-      log_info("Processing #{source_files.size} files in tree")
-      TarWriter.new(buffer) do |tar|
-        source_files.each do |source_file|
-          File.open(source_file, 'r') do |input|
-            stat = input.stat
-            mode = chmod || stat.mode
-            tar.add_entry(source_file, mode: mode, mtime: stat.mtime) do |tar_file|
-              tar_file.write(input.read)
-            end
-          end
-        end
-      end
-
-      buffer.rewind
-      digest = Digest::MD5.hexdigest(buffer.read)
-
-      log_info("Tree digest is md5:#{digest}")
-      chain.run("# COPY #{recursive ? 'dir' : 'file'}:md5:#{digest} TO #{target_path}", no_cache: no_cache) do |container|
-        target_stat = container.archive_head(target_path)
-
-        # TODO(rpasay): cannot autocreate the target, because `container` here is already dead
-        unless target_stat
-          fail InvalidInstructionError, "Target path #{target_path.inspect} does not exist"
-        end
-
-        unless target_stat.directory?
-          Drydock.logger.debug(target_stat)
-          fail InvalidInstructionError, "Target path #{target_path.inspect} exists, but is not a directory in the container"
-        end
-
-        container.archive_put(target_path) do |output|
-          buffer.rewind
-          output.write(buffer.read)
-        end
+        ins.run!
       end
 
       self
