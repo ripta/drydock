@@ -1,6 +1,7 @@
 # drydock
 
-(WORK IN PROGRESS — ALPHA-RELEASE SOFTWARE)
+WORK IN PROGRESS — ALPHA-RELEASE SOFTWARE
+SOME FEATURES REQUIRE DOCKER 1.8.0 OR NEWER
 
 ![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)
 
