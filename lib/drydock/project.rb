@@ -71,7 +71,7 @@ module Drydock
     # @yield block containing instructions to run inside the new directory
     def cd(path = '/', &blk)
       @run_path << path
-      blk.call
+      blk.call if blk
     ensure
       @run_path.pop
     end
