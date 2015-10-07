@@ -52,7 +52,7 @@ module Drydock
     # @raise [InvalidInstructionArgumentError] when neither name nor email is provided
     def author(name: nil, email: nil)
       if (name.nil? || name.empty?) && (email.nil? || name.empty?)
-        raise InvalidInstructionArgumentError, 'at least one of `name:` or `email:` must be provided'
+        fail InvalidInstructionArgumentError, 'at least one of `name:` or `email:` must be provided'
       end
 
       value = email ? "#{name} <#{email}>" : name.to_s
@@ -149,7 +149,7 @@ module Drydock
         Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
       end
 
-      raise InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
+      fail InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
 
       source_files =
         if File.directory?(source_path)
@@ -159,7 +159,7 @@ module Drydock
         end
       source_files.sort!
 
-      raise InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
+      fail InvalidInstructionError, "#{source_path} is empty or does not match a path" if source_files.empty?
 
       buffer = StringIO.new
       log_info("Processing #{source_files.size} files in tree")
@@ -184,12 +184,12 @@ module Drydock
 
         # TODO(rpasay): cannot autocreate the target, because `container` here is already dead
         unless target_stat
-          raise InvalidInstructionError, "Target path #{target_path.inspect} does not exist"
+          fail InvalidInstructionError, "Target path #{target_path.inspect} does not exist"
         end
 
         unless target_stat.directory?
           Drydock.logger.debug(target_stat)
-          raise InvalidInstructionError, "Target path #{target_path.inspect} exists, but is not a directory in the container"
+          fail InvalidInstructionError, "Target path #{target_path.inspect} exists, but is not a directory in the container"
         end
 
         container.archive_put(target_path) do |output|
@@ -267,14 +267,14 @@ module Drydock
     #   drydock '~> 0.5'
     # @param [String] version The version specification to use.
     def drydock(version = '>= 0')
-      raise InvalidInstructionError, '`drydock` must be called before `from`' if chain
+      fail InvalidInstructionError, '`drydock` must be called before `from`' if chain
       log_step('drydock', version)
       
       requirement = Gem::Requirement.create(version)
       current     = Gem::Version.create(Drydock.version)
 
       unless requirement.satisfied_by?(current)
-        raise InsufficientVersionError, "build requires #{version.inspect}, but you're on #{Drydock.version.inspect}"
+        fail InsufficientVersionError, "build requires #{version.inspect}, but you're on #{Drydock.version.inspect}"
       end
 
       self
@@ -426,7 +426,7 @@ module Drydock
     #   `johndoe/thing` or `quay.io/jane/app`. The name *must not* contain the tag name.
     # @param [#to_s] tag The tag to use.
     def from(repo, tag = 'latest')
-      raise InvalidInstructionError, '`from` must only be called once per project' if chain
+      fail InvalidInstructionError, '`from` must only be called once per project' if chain
 
       repo = repo.to_s
       tag  = tag.to_s
@@ -539,8 +539,8 @@ module Drydock
       mkdir(path)
 
       requires_from!(:import)
-      raise InvalidInstructionError, 'cannot `import` from `/`' if path == '/' && !force
-      raise InvalidInstructionError, '`import` requires a `from:` option' if from.nil?
+      fail InvalidInstructionError, 'cannot `import` from `/`' if path == '/' && !force
+      fail InvalidInstructionError, '`import` requires a `from:` option' if from.nil?
       log_step('import', path, from: from.last_image.id)
 
       total_size = 0
@@ -646,9 +646,9 @@ module Drydock
     # Set project options.
     def set(key, value = nil, &blk)
       key = key.to_sym
-      raise ArgumentError, "unknown option #{key.inspect}" unless build_opts.key?(key)
-      raise ArgumentError, "one of value or block is required" if value.nil? && blk.nil?
-      raise ArgumentError, "only one of value or block may be provided" if value && blk
+      fail ArgumentError, "unknown option #{key.inspect}" unless build_opts.key?(key)
+      fail ArgumentError, "one of value or block is required" if value.nil? && blk.nil?
+      fail ArgumentError, "only one of value or block may be provided" if value && blk
 
       build_opts[key] = value || blk
     end
@@ -720,7 +720,7 @@ module Drydock
     end
 
     def requires_from!(instruction)
-      raise InvalidInstructionError, "`#{instruction}` cannot be called before `from`" unless chain
+      fail InvalidInstructionError, "`#{instruction}` cannot be called before `from`" unless chain
     end
 
   end

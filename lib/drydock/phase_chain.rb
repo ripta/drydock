@@ -106,15 +106,15 @@ module Drydock
           results = c.wait(timeout)
 
           unless results
-            raise InvalidCommandExecutionError, {container: c.id, message: "Container did not return anything (API BUG?)"}
+            fail InvalidCommandExecutionError, {container: c.id, message: "Container did not return anything (API BUG?)"}
           end
 
           unless results.key?('StatusCode')
-            raise InvalidCommandExecutionError, {container: c.id, message: "Container did not return a status code (API BUG?)"}
+            fail InvalidCommandExecutionError, {container: c.id, message: "Container did not return a status code (API BUG?)"}
           end
 
           unless results['StatusCode'] == 0
-            raise InvalidCommandExecutionError, {container: c.id, message: "Container exited with code #{results['StatusCode']}"}
+            fail InvalidCommandExecutionError, {container: c.id, message: "Container exited with code #{results['StatusCode']}"}
           end
         rescue
           # on error, kill the streaming logs and reraise the exception

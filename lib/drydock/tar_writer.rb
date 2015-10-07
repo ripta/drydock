@@ -5,7 +5,7 @@ module Drydock
     def add_entry(name, mode: 0644, mtime: Time.now, uid: 0, gid: 0)
       check_closed
 
-      raise Gem::Package::NonSeekableIO unless @io.respond_to?(:pos=)
+      fail Gem::Package::NonSeekableIO unless @io.respond_to?(:pos=)
 
       name, prefix = split_name(name)
 

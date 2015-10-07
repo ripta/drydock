@@ -8,17 +8,17 @@ module Docker
       log_request(request)
       resource.request(request)
     rescue Excon::Errors::BadRequest => ex
-      raise ClientError, ex.response.body
+      fail ClientError, ex.response.body
     rescue Excon::Errors::Unauthorized => ex
-      raise UnauthorizedError, ex.response.body
+      fail UnauthorizedError, ex.response.body
     rescue Excon::Errors::NotFound => ex
-      raise NotFoundError, ex.response.body
+      fail NotFoundError, ex.response.body
     rescue Excon::Errors::Conflict => ex
-      raise ConflictError, ex.response.body
+      fail ConflictError, ex.response.body
     rescue Excon::Errors::InternalServerError => ex
-      raise ServerError, ex.response.body
+      fail ServerError, ex.response.body
     rescue Excon::Errors::Timeout => ex
-      raise TimeoutError, ex.message
+      fail TimeoutError, ex.message
     end
 
   end
