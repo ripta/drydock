@@ -127,6 +127,22 @@ module Drydock
       new(Docker::Image.create(build_pull_opts(repo, tag)))
     end
 
+    def self.propagate_config!(src_image, config_name, opts, opt_key)
+      if opts.key?(opt_key)
+        Drydock.logger.info("Command override: #{opts[opt_key].inspect}")
+      else
+        src_image.refresh!
+        if src_image.info && src_image.info.key?('Config')
+          src_image_config = src_image.info['Config']
+          opts[opt_key]    = src_image_config[config_name] if src_image_config.key?(config_name)
+        end
+
+        Drydock.logger.debug(message: "Command retrieval: #{opts[opt_key].inspect}")
+        Drydock.logger.debug(message: "Source image info: #{src_image.info.class} #{src_image.info.inspect}")
+        Drydock.logger.debug(message: "Source image config: #{src_image.info['Config'].inspect}")
+      end
+    end
+
     def initialize(from, parent = nil)
       @chain  = []
       @from   = from
@@ -231,20 +247,7 @@ module Drydock
           Drydock.logger.info(message: "Skipping commit phase")
           ephemeral_containers << container
         else
-          if opts.key?(:command)
-            Drydock.logger.info("Command override: #{opts[:command].inspect}")
-          else
-            src_image.refresh!
-            if src_image.info && src_image.info.key?('Config')
-              src_image_config = src_image.info['Config']
-              opts[:command]   = src_image_config['Cmd'] if src_image_config.key?('Cmd')
-            end
-
-            Drydock.logger.debug(message: "Command retrieval: #{opts[:command].inspect}")
-            Drydock.logger.debug(message: "Source image info: #{src_image.info.class} #{src_image.info.inspect}")
-            Drydock.logger.debug(message: "Source image config: #{src_image.info['Config'].inspect}")
-          end
-
+          self.class.propagate_config!(src_image, 'Cmd', opts, :command)
           commit_config = self.class.build_commit_opts(opts)
 
           result = container.commit(commit_config)
