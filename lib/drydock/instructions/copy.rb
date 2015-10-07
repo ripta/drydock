@@ -16,7 +16,11 @@ module Drydock
       end
 
       def run!
-        precheck!
+        if source_path.start_with?('/')
+          Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
+        end
+
+        fail InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
 
         buffer = build_tar_from_source!
         digest = calculate_digest(buffer)
@@ -56,14 +60,7 @@ module Drydock
         Drydock.logger.info(indent: indent, message: msg)
       end
 
-      def precheck!
-        if source_path.start_with?('/')
-          Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
-        end
-
-        fail InvalidInstructionError, "#{source_path} does not exist" unless File.exist?(source_path)
-      end
-
+      # Retrieve all files inside {#source_path} not matching the {#ignorefile} rules.
       def source_files
         files =
           if File.directory?(source_path)
@@ -78,6 +75,8 @@ module Drydock
       end
       memoize :source_files
 
+      # Create a new container on the `chain`, and then write the contents of
+      # `buffer`, whose digest is `digest`.
       def write_to_container(buffer, digest)
         label = "# COPY #{recursive ? 'dir' : 'file'}:md5:#{digest} TO #{target_path}"
 
@@ -91,7 +90,9 @@ module Drydock
 
           unless target_stat.directory?
             Drydock.logger.debug(target_stat)
-            fail InvalidInstructionError, "Target path #{target_path.inspect} exists, but is not a directory in the container"
+            fail InvalidInstructionError,
+                "Target path #{target_path.inspect} exists, " +
+                "but is not a directory in the container"
           end
 
           container.archive_put(target_path) do |output|
