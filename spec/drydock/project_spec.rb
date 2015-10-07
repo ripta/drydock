@@ -61,6 +61,18 @@ RSpec.describe Drydock::Project do
     expect(hash_output).to include('60fde9c2310b0d4cad4dab8d126b04387efba289')
   end
 
+  it 'fails to change working directory if it does not exist' do
+    project.from('alpine')
+    expect { project.cd('/app') }.not_to raise_error
+    expect { project.cd('/app') { project.run('pwd') } }.to raise_error(Drydock::InvalidCommandExecutionError)
+  end
+
+  it 'correctly changes working directories' do
+    project.from('alpine')
+    project.mkdir('/app')
+    expect { project.cd('/app') { project.run('pwd') } }.not_to raise_error
+  end
+
   it 'autocreates the target path on copy' do
     project.from('alpine')
     expect {
