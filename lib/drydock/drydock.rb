@@ -1,4 +1,7 @@
 
+# Drydock is a command line program that provides a DSL for you to create your
+# own build pipeline for your docker images. See {file:README.md} for more
+# information and background on the design.
 module Drydock
 
   def self.banner
