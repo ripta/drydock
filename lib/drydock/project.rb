@@ -134,13 +134,7 @@ module Drydock
     #   a directory, at which point all its contents would be recursively searched.
     #   When `false`, then `source_path` is expected to be a file.
     #
-    # @raise [InvalidInstructionError] when the `source_path` does not exist
-    # @raise [InvalidInstructionError] when the `source_path` is an empty directory
-    #   with nothing to copy
-    # @raise [InvalidInstructionError] when the `target_path` does not exist in the
-    #   container
-    # @raise [InvalidInstructionError] when the `target_path` exists in the container,
-    #   but is not actually a directory
+    # @raise (see Instructions::Copy#run!)
     def copy(source_path, target_path, chmod: false, no_cache: false, recursive: true)
       requires_from!(:copy)
       log_step('copy', source_path, target_path, chmod: (chmod ? sprintf('%o', chmod) : false))

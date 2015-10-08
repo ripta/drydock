@@ -1,9 +1,13 @@
 
+require_relative 'base'
+
 module Drydock
   module Instructions
-    class Copy
-      extend AttrExtras.mixin
-      extend Memoist
+    # The concrete implementation of the COPY instruction.
+    # **Do not use this class directly.**
+    #
+    # @see Project#copy
+    class Copy < Base
 
       attr_accessor :chmod, :ignorefile, :no_cache, :recursive
 
@@ -15,6 +19,13 @@ module Drydock
         @recursive  = true
       end
 
+      # @raise [InvalidInstructionError] when the `source_path` does not exist
+      # @raise [InvalidInstructionError] when the `source_path` is an empty directory
+      #   with nothing to copy
+      # @raise [InvalidInstructionError] when the `target_path` does not exist in the
+      #   container
+      # @raise [InvalidInstructionError] when the `target_path` exists in the container,
+      #   but is not actually a directory
       def run!
         if source_path.start_with?('/')
           Drydock.logger.warn("#{source_path.inspect} is an absolute path; we recommend relative paths")
