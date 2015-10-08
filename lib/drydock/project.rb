@@ -1,5 +1,10 @@
 
 module Drydock
+  # A project defines the methods available in a `Drydockfile`. When run using
+  # the binary `drydock`, this object will be instantiated automatically for you.
+  #
+  # The contents of a `Drydockfile` is automatically evaluated in the context
+  # of a project, so you don't need to instantiate the object manually.
   class Project
 
     DEFAULT_OPTIONS = {
@@ -11,9 +16,6 @@ module Drydock
     }
 
     # Create a new project. **Do not use directly.**
-    #
-    # The contents of a `Drydockfile` is automatically evaluated in the context
-    # of a project, so you don't need to instantiate the object manually.
     #
     # @api private
     # @param [Hash] build_opts Build-time options
