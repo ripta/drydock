@@ -556,8 +556,12 @@ module Drydock
       end
     end
 
+    # **NOT SUPPORTED YET**
+    #
     # @todo on_build instructions should be deferred to the end.
     def on_build(instruction = nil, &_blk)
+      fail NotImplementedError, "on_build is not yet supported"
+
       requires_from!(:on_build)
       log_step('on_build', instruction)
       chain.run("# ON_BUILD #{instruction}", on_build: instruction)
