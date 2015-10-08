@@ -102,5 +102,8 @@ After cloning your repo, `bundle` should take care of it.
 
 ## Roadmap
 
-1. Customizable caching subsystem.
-4. Customizable caching rules.
+1. Customizable caching subsystem with pluggable caching strategies.
+2. Squashing layers together, with cache support.
+3. Unarchiving a file directly into a container.
+4. Proper `ONBUILD` implementation and expanded support for hooks.
+5. Drydock instructions corresponding to `LABEL`, `VOLUME`, `USER`, and `WORKDIR` Docker instructions.
