@@ -12,12 +12,15 @@ module Drydock
 
     # Create a new project. **Do not use directly.**
     #
+    # The contents of a `Drydockfile` is automatically evaluated in the context
+    # of a project, so you don't need to instantiate the object manually.
+    #
     # @api private
     # @param [Hash] build_opts Build-time options
     # @option build_opts [Boolean] :auto_remove Whether intermediate images
     #   created during the build of this project should be automatically removed.
     # @option build_opts [String] :author The default author field when an
-    #   author is not provided explicitly with {#author}.
+    #   author is not provided explicitly with {Project#author}.
     # @option build_opts [ObjectCaches::Base] :cache An object cache manager.
     # @option build_opts [#call] :event_handler A handler that responds to a
     #   `#call` message with four arguments: `[event, is_new, serial_no, event_type]`
@@ -458,6 +461,8 @@ module Drydock
     # when `Gemfile` changes but `package.json` does not, only the first
     # derived project will be rebuilt (and following that, the third as well).
     #
+    # @param (see #initialize)
+    # @option (see #initialize)
     def derive(opts = {}, &blk)
       clean_opts  = build_opts.delete_if { |_, v| v.nil? }
       derive_opts = clean_opts.merge(opts).merge(chain: chain)

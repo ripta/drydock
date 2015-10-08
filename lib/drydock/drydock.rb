@@ -4,13 +4,26 @@
 # information and background on the design.
 module Drydock
 
+  # The application's banner.
+  #
+  # @return [String] the banner
   def self.banner
     "Drydock v#{Drydock.version}"
   end
 
-  def self.build(opts = {}, &blk)
-    Project.new(opts).tap do |project|
-      dryfile, dryfilename = yield
+  # Create a new project, then run and finalize the build.
+  #
+  # @param (see Project#initialize)
+  # @option (see Project#initialize)
+  # @yield [project] A block that describes the logic on how to search for a
+  #   Drydockfile.
+  # @yieldparam project [Project] A newly-instantiated project object.
+  # @yieldreturn [Array<String>] An array of exactly two elements: the contents
+  #   of the Drydockfile, and the path to the Drydockfile. The directory of
+  #   the path will be made as the working directory.
+  def self.build(build_opts = {}, &blk)
+    Project.new(build_opts).tap do |project|
+      dryfile, dryfilename = yield project
 
       Dir.chdir(File.dirname(dryfilename))
       Drydock.logger.info("Working directory set to #{Dir.pwd}")
