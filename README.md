@@ -64,15 +64,6 @@ $ drydock ~/source/miniproject/drydock-definition.rb # expects a drydock-definit
 
 Example `Drydockfile`s may be seen in `examples/`.
 
-## Development Installation
-
-This is needed if you plan on hacking drydock:
-
-```
-$ git clone git@github.com:ripta/drydock.git
-$ bundle
-```
-
 ## Drydockfile Syntax
 
 As previously mentioned, Drydockfiles are ruby. The contents of Drydockfile are
@@ -93,6 +84,13 @@ For a complete and updated list of Drydockfile instructions, see the public API
 methods of the {Drydock::Project} class or head to the
 [automatically-generated ruby docs](http://www.rubydoc.info/gems/dry-dock).
 
+
+## Development Installation
+
+If you plan on hacking or contributing to drydock, fork the project, create a new
+branch, make your changes, commit, and open a pull request.
+
+After cloning your repo, `bundle` should take care of it.
 
 ## Roadmap
 
