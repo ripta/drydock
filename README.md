@@ -9,6 +9,7 @@ SOME FEATURES REQUIRE DOCKER 1.8.0 OR NEWER
 A ruby DSL to build your own docker images. Images are built based on instructions
 contained in your project's `Drydockfile`.
 
+
 ## Why not Dockerfile?
 
 [Dockerfiles](https://docs.docker.com/reference/builder/) are great to start out
@@ -28,6 +29,7 @@ it would be nice to import a configurably-older image, import the new Gemfile,
 and re-run the build. On the other hand, it would be important to be able to limit
 the age of the cache.
 
+
 ## Why Drydock?
 
 Drydock interfaces directly with the [Docker Remote API](https://docs.docker.com/reference/api/docker_remote_api/)
@@ -40,19 +42,23 @@ in your project being built by Drydock.
 
 Drydockfiles are written in ruby.
 
-## Production Installation
+
+## Installation
 
 Either (a) `gem install dry-dock`, or (b) add "dry-dock" to your project's Gemfile,
-and run `bundle`. Sorry, but the gem name `drydock` was already taken by a defunct
-gem, and I'm too lazy to contact them; the binary and name of the project, however,
-are both `drydock`.
+and run `bundle`.
+
+Sorry, but the gem name `drydock` was already taken by a defunct gem, and I'm too
+lazy to contact them; the binary and name of the project, however, are both `drydock`.
 
 In your project's root directory, you'll want to create a `Drydockfile` containing
-drydock functions. When you're ready, build an image using:
+drydock functions. When you're ready, from your project's directory, build an image using:
 
 ```
-$ drydock
+$ bundle exec drydock
 ```
+
+or `drydock` directly if you're not using bundler.
 
 Alternatively, point drydock to a directory containing the `Drydockfile`, or to any
 file to treat it as the `Drydockfile`, e.g.:
@@ -62,13 +68,14 @@ $ drydock ~/source/miniproject # project directory expects a file named Drydockf
 $ drydock ~/source/miniproject/drydock-definition.rb # expects a drydock-definition.rb
 ```
 
-Example `Drydockfile`s may be seen in `examples/`.
+**Example `Drydockfile`s may be seen in the `examples/` directory of the source repo.**
+
 
 ## Drydockfile Syntax
 
 As previously mentioned, Drydockfiles are ruby. The contents of Drydockfile are
-evaluated in the context of an instance of `Drydock::Project`; you can refer to
-the documentation for it for more in-depth information.
+evaluated in the context of an instance of {Drydock::Project}; you can refer to
+the documentation for it for more in-depth information on each instruction.
 
 Because Drydockfiles are ruby, most constructs should work as-is: you can declare
 constants and refer to them later; call `Kernel#abort` to exit the program and
@@ -85,12 +92,13 @@ methods of the {Drydock::Project} class or head to the
 [automatically-generated ruby docs](http://www.rubydoc.info/gems/dry-dock).
 
 
-## Development Installation
+## Contributing
 
 If you plan on hacking or contributing to drydock, fork the project, create a new
 branch, make your changes, commit, and open a pull request.
 
 After cloning your repo, `bundle` should take care of it.
+
 
 ## Roadmap
 
