@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 
 group :development do
   gem 'rake', '~> 10.0'
+  gem 'rubocop', '~> 0.34'
   gem 'jeweler', '~> 2.0'
   gem 'pry', '~> 0.10'
 
