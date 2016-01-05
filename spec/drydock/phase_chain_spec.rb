@@ -3,8 +3,9 @@ RSpec.describe Drydock::PhaseChain do
 
   EXPECTED_IMAGE_TO_ID_MAPPINGS = {
     'alpine' => {
-      '3.2'    => 'f4fddc471ec2',
-      'latest' => 'f4fddc471ec2'
+      '3.2'    => 'b98ffa2251d3d7911ed090eb2f9036eb895169a18319421e5ee3b914ccb152a3',
+      '3.3'    => '74e49af2062e222ae048b926d139296f4842db5cf6fa67884ba178edd92d84ac',
+      'latest' => '74e49af2062e222ae048b926d139296f4842db5cf6fa67884ba178edd92d84ac'
     }
   }
 
