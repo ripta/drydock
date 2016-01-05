@@ -53,9 +53,9 @@ module Drydock
 
     def self.build_pull_opts(repo, tag = nil)
       if tag
-        {fromImage: repo, tag: tag}
+        {fromImage: "#{repo}:#{tag}"}
       else
-        {fromImage: repo}
+        {fromImage: "#{repo}:latest"}
       end
     end
 

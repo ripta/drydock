@@ -23,7 +23,7 @@ RSpec.describe Drydock::ImageRepository do
 
   describe '.find_by_config' do
     let(:cmd)       { '/bin/ls -l' }
-    let(:image)     { Docker::Image.create(fromImage: 'alpine', tag: 'latest') }
+    let(:image)     { Docker::Image.create(fromImage: 'alpine:latest') }
     let(:container) { image.run(cmd).tap(&:wait) }
     let(:run_image) { container.commit }
 
