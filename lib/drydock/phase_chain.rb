@@ -64,6 +64,7 @@ module Drydock
       meta_options = cfg[:MetaOptions] || {}
       timeout = meta_options.fetch(:read_timeout, Excon.defaults[:read_timeout]) || 60
       
+      Drydock.logger.debug(message: "Create container configuration: #{cfg.inspect}")
       Docker::Container.create(cfg).tap do |c|
         # The call to Container.create merely creates a container, to be
         # scheduled to run. Start a separate thread that attaches to the
@@ -223,6 +224,7 @@ module Drydock
       no_cache = opts.fetch(:no_cache, false)
       no_cache = true if no_commit
 
+      Drydock.logger.debug(message: "Source image: #{src_image.inspect}")
       build_config = self.class.build_container_opts(src_image.id, cmd, opts)
       cached_image = ImageRepository.find_by_config(build_config)
 
