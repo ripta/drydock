@@ -44,8 +44,7 @@ module Drydock
     end
 
     def finalize!(force: false)
-      return self unless built?
-      build_container.remove(force: force)
+      build_container.remove(force: force) if built?
       self
     end
 
