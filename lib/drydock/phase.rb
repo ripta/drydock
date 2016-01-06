@@ -29,6 +29,8 @@ module Drydock
     end
 
     def destroy!(force: false)
+      build_container.remove(force: force) if built?
+
       if result_image
         begin
           result_image.remove(force: force)
@@ -38,7 +40,6 @@ module Drydock
         end
       end
 
-      build_container.remove(force: force) if built?
       self
     end
 
