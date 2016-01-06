@@ -179,8 +179,9 @@ module Drydock
 
     def destroy!(force: false)
       return self if frozen?
+
       children.reverse_each { |c| c.destroy!(force: force) } if children
-      ephemeral_containers.map { |c| c.remove(force: force) }
+      ephemeral_containers.reverse_each { |c| c.remove(force: force) }
 
       reverse_each { |c| c.destroy!(force: force) }
       freeze
