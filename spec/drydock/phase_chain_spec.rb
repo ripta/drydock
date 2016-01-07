@@ -1,14 +1,6 @@
 
 RSpec.describe Drydock::PhaseChain do
 
-  EXPECTED_IMAGE_TO_ID_MAPPINGS = {
-    'alpine' => {
-      '3.2'    => 'b98ffa2251d3d7911ed090eb2f9036eb895169a18319421e5ee3b914ccb152a3',
-      '3.3'    => '74e49af2062e222ae048b926d139296f4842db5cf6fa67884ba178edd92d84ac',
-      'latest' => '74e49af2062e222ae048b926d139296f4842db5cf6fa67884ba178edd92d84ac'
-    }
-  }
-
   describe '.from_repo' do
 
     it 'takes a repo name forced without a tag' do
@@ -33,8 +25,9 @@ RSpec.describe Drydock::PhaseChain do
       expect(subject).to be_a(Docker::Image)
     end
 
-    it 'matches the image ID' do
-      expect(subject.id).to eq(EXPECTED_IMAGE_TO_ID_MAPPINGS['alpine']['3.2'])
+    it 'matches the image tag' do
+      expect(subject.info).not_to be_nil
+      expect(subject.info['RepoTags']).to include('alpine:3.2')
     end
 
   end
