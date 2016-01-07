@@ -5,7 +5,9 @@ language: ruby
 rvm:
 - 2.1.5
 before_install:
+- docker version
 - sudo service docker stop
+- sudo dpkg -l | sort
 - sudo apt-get purge lxc-docker-1.7.0
 - curl -sSL https://get.docker.com/ | sudo sh
 - docker version
