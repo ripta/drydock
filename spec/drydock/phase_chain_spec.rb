@@ -27,6 +27,7 @@ RSpec.describe Drydock::PhaseChain do
 
     it 'matches the image tag' do
       expect(subject.info).not_to be_nil
+      $stderr.puts subject.info.inspect
       expect(subject.info['RepoTags']).to include('alpine:3.2')
     end
 
