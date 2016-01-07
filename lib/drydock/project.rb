@@ -157,12 +157,15 @@ module Drydock
     end
 
     # Destroy the images and containers created, and attempt to return the docker
-    # state as it was before the project.
+    # state as it was before the project. The project object itself cannot be reused
+    # after it is destroyed.
     #
     # @api private
     def destroy!(force: false)
-      chain.destroy!(force: force) if chain
+      return self if frozen?
       finalize!(force: force)
+      chain.destroy!(force: force) if chain
+      freeze
     end
 
     # Meta instruction to signal to the builder that the build is done.
@@ -395,8 +398,12 @@ module Drydock
     # Finalize everything. This will be automatically invoked at the end of
     # the build, and should not be called manually.
     #
+    # No further changes to the object is possible after finalization.
+    #
     # @api private
     def finalize!(force: false)
+      return self if finalized?
+
       if chain
         chain.finalize!(force: force)
       end
@@ -406,6 +413,7 @@ module Drydock
         stream_monitor.join
       end
 
+      @finalized = true
       self
     end
 
@@ -472,6 +480,10 @@ module Drydock
       Project.new(derive_opts).tap do |project|
         project.instance_eval(&blk) if blk
       end
+    end
+
+    def finalized?
+      @finalized
     end
 
     # Access to the logger object.

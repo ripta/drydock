@@ -20,6 +20,11 @@ module Drydock
       new(*h.values_at(*members))
     end
 
+    def initialize(*args)
+      super
+      @finalized = false
+    end
+
     def built?
       !cached?
     end
@@ -29,6 +34,10 @@ module Drydock
     end
 
     def destroy!(force: false)
+      return self if frozen?
+
+      finalize!(force: force)
+
       if result_image
         begin
           result_image.remove(force: force)
@@ -38,13 +47,20 @@ module Drydock
         end
       end
 
-      build_container.remove(force: force) if built?
-      self
+      freeze
     end
 
     def finalize!(force: false)
-      build_container.remove(force: force) if built?
+      unless finalized?
+        build_container.remove(force: force) if built?
+        @finalized = true
+      end
+
       self
+    end
+
+    def finalized?
+      @finalized
     end
 
   end
