@@ -8,6 +8,7 @@ before_install:
 - docker version
 - docker info
 - docker pull alpine:latest
+- docker pull alpine:3.2
 script: bundle exec rspec
 addons:
   code_climate:
