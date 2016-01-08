@@ -32,6 +32,7 @@ module Drydock
     end
 
     # Logic taken from https://github.com/docker/docker/blob/master/runconfig/compare.go
+    # Last updated to conform to docker v1.9.1
     def ==(other)
       return false if other.nil?
 
