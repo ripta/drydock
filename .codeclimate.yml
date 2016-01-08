@@ -6,5 +6,6 @@ ratings:
   - lib/**/*
 exclude_paths:
 - bin/*.rb
+- dry-dock.gemspec
 - spec/**/*
 - vendor/**/*
