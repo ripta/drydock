@@ -8,7 +8,12 @@ module Drydock
   #
   # @return [String] the banner
   def self.banner
-    "Drydock v#{Drydock.version}"
+    dv = Docker.version
+    "Drydock v#{Drydock.version}\n" +
+      "  Docker v#{dv['Version']} running on #{dv['Os']}/#{dv['Arch']} #{dv['KernelVersion']}\n" +
+      "  Docker Remote API v#{dv['ApiVersion']}"
+  rescue
+    "Drydock v#{Drydock.version} (unknown Docker version)"
   end
 
   # Create a new project, then run and finalize the build.
