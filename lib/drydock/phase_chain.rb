@@ -1,11 +1,24 @@
 
 module Drydock
+  # A `PhaseChain` is a linear series of logical `Phase`s built on top of
+  # previous phases. The base of a chain is denoted by its `from` attribute,
+  # which itself is not a phase, and must already exist prior to the chain being
+  # started.
+  #
+  # A chain may be built on another chain, referred to as its parent. A chain
+  # may have zero or more child chains, while a chain may have only zero or one
+  # parent chain. A chain that has a parent chain is said to be derived from the
+  # parent chain.
+  #
+  # Chains can be--essentially--merged together with the help of the import
+  # command. See [the README](README.md) for more information.
   class PhaseChain
     extend Forwardable
     include Enumerable
 
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
+    # Generate commit options to pass to `Docker::Image#commit`.
     def self.build_commit_opts(opts = {})
       {}.tap do |commit|
         if opts.key?(:command)
@@ -23,6 +36,8 @@ module Drydock
       end
     end
 
+    # Generate container configuration, which can be used to query for a
+    # container from the `ImageRepository`.
     def self.build_container_opts(image_id, cmd, opts = {})
       cmd = ['/bin/sh', '-c', cmd.to_s] unless cmd.is_a?(Array)
 
@@ -134,6 +149,8 @@ module Drydock
       end
     end
 
+    # Create a new chain using an image from `repo` with a `tag` as the base.
+    # The new chain is empty by default, i.e., contains no phases.
     def self.from_repo(repo, tag = 'latest')
       new(Docker::Image.create(build_pull_opts(repo, tag)))
     end
@@ -154,6 +171,11 @@ module Drydock
       end
     end
 
+    # Create a new chain with `from` as the base image, and optionally a
+    # `parent` chain.
+    #
+    # @params [Docker::Image] from A base image to use.
+    # @params [PhaseChain] parent The optional parent chain.
     def initialize(from, parent = nil)
       @chain  = []
       @from   = from
