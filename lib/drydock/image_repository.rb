@@ -41,7 +41,7 @@ module Drydock
     end
 
     def self.select_by_config(config)
-      # we want to look at 'ContainerConfig', because we're interesting in how
+      # Look at 'ContainerConfig' instead of 'Config', because we're interesting in how
       # the image was built, not how the image will run
       self.select { |image| config == ContainerConfig.from(image.info['ContainerConfig']) }
     end

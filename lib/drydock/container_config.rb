@@ -44,7 +44,7 @@ module Drydock
 
       return false if self['Cmd'] != other['Cmd']
       return false if Array(self['Env']).sort != Array(other['Env']).sort
-      return false if self['Labels'] != other['Labels']
+      return false if (self['Labels'] || {}) != (other['Labels'] || {})
       return false if self['Entrypoint'] != other['Entrypoint']
 
       my_ports = self['ExposedPorts'] || {}
