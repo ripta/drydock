@@ -34,7 +34,7 @@ module Drydock
       @plugins = {}
 
       @run_path = []
-      @serial  = 0
+      @serial   = 0
 
       @build_opts = DEFAULT_OPTIONS.clone
       build_opts.each_pair { |key, value| set(key, value) }
@@ -228,7 +228,7 @@ module Drydock
     def drydock(version = '>= 0')
       fail InvalidInstructionError, '`drydock` must be called before `from`' if chain
       log_step('drydock', version)
-      
+
       requirement = Gem::Requirement.create(version)
       current     = Gem::Version.create(Drydock.version)
 
@@ -520,7 +520,7 @@ module Drydock
         log_info("Spooling to #{spool_file.path}")
 
         from.send(:chain).run("# EXPORT #{path}", no_commit: true) do |source_container|
-          source_container.archive_get(path + "/.") do |chunk|
+          source_container.archive_get(path + '/.') do |chunk|
             spool_file.write(chunk.to_s).tap { |b| total_size += b }
           end
         end
@@ -537,7 +537,7 @@ module Drydock
         chain.run("# IMPORT #{path}", no_cache: true) do |target_container|
           target_container.archive_put(path) do |output|
             from.send(:chain).run("# EXPORT #{path}", no_commit: true) do |source_container|
-              source_container.archive_get(path + "/.") do |chunk|
+              source_container.archive_get(path + '/.') do |chunk|
                 output.write(chunk.to_s).tap { |b| total_size += b }
               end
             end
@@ -572,7 +572,7 @@ module Drydock
     #
     # @todo on_build instructions should be deferred to the end.
     def on_build(instruction = nil, &_blk)
-      fail NotImplementedError, "on_build is not yet supported"
+      fail NotImplementedError, 'on_build is not yet supported'
 
       requires_from!(:on_build)
       log_step('on_build', instruction)
@@ -621,8 +621,8 @@ module Drydock
     def set(key, value = nil, &blk)
       key = key.to_sym
       fail ArgumentError, "unknown option #{key.inspect}" unless build_opts.key?(key)
-      fail ArgumentError, "one of value or block is required" if value.nil? && blk.nil?
-      fail ArgumentError, "only one of value or block may be provided" if value && blk
+      fail ArgumentError, 'one of value or block is required' if value.nil? && blk.nil?
+      fail ArgumentError, 'only one of value or block may be provided' if value && blk
 
       build_opts[key] = value || blk
     end
