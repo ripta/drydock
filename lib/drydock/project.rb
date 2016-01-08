@@ -6,7 +6,6 @@ module Drydock
   # The contents of a `Drydockfile` is automatically evaluated in the context
   # of a project, so you don't need to instantiate the object manually.
   class Project
-
     DEFAULT_OPTIONS = {
       auto_remove: true,
       author: nil,
@@ -108,10 +107,7 @@ module Drydock
       requires_from!(:cmd)
       log_step('cmd', command)
 
-      unless command.is_a?(Array)
-        command = ['/bin/sh', '-c', command.to_s]
-      end
-
+      command = ['/bin/sh', '-c', command.to_s] unless command.is_a?(Array)
       chain.run("# CMD #{command.inspect}", command: command)
       self
     end
@@ -253,10 +249,7 @@ module Drydock
       requires_from!(:entrypoint)
       log_step('entrypoint', command)
 
-      unless command.is_a?(Array)
-        command = ['/bin/sh', '-c', command.to_s]
-      end
-
+      command = ['/bin/sh', '-c', command.to_s] unless command.is_a?(Array)
       chain.run("# ENTRYPOINT #{command.inspect}", entrypoint: command)
       self
     end
@@ -696,6 +689,5 @@ module Drydock
     def requires_from!(instruction)
       fail InvalidInstructionError, "`#{instruction}` cannot be called before `from`" unless chain
     end
-
   end
 end
