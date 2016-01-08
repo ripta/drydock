@@ -1,7 +1,10 @@
 # drydock
 
-WORK IN PROGRESS — ALPHA-RELEASE SOFTWARE
-SOME FEATURES REQUIRE DOCKER 1.8.0 OR NEWER
+**WARNING:** Work in progress. Although this software has test coverage, it is
+considered unstable. Refer to [LICENSE](LICENSE.md) for licensing information.
+
+See section on [Compatibility](#compatibility) for a list of supported Docker
+versions for every Drydock version.
 
 [![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)](https://travis-ci.org/ripta/drydock)
 [![Code Climate](https://codeclimate.com/github/ripta/drydock/badges/gpa.svg)](https://codeclimate.com/github/ripta/drydock)
@@ -107,3 +110,13 @@ After cloning your repo, `bundle` should take care of it.
 3. Unarchiving a file directly into a container.
 4. Proper `ONBUILD` implementation and expanded support for hooks.
 5. Drydock instructions corresponding to `LABEL`, `VOLUME`, `USER`, and `WORKDIR` Docker instructions.
+
+
+## Compatibility
+
+The following version combinations are officially tested and supported:
+
+| Docker Versions | Drydock Versions |
+| --------------- | ---------------- |
+| v1.8.0          | v0.1.0 onwards   |
+| v1.9.0          | v0.2.0 onwards   |
