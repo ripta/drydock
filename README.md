@@ -103,6 +103,16 @@ branch, make your changes, commit, and open a pull request.
 After cloning your repo, `bundle` should take care of it.
 
 
+## Release
+
+```
+$ bundle
+$ # increment VERSION file
+$ bundle exec rake gemspec build
+$ # upload .gem file to rubygems.org
+```
+
+
 ## Roadmap
 
 1. Customizable caching subsystem with pluggable caching strategies.
