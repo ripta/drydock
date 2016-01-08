@@ -63,7 +63,7 @@ module Drydock
     def self.create_container(cfg, &blk)
       meta_options = cfg[:MetaOptions] || {}
       timeout = meta_options.fetch(:read_timeout, Excon.defaults[:read_timeout]) || 60
-      
+
       Drydock.logger.debug(message: "Create container configuration: #{cfg.inspect}")
       Docker::Container.create(cfg).tap do |c|
         # The call to Container.create merely creates a container, to be
@@ -92,7 +92,7 @@ module Drydock
         # cause a loss of log output. However, forcing `t` to be run once
         # before this point seems to cause an endless wait (ruby 2.1.5).
         # Need to dig deeper in the future.
-        # 
+        #
         # TODO(rpasay): More useful `blk` handling here. This method only
         # returns after the container terminates, which isn't useful when
         # you want to do stuff to it, e.g., spawn a new exec container.
@@ -103,19 +103,25 @@ module Drydock
         begin
           c.start
           blk.call(c) if blk
-          
+
           results = c.wait(timeout)
 
           unless results
-            fail InvalidCommandExecutionError, {container: c.id, message: "Container did not return anything (API BUG?)"}
+            fail InvalidCommandExecutionError,
+              container: c.id,
+              message: "Container did not return anything (API BUG?)"
           end
 
           unless results.key?('StatusCode')
-            fail InvalidCommandExecutionError, {container: c.id, message: "Container did not return a status code (API BUG?)"}
+            fail InvalidCommandExecutionError,
+              container: c.id,
+              message: "Container did not return a status code (API BUG?)"
           end
 
           unless results['StatusCode'] == 0
-            fail InvalidCommandExecutionError, {container: c.id, message: "Container exited with code #{results['StatusCode']}"}
+            fail InvalidCommandExecutionError,
+              container: c.id,
+              message: "Container exited with code #{results['StatusCode']}"
           end
         rescue
           # on error, kill the streaming logs and reraise the exception
@@ -250,9 +256,13 @@ module Drydock
         end
       else
         if cached_image && no_commit
-          Drydock.logger.info(message: "Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_commit")
+          Drydock.logger.info(
+            message: "Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_commit"
+          )
         elsif cached_image && no_cache
-          Drydock.logger.info(message: "Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache")
+          Drydock.logger.info(
+            message: "Found cached image ID #{cached_image.id.slice(0, 12)}, but skipping due to :no_cache"
+          )
         end
 
         container = self.class.create_container(build_config)

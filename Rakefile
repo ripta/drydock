@@ -6,7 +6,7 @@ begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
-  $stderr.puts "Run `bundle install` to install missing gems"
+  $stderr.puts 'Run `bundle install` to install missing gems'
   exit e.status_code
 end
 require 'rake'
@@ -14,13 +14,13 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
-  gem.name = "dry-dock"
-  gem.homepage = "http://github.com/ripta/drydock"
-  gem.license = "MIT"
-  gem.summary = %Q{Docker Image Pipeline DSL}
-  gem.description = %Q{A Dockerfile-replacement DSL for building complex images}
-  gem.email = "github@r8y.org"
-  gem.authors = ["Ripta Pasay"]
+  gem.name = 'dry-dock'
+  gem.homepage = 'http://github.com/ripta/drydock'
+  gem.license = 'MIT'
+  gem.summary = %q(Docker Image Pipeline DSL)
+  gem.description = %q(A Dockerfile-replacement DSL for building complex images)
+  gem.email = 'github@r8y.org'
+  gem.authors = ['Ripta Pasay']
 
   # dependencies defined in Gemfile
 end
@@ -40,7 +40,7 @@ task :simplecov do
   Rake::Task['test'].execute
 end
 
-task :default => :test
+task default: :test
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
