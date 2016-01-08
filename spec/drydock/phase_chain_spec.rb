@@ -27,7 +27,11 @@ RSpec.describe Drydock::PhaseChain do
 
     it 'matches the image tag' do
       expect(subject.info).not_to be_nil
-      expect(subject.info['RepoTags']).to include('alpine:3.2')
+
+      # Docker Remote API v1.21 introduced RepoTags
+      if subject.info.key?('RepoTags')
+        expect(subject.info['RepoTags']).to include('alpine:3.2')
+      end
     end
 
   end

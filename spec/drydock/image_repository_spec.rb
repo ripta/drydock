@@ -1,6 +1,6 @@
 
 RSpec.describe Drydock::ImageRepository do
-  
+
   describe '.all' do
     it 'completes without an error' do
       expect { described_class.all }.not_to raise_error

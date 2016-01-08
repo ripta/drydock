@@ -32,6 +32,7 @@ module Drydock
     end
 
     # Logic taken from https://github.com/docker/docker/blob/master/runconfig/compare.go
+    # Last updated to conform to docker v1.9.1
     def ==(other)
       return false if other.nil?
 
@@ -44,7 +45,7 @@ module Drydock
 
       return false if self['Cmd'] != other['Cmd']
       return false if Array(self['Env']).sort != Array(other['Env']).sort
-      return false if self['Labels'] != other['Labels']
+      return false if (self['Labels'] || {}) != (other['Labels'] || {})
       return false if self['Entrypoint'] != other['Entrypoint']
 
       my_ports = self['ExposedPorts'] || {}
