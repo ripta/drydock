@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Install the requested docker version, defined by $DOCKER_VERSION into the
+# $DOCKER_HOME directory, which will be automatically created if necessary.
+set -e
+
+# Adapted from https://get.docker.com/builds/
+cd `mktemp -d`
+curl -sL -O "https://get.docker.com/builds/Linux/x86_64/docker-${DOCKER_VERSION}"
+chmod +x docker-$DOCKER_VERSION
+
+# Move to final directory
+sudo mkdir -p $DOCKER_HOME
+sudo mv docker-$DOCKER_VERSION $DOCKER_HOME

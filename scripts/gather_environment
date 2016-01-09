@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Print out docker details
+docker version
+docker info
+
+# Pre-pull images needed for specs
+docker pull alpine:3.2
+docker pull alpine:latest
