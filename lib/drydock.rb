@@ -18,6 +18,8 @@ require_relative 'drydock/runtime_options'
 
 require_relative 'drydock/commit_options'
 require_relative 'drydock/container_config'
+require_relative 'drydock/container_options'
+require_relative 'drydock/image_query'
 require_relative 'drydock/image_repository'
 
 require_relative 'drydock/cli_flags'
