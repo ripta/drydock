@@ -18,24 +18,6 @@ module Drydock
 
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
-    # Generate commit options to pass to `Docker::Image#commit`.
-    def self.build_commit_opts(opts = {})
-      {}.tap do |commit|
-        if opts.key?(:command)
-          commit['run'] ||= {}
-          commit['run'][:Cmd] = opts[:command]
-        end
-
-        if opts.key?(:entrypoint)
-          commit['run'] ||= {}
-          commit['run'][:Entrypoint] = opts[:entrypoint]
-        end
-
-        commit[:author]  = opts.fetch(:author, '')  if opts.key?(:author)
-        commit[:comment] = opts.fetch(:comment, '') if opts.key?(:comment)
-      end
-    end
-
     # Generate container configuration, which can be used to query for a
     # container from the `ImageRepository`.
     def self.build_container_opts(image_id, cmd, opts = {})
@@ -296,9 +278,9 @@ module Drydock
         else
           self.class.propagate_config!(src_image, 'Cmd',        opts, :command)
           self.class.propagate_config!(src_image, 'Entrypoint', opts, :entrypoint)
-          commit_config = self.class.build_commit_opts(opts)
 
-          result = container.commit(commit_config)
+          commit_opts = CommitOptions.new(opts)
+          result = container.commit(commit_opts.to_h)
           Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 
           self << Phase.from(

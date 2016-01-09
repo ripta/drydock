@@ -16,6 +16,7 @@ require_relative 'drydock/errors'
 require_relative 'drydock/formatters'
 require_relative 'drydock/runtime_options'
 
+require_relative 'drydock/commit_options'
 require_relative 'drydock/container_config'
 require_relative 'drydock/image_repository'
 
