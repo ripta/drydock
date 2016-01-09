@@ -10,5 +10,5 @@ curl -sL -O "https://get.docker.com/builds/Linux/x86_64/docker-${DOCKER_VERSION}
 chmod +x docker-$DOCKER_VERSION
 
 # Move to final directory
-sudo mkdir -p $DOCKER_HOME
+sudo mkdir -p $DOCKER_HOME $DOCKER_HOME/logs
 sudo mv docker-$DOCKER_VERSION $DOCKER_HOME

@@ -4,4 +4,5 @@
 set -e
 
 sudo $DOCKER_HOME/docker-$DOCKER_VERSION --daemon \
-    --pidfile=/var/run/docker.pid &
+    --pidfile=/var/run/docker.pid \
+    >$DOCKER_HOME/logs/docker.log 2>&1 &
