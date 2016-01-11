@@ -10,7 +10,6 @@ env:
   global:
   - DOCKER_HOME=/opt/docker
   matrix:
-  - DOCKER_VERSION=1.7.1
   - DOCKER_VERSION=1.8.3
   - DOCKER_VERSION=1.9.1
 before_install:
