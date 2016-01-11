@@ -1,0 +1,11 @@
+#!/bin/bash
+
+DOCKER_BINARY="$DOCKER_HOME/docker-$DOCKER_VERSION"
+
+# Print out docker details
+$DOCKER_BINARY version
+$DOCKER_BINARY info
+
+# Pre-pull images needed for specs
+$DOCKER_BINARY pull alpine:3.2
+$DOCKER_BINARY pull alpine:latest

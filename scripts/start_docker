@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Start an existing docker binary located under $DOCKER_HOME.
+set -e
+
+sudo $DOCKER_HOME/docker-$DOCKER_VERSION --daemon \
+    --pidfile=/var/run/docker.pid \
+    >$DOCKER_HOME/logs/docker.log 2>&1 &
