@@ -17,6 +17,8 @@ before_install:
 - scripts/install_docker
 - scripts/start_docker
 - scripts/gather_environment
+after_failure:
+- cat $DOCKER_HOME/logs/docker.log
 script: bundle exec rspec
 addons:
   code_climate:
