@@ -4,7 +4,8 @@
 considered unstable. Refer to [LICENSE](LICENSE.md) for licensing information.
 
 See section on [Compatibility](#compatibility) for a list of supported Docker
-versions for every Drydock version.
+versions for every Drydock version. See the [VERSION file](VERSION) for the
+version of Drydock to which this source code is associated.
 
 [![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)](https://travis-ci.org/ripta/drydock)
 [![Code Climate](https://codeclimate.com/github/ripta/drydock/badges/gpa.svg)](https://codeclimate.com/github/ripta/drydock)
