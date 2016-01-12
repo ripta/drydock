@@ -4,8 +4,10 @@ module Drydock
 
     extend AttrExtras.mixin
 
-    attr_accessor :source_image, :build_container, :result_image
-    attr_initialize :source_image, :build_container, :result_image do
+    MEMBERS = [:source_image, :build_container, :result_image]
+
+    attr_accessor *MEMBERS
+    attr_initialize *MEMBERS do
       @finalized = false
     end
 
@@ -20,11 +22,11 @@ module Drydock
 
     def self.from(hsh)
       h = hsh.to_h
-      extra_keys = h.keys - members
+      extra_keys = h.keys - MEMBERS
 
       fail ArgumentError, "unknown options: #{extra_keys.join(', ')}" unless extra_keys.empty?
 
-      new(*h.values_at(*members))
+      new(*h.values_at(*MEMBERS))
     end
 
     def built?
