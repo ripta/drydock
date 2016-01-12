@@ -506,39 +506,16 @@ module Drydock
       fail InvalidInstructionError, '`import` requires a `from:` option' if from.nil?
       log_step('import', path, from: from.last_image.id)
 
-      total_size = 0
+      Instructions::Import.new(from.send(:chain), chain, path).tap do |ins|
+        ins.force = force
+        ins.spool = spool
 
-      if spool
-        spool_file = Tempfile.new('drydock')
-        log_info("Spooling to #{spool_file.path}")
+        ins.run!
 
-        from.send(:chain).run("# EXPORT #{path}", no_commit: true) do |source_container|
-          source_container.archive_get(path + '/.') do |chunk|
-            spool_file.write(chunk.to_s).tap { |b| total_size += b }
-          end
-        end
-
-        spool_file.rewind
-        chain.run("# IMPORT #{path}", no_cache: true) do |target_container|
-          target_container.archive_put(path) do |output|
-            output.write(spool_file.read)
-          end
-        end
-
-        spool_file.close
-      else
-        chain.run("# IMPORT #{path}", no_cache: true) do |target_container|
-          target_container.archive_put(path) do |output|
-            from.send(:chain).run("# EXPORT #{path}", no_commit: true) do |source_container|
-              source_container.archive_get(path + '/.') do |chunk|
-                output.write(chunk.to_s).tap { |b| total_size += b }
-              end
-            end
-          end
-        end
+        log_info("Imported #{Formatters.number(ins.total_size)} bytes")
       end
 
-      log_info("Imported #{Formatters.number(total_size)} bytes")
+      self
     end
 
     # Retrieve the last image object built in this project.

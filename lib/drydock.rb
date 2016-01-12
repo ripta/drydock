@@ -32,6 +32,7 @@ require_relative 'drydock/stream_monitor'
 require_relative 'drydock/tar_writer'
 
 require_relative 'drydock/instructions/copy'
+require_relative 'drydock/instructions/import'
 
 require_relative 'drydock/object_caches/filesystem_cache'
 require_relative 'drydock/object_caches/in_memory_cache'
