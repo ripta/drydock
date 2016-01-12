@@ -4,7 +4,8 @@
 considered unstable. Refer to [LICENSE](LICENSE.md) for licensing information.
 
 See section on [Compatibility](#compatibility) for a list of supported Docker
-versions for every Drydock version.
+versions for every Drydock version. See the [VERSION file](VERSION) for the
+version of Drydock to which this source code is associated.
 
 [![Automated Build Status](https://travis-ci.org/ripta/drydock.svg)](https://travis-ci.org/ripta/drydock)
 [![Code Climate](https://codeclimate.com/github/ripta/drydock/badges/gpa.svg)](https://codeclimate.com/github/ripta/drydock)
@@ -130,3 +131,11 @@ The following version combinations are officially tested and supported:
 | --------------- | ---------------- |
 | v1.8.0          | v0.1.0 onwards   |
 | v1.9.0          | v0.2.0 onwards   |
+
+Docker v1.7 or earlier is not officially supported, but most functionality should
+work, with the exception of:
+
+* The `copy` command, which may fail when unpacking into the root `/` of the container.
+* The `import` command, which requires the `/containers/(id)/archive`. Earlier
+  versions of the Docker Remote API implemented `/containers/(id)/copy`; if you'd
+  like to add graceful fallback using the aforementioned, contributions are welcome.

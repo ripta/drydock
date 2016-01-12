@@ -1,14 +1,24 @@
+dist: trusty
 sudo: required
-services:
-- docker
 language: ruby
+cache: bundler
 rvm:
-- 2.2.3
+- 2.1.8
+- 2.2.4
+- 2.3.0
+env:
+  global:
+  - DOCKER_HOME=/opt/docker
+  matrix:
+  - DOCKER_VERSION=1.8.3
+  - DOCKER_VERSION=1.9.1
 before_install:
-- docker version
-- docker info
-- docker pull alpine:latest
-- docker pull alpine:3.2
+- gem install bundler
+- scripts/install_docker
+- scripts/start_docker
+- scripts/gather_environment
+after_failure:
+- cat $DOCKER_HOME/logs/docker.log
 script: bundle exec rspec
 addons:
   code_climate:
