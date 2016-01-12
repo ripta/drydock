@@ -52,7 +52,7 @@ module Drydock
           opts.read_timeout = value.to_i || 60
         end
 
-        cfg.on('-v', '--verbose', 'Run verbosely') do |value|
+        cfg.on('-v', '--verbose', 'Run verbosely') do
           opts.log_level = Logger::DEBUG
         end
 
