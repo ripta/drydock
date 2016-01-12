@@ -18,36 +18,6 @@ module Drydock
 
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
-    # Generate container configuration, which can be used to query for a
-    # container from the `ImageRepository`.
-    def self.build_container_opts(image_id, cmd, opts = {})
-      cmd = ['/bin/sh', '-c', cmd.to_s] unless cmd.is_a?(Array)
-
-      ContainerConfig.from(
-        Cmd: cmd,
-        Tty: opts.fetch(:tty, false),
-        Image: image_id
-      ).tap do |cc|
-        env = Array(opts[:env])
-        cc[:Env].push(*env) unless env.empty?
-
-        if opts.key?(:expose)
-          cc[:ExposedPorts] ||= {}
-          opts[:expose].each do |port|
-            cc[:ExposedPorts][port] = {}
-          end
-        end
-
-        (cc[:OnBuild] ||= []).push(opts[:on_build]) if opts.key?(:on_build)
-
-        cc[:MetaOptions] ||= {}
-        [:connect_timeout, :read_timeout].each do |key|
-          cc[:MetaOptions][key] = opts[key] if opts.key?(key)
-          cc[:MetaOptions][key] = opts[:timeout] if opts.key?(:timeout)
-        end
-      end
-    end
-
     def self.build_pull_opts(repo, tag = nil)
       if tag
         {fromImage: "#{repo}:#{tag}"}
@@ -244,7 +214,9 @@ module Drydock
       no_cache = true if no_commit
 
       Drydock.logger.debug(message: "Source image: #{src_image.inspect}")
-      build_config = self.class.build_container_opts(src_image.id, cmd, opts)
+      container_opts = ContainerOptions.new(src_image.id, cmd, opts)
+      build_config = container_opts.to_h
+
       cached_image = ImageRepository.find_by_config(build_config)
 
       if cached_image && !no_cache
