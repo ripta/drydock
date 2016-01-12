@@ -31,7 +31,7 @@ module Drydock
       if key.size == 1
         "-#{key} "
       else
-        key = key.tr(/_/, '-')
+        key = key.tr('_', '-')
         case value
         when TrueClass
           "--#{key} "
