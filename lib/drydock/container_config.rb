@@ -1,7 +1,12 @@
 
 module Drydock
+  # A comparable way of storing the `ContainerConfig` hash of a `Docker::Image#info`.
+  #
+  # @example
+  #   ContainerConfig.from(Cmd: '/bin/ls -l')
   class ContainerConfig < ::Hash
 
+    # The available options and their default values.
     DEFAULTS = {
       'MetaOptions'  => {},
       'OpenStdin'    => false,
@@ -18,21 +23,44 @@ module Drydock
       'Volumes'      => nil
     }
 
+    # Build a new ContainerConfig from a hash. Returns `nil` if the `hash` is nil.
+    # If a key is not provided, its default value is used.
+    #
+    # Each key may be a camel-cased string or a camel-cased symbol.
+    #
+    # @param [#each_pair, nil] hash the source hash, which may be sparse
+    # @return [ContainerConfig, nil]
+    # @example The following examples produce the same object:
+    #   ContainerConfig.from(AttachStdout: true)
+    #   ContainerConfig.from('AttachStdout' => true)
+    #   ContainerConfig.new.tap do |cfg|
+    #     cfg.attach_stdout = true
+    #   end
     def self.from(hash)
       return nil if hash.nil?
 
-      self.new.tap do |cfg|
-        DEFAULTS.each_pair do |k, v|
-          cfg[k] = v
-        end
+      new.tap do |cfg|
         hash.each_pair do |k, v|
           cfg[k] = v
         end
       end
     end
 
+    # Create a new ContainerConfig with the default values pre-populated.
+    def initialize
+      DEFAULTS.each_pair do |k, v|
+        begin
+          self[k] = v.dup
+        rescue TypeError
+          self[k] = v
+        end
+      end
+    end
+
     # Logic taken from https://github.com/docker/docker/blob/master/runconfig/compare.go
     # Last updated to conform to docker v1.9.1
+    #
+    # @param [ContainerConfig, nil] other the other object to compare to
     def ==(other)
       return false if other.nil?
 
@@ -65,14 +93,26 @@ module Drydock
       return true
     end
 
+    # Retrieve the value of option `key`. The `key` must be in camel case, e.g.,
+    # `AttachStdout`. See DEFAULTS for the correct capitalization.
     def [](key)
       super(key.to_s)
     end
 
+    # Set an option `key` to `value`. The `key` must be in camel case, e.g.,
+    # `AttachStdout`. See DEFAULTS for the correct capitalization.
     def []=(key, value)
       super(key.to_s, value)
     end
 
+    # Handle convenience methods in `snake_case`. The following pairs of lines
+    # achieve the same result:
+    #
+    #   cfg[:AttachStdout] = true
+    #   cfg.attach_stdout = true
+    #
+    #   cfg[:ExposedPorts]
+    #   cfg.exposed_ports
     def method_missing(name, *args, &_block)
       is_setter, attr_name = normalize(name)
 
