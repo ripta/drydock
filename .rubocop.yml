@@ -2,3 +2,11 @@ Metrics/LineLength:
   Max: 120
 Style/FormatString:
   EnforcedStyle: sprintf
+AllCops:
+  Exclude:
+  - 'Rakefile'
+  - 'bin/*'
+  - 'dry-dock.gemspec'
+  - 'examples/*'
+  - 'spec/**/*'
+  - 'vendor/**/*'
