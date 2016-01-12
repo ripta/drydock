@@ -21,7 +21,7 @@ module Drydock
         cfg.separator 'Runtime / build options:'
 
         cfg.on('-b', '--build-opts KEY=VALUE',
-            'KEY=VALUE build-time options', 'can be specified multiple times') do |kv|
+               'KEY=VALUE build-time options', 'can be specified multiple times') do |kv|
           key, value = kv.split('=', 2)
           opts.build_opts[key.to_s]   = value
           opts.build_opts[key.to_sym] = value
@@ -48,7 +48,7 @@ module Drydock
         end
 
         cfg.on('-t SECONDS', '--timeout SECONDS',
-            "Set transaction timeout to SECONDS (default = #{opts.read_timeout})") do |value|
+               "Set transaction timeout to SECONDS (default = #{opts.read_timeout})") do |value|
           opts.read_timeout = value.to_i || 60
         end
 
