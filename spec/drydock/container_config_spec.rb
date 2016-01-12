@@ -231,8 +231,8 @@ RSpec.describe Drydock::ContainerConfig do
   describe '#method_missing' do
     it 'reads and writes simple attribute names' do
       subject { described_class.from({}) }
-      expect(subject[:User]).to eq(nil)
-      expect(subject.user).to eq(nil)
+      expect(subject[:User]).to eq('')
+      expect(subject.user).to eq('')
 
       expect { subject.user = 'admin' }.not_to raise_error
       expect(subject[:User]).to eq('admin')
@@ -241,8 +241,8 @@ RSpec.describe Drydock::ContainerConfig do
 
     it 'reads and writes attribute names with underscores' do
       subject { described_class.from({}) }
-      expect(subject[:AttachStdin]).to eq(nil)
-      expect(subject.attach_stdin).to eq(nil)
+      expect(subject[:AttachStdin]).to eq(false)
+      expect(subject.attach_stdin).to eq(false)
 
       expect { subject.attach_stdin = true }.not_to raise_error
       expect(subject[:AttachStdin]).to be(true)
