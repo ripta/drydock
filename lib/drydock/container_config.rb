@@ -73,5 +73,38 @@ module Drydock
       super(key.to_s, value)
     end
 
+    def method_missing(name, *args, &_block)
+      is_setter, attr_name = normalize(name)
+
+      if DEFAULTS.key?(attr_name)
+        self[attr_name] = args.first if is_setter
+        self[attr_name]
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(name, _include_private = false)
+      _, attr_name = normalize(name)
+      DEFAULTS.key?(attr_name)
+    end
+
+    private
+
+    def camelize(name)
+      name = name.to_s.dup
+      return name if name.match(/^[A-Z]/)
+
+      name.sub(/^[a-z\d]*/) { $&.capitalize }
+          .gsub(/(?:_)([a-z\d]*)/i) { $1.capitalize }
+    end
+
+    def normalize(method_name)
+      [
+        method_name.to_s.end_with?('='),
+        camelize(method_name.to_s.sub(/=$/, ''))
+      ]
+    end
+
   end
 end
