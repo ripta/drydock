@@ -8,7 +8,6 @@ module Drydock
     #
     # @see Project#copy
     class Copy < Base
-
       attr_accessor :chmod, :ignorefile, :no_cache, :recursive
 
       attr_reader :chain, :source_path, :target_path
@@ -36,6 +35,8 @@ module Drydock
         buffer = build_tar_from_source!
         digest = calculate_digest(buffer)
         write_to_container(buffer, digest)
+
+        self
       end
 
       private
@@ -65,10 +66,6 @@ module Drydock
           log_info("Tree digest is md5:#{digest}")
           buffer.rewind
         end
-      end
-
-      def log_info(msg, indent: 0)
-        Drydock.logger.info(indent: indent, message: msg)
       end
 
       # Retrieve all files inside {#source_path} not matching the {#ignorefile} rules.
