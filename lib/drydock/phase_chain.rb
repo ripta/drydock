@@ -197,7 +197,7 @@ module Drydock
       @from
     end
 
-    def run(cmd, opts = {}, &blk)
+    def run(cmd, opts = {})
       src_image = last ? last.result_image : @from
       no_commit = opts.fetch(:no_commit, false)
 
