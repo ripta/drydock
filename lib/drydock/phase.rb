@@ -1,6 +1,13 @@
 
 module Drydock
-  class Phase < Struct.new(:source_image, :build_container, :result_image)
+  class Phase
+
+    extend AttrExtras.mixin
+
+    attr_accessor :source_image, :build_container, :result_image
+    attr_initialize :source_image, :build_container, :result_image do
+      @finalized = false
+    end
 
     alias_method :build,   :build_container
     alias_method :build=,  :build_container=
@@ -20,11 +27,6 @@ module Drydock
       new(*h.values_at(*members))
     end
 
-    def initialize(*args)
-      super
-      @finalized = false
-    end
-
     def built?
       !cached?
     end
@@ -41,7 +43,7 @@ module Drydock
       if result_image
         begin
           result_image.remove(force: force)
-        rescue Docker::Error::NotFoundError => e
+        rescue Docker::Error::NotFoundError
           # Ignore, because the image could have been deleted by another phase in
           # another derived chain.
         end

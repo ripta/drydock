@@ -3,6 +3,8 @@ require_relative 'base'
 
 module Drydock
   module Plugins
+    # This is the interface to operating system-level package management systems,
+    # e.g., APK, APT, YUM.
     class PackageManager < Base
 
       def add(*pkgs)

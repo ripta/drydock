@@ -1,8 +1,16 @@
 
 module Drydock
+  # A subclass of the rubygems `TarWriter` used to produce a tar stream.
   class TarWriter < ::Gem::Package::TarWriter
 
-    def add_entry(name, mode: 0644, mtime: Time.now, uid: 0, gid: 0)
+    # Adds file `name` with permissions `mode` and modification time `mtime`
+    # to the stream. Yields a write-only IO that cannot be rewound.
+    #
+    # @param [String] name the filename
+    # @param [Integer] mode the file mode in octal, e.g., 0644
+    # @param [Time] mtime the modification time of the file
+    # @yield [Gem::Package::TarWriter::RestrictedStream]
+    def add_entry(name, mode: 0644, mtime: Time.now, _uid: 0, _gid: 0)
       check_closed
 
       fail Gem::Package::NonSeekableIO unless @io.respond_to?(:pos=)

@@ -6,6 +6,7 @@ module Drydock
   # The contents of a `Drydockfile` is automatically evaluated in the context
   # of a project, so you don't need to instantiate the object manually.
   class Project
+
     DEFAULT_OPTIONS = {
       auto_remove: true,
       author: nil,
@@ -579,7 +580,7 @@ module Drydock
       cmd = build_cmd(cmd)
 
       run_opts = opts.dup
-      run_opts[:author]  = opts[:author]  || build_opts[:author]
+      run_opts[:author]  = opts[:author] || build_opts[:author]
       run_opts[:comment] = opts[:comment] || build_opts[:comment]
 
       log_step('run', cmd, run_opts)
@@ -666,5 +667,6 @@ module Drydock
     def requires_from!(instruction)
       fail InvalidInstructionError, "`#{instruction}` cannot be called before `from`" unless chain
     end
+
   end
 end

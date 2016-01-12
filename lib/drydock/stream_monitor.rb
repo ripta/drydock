@@ -1,5 +1,7 @@
 
 module Drydock
+  # A `StreamMonitor` instantiates a new thread on creation that listens to
+  # Docker events incoming from the default Docker server.
   class StreamMonitor
 
     extend Forwardable
@@ -33,6 +35,16 @@ module Drydock
       end
     end
 
+    # @param [#call] An event handler that is called once for every received event.
+    # @yieldparam event [Docker::Event] The event object
+    # @yieldparam is_old [Boolean] Whether the event is part of a series of events
+    #   that were previously seen before, based on its event ID. If the event ID
+    #   had been seen before, `is_old` will be true; false otherwise.
+    # @yieldparam serial_no [Integer] The serial number (ever incrementing) of the
+    #   event, since the monitor was created. The first event is given serial 1.
+    # @yieldparam event_type [:container, :image, :object] The type of the event,
+    #   whether is relates to a container, an image, or other objects not currently
+    #   known by `Drydock`.
     def initialize(event_handler)
       @thread = Thread.new do
         previous_ids = {}

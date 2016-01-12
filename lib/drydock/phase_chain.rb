@@ -16,6 +16,8 @@ module Drydock
     extend Forwardable
     include Enumerable
 
+    attr_reader :children, :ephemeral_containers
+
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
     def self.build_pull_opts(repo, tag = nil)
@@ -75,20 +77,20 @@ module Drydock
 
           unless results
             fail InvalidCommandExecutionError,
-              container: c.id,
-              message: "Container did not return anything (API BUG?)"
+                 container: c.id,
+                 message: 'Container did not return anything (API BUG?)'
           end
 
           unless results.key?('StatusCode')
             fail InvalidCommandExecutionError,
-              container: c.id,
-              message: "Container did not return a status code (API BUG?)"
+                 container: c.id,
+                 message: 'Container did not return a status code (API BUG?)'
           end
 
           unless results['StatusCode'] == 0
             fail InvalidCommandExecutionError,
-              container: c.id,
-              message: "Container exited with code #{results['StatusCode']}"
+                 container: c.id,
+                 message: "Container exited with code #{results['StatusCode']}"
           end
         rescue
           # on error, kill the streaming logs and reraise the exception
@@ -129,22 +131,15 @@ module Drydock
     # @params [Docker::Image] from A base image to use.
     # @params [PhaseChain] parent The optional parent chain.
     def initialize(from, parent = nil)
-      @chain  = []
-      @from   = from
-      @parent = parent
-      @children = []
-
+      @chain     = []
+      @from      = from
+      @parent    = parent
+      @children  = []
       @finalized = false
 
       @ephemeral_containers = []
 
-      if parent
-        parent.children << self
-      end
-    end
-
-    def children
-      @children
+      parent.children << self if parent
     end
 
     def containers
@@ -171,10 +166,6 @@ module Drydock
 
     def each(&blk)
       @chain.each(&blk)
-    end
-
-    def ephemeral_containers
-      @ephemeral_containers
     end
 
     def finalize!(force: false)
@@ -245,7 +236,7 @@ module Drydock
         yield container if block_given?
 
         if no_commit
-          Drydock.logger.info(message: "Skipping commit phase")
+          Drydock.logger.info(message: 'Skipping commit phase')
           ephemeral_containers << container
         else
           self.class.propagate_config!(src_image, 'Cmd',        opts, :command)
