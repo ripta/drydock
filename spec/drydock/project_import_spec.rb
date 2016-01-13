@@ -4,7 +4,7 @@ RSpec.describe Drydock::Project do
   let(:project) { described_class.new }
   after(:each) { project.destroy!(force: true) if project }
 
-  it 'derives a project and imports between derivations' do
+  it 'derives a project and imports between derivations', docker_archive: true do
     project.from('alpine')
     project.mkdir('/app/1')
 

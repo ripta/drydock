@@ -1,7 +1,7 @@
 
 RSpec.describe Docker::Container do
-  
-  describe '#archive_put' do
+
+  describe '#archive_put', docker_archive: true do
     let(:tar) { Docker::Util.create_tar('/some_file' => 'contents_123') }
     let(:container) { described_class.create('Image' => 'alpine:latest', 'Cmd' => ['/bin/sh']) }
     let(:image) { container.commit }
@@ -25,7 +25,7 @@ RSpec.describe Docker::Container do
     end
   end
 
-  describe '#archive_get' do
+  describe '#archive_get', docker_archive: true do
     let(:container) { described_class.create('Image' => 'alpine:latest', 'Cmd' => ['/bin/touch', '/real_file']) }
 
     after(:each) { container.remove }
@@ -50,7 +50,7 @@ RSpec.describe Docker::Container do
     end
   end
 
-  describe '#archive_head' do
+  describe '#archive_head', docker_archive: true do
     let(:container) { described_class.create('Image' => 'alpine:latest', 'Cmd' => ['/bin/touch', '/real_file']) }
 
     before(:each) { container.tap(&:start).tap(&:wait) }
