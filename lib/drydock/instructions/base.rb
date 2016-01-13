@@ -6,8 +6,16 @@ module Drydock
     #
     # @see Project
     class Base
+
       extend AttrExtras.mixin
       extend Memoist
+
+      protected
+
+      def log_info(msg, indent: 0)
+        Drydock.logger.info(indent: indent, message: msg)
+      end
+
     end
   end
 end

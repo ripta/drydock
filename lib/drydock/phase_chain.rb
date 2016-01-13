@@ -1,55 +1,24 @@
 
 module Drydock
+  # A `PhaseChain` is a linear series of logical `Phase`s built on top of
+  # previous phases. The base of a chain is denoted by its `from` attribute,
+  # which itself is not a phase, and must already exist prior to the chain being
+  # started.
+  #
+  # A chain may be built on another chain, referred to as its parent. A chain
+  # may have zero or more child chains, while a chain may have only zero or one
+  # parent chain. A chain that has a parent chain is said to be derived from the
+  # parent chain.
+  #
+  # Chains can be--essentially--merged together with the help of the import
+  # command. See [the README](README.md) for more information.
   class PhaseChain
     extend Forwardable
     include Enumerable
 
+    attr_reader :children, :ephemeral_containers
+
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
-
-    def self.build_commit_opts(opts = {})
-      {}.tap do |commit|
-        if opts.key?(:command)
-          commit['run'] ||= {}
-          commit['run'][:Cmd] = opts[:command]
-        end
-
-        if opts.key?(:entrypoint)
-          commit['run'] ||= {}
-          commit['run'][:Entrypoint] = opts[:entrypoint]
-        end
-
-        commit[:author]  = opts.fetch(:author, '')  if opts.key?(:author)
-        commit[:comment] = opts.fetch(:comment, '') if opts.key?(:comment)
-      end
-    end
-
-    def self.build_container_opts(image_id, cmd, opts = {})
-      cmd = ['/bin/sh', '-c', cmd.to_s] unless cmd.is_a?(Array)
-
-      ContainerConfig.from(
-        Cmd: cmd,
-        Tty: opts.fetch(:tty, false),
-        Image: image_id
-      ).tap do |cc|
-        env = Array(opts[:env])
-        cc[:Env].push(*env) unless env.empty?
-
-        if opts.key?(:expose)
-          cc[:ExposedPorts] ||= {}
-          opts[:expose].each do |port|
-            cc[:ExposedPorts][port] = {}
-          end
-        end
-
-        (cc[:OnBuild] ||= []).push(opts[:on_build]) if opts.key?(:on_build)
-
-        cc[:MetaOptions] ||= {}
-        [:connect_timeout, :read_timeout].each do |key|
-          cc[:MetaOptions][key] = opts[key] if opts.key?(key)
-          cc[:MetaOptions][key] = opts[:timeout] if opts.key?(:timeout)
-        end
-      end
-    end
 
     def self.build_pull_opts(repo, tag = nil)
       if tag
@@ -108,20 +77,20 @@ module Drydock
 
           unless results
             fail InvalidCommandExecutionError,
-              container: c.id,
-              message: "Container did not return anything (API BUG?)"
+                 container: c.id,
+                 message: 'Container did not return anything (API BUG?)'
           end
 
           unless results.key?('StatusCode')
             fail InvalidCommandExecutionError,
-              container: c.id,
-              message: "Container did not return a status code (API BUG?)"
+                 container: c.id,
+                 message: 'Container did not return a status code (API BUG?)'
           end
 
           unless results['StatusCode'] == 0
             fail InvalidCommandExecutionError,
-              container: c.id,
-              message: "Container exited with code #{results['StatusCode']}"
+                 container: c.id,
+                 message: "Container exited with code #{results['StatusCode']}"
           end
         rescue
           # on error, kill the streaming logs and reraise the exception
@@ -134,6 +103,8 @@ module Drydock
       end
     end
 
+    # Create a new chain using an image from `repo` with a `tag` as the base.
+    # The new chain is empty by default, i.e., contains no phases.
     def self.from_repo(repo, tag = 'latest')
       new(Docker::Image.create(build_pull_opts(repo, tag)))
     end
@@ -154,23 +125,21 @@ module Drydock
       end
     end
 
+    # Create a new chain with `from` as the base image, and optionally a
+    # `parent` chain.
+    #
+    # @params [Docker::Image] from A base image to use.
+    # @params [PhaseChain] parent The optional parent chain.
     def initialize(from, parent = nil)
-      @chain  = []
-      @from   = from
-      @parent = parent
-      @children = []
-
+      @chain     = []
+      @from      = from
+      @parent    = parent
+      @children  = []
       @finalized = false
 
       @ephemeral_containers = []
 
-      if parent
-        parent.children << self
-      end
-    end
-
-    def children
-      @children
+      parent.children << self if parent
     end
 
     def containers
@@ -197,10 +166,6 @@ module Drydock
 
     def each(&blk)
       @chain.each(&blk)
-    end
-
-    def ephemeral_containers
-      @ephemeral_containers
     end
 
     def finalize!(force: false)
@@ -232,7 +197,7 @@ module Drydock
       @from
     end
 
-    def run(cmd, opts = {}, &blk)
+    def run(cmd, opts = {})
       src_image = last ? last.result_image : @from
       no_commit = opts.fetch(:no_commit, false)
 
@@ -240,7 +205,9 @@ module Drydock
       no_cache = true if no_commit
 
       Drydock.logger.debug(message: "Source image: #{src_image.inspect}")
-      build_config = self.class.build_container_opts(src_image.id, cmd, opts)
+      container_opts = ContainerOptions.new(src_image.id, cmd, opts)
+      build_config = container_opts.to_h
+
       cached_image = ImageRepository.find_by_config(build_config)
 
       if cached_image && !no_cache
@@ -269,14 +236,14 @@ module Drydock
         yield container if block_given?
 
         if no_commit
-          Drydock.logger.info(message: "Skipping commit phase")
+          Drydock.logger.info(message: 'Skipping commit phase')
           ephemeral_containers << container
         else
           self.class.propagate_config!(src_image, 'Cmd',        opts, :command)
           self.class.propagate_config!(src_image, 'Entrypoint', opts, :entrypoint)
-          commit_config = self.class.build_commit_opts(opts)
 
-          result = container.commit(commit_config)
+          commit_opts = CommitOptions.new(opts)
+          result = container.commit(commit_opts.to_h)
           Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 
           self << Phase.from(

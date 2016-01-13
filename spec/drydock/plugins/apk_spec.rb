@@ -21,12 +21,12 @@ RSpec.describe Drydock::Plugins::APK do
   describe '#remove' do
 
     it 'deletes one package' do
-      expect(project).to receive(:run).with('apk del ruby')
+      expect(project).to receive(:run).with('apk del ruby', {})
       expect { plugin.remove('ruby') }.not_to raise_error
     end
 
     it 'deletes more than one packages' do
-      expect(project).to receive(:run).with('apk del curl python nginx')
+      expect(project).to receive(:run).with('apk del curl python nginx', {})
       expect { plugin.remove('curl', 'python', 'nginx') }.not_to raise_error
     end
 

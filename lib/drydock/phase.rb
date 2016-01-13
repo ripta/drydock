@@ -1,6 +1,15 @@
 
 module Drydock
-  class Phase < Struct.new(:source_image, :build_container, :result_image)
+  class Phase
+
+    extend AttrExtras.mixin
+
+    MEMBERS = [:source_image, :build_container, :result_image]
+
+    attr_accessor *MEMBERS
+    attr_initialize *MEMBERS do
+      @finalized = false
+    end
 
     alias_method :build,   :build_container
     alias_method :build=,  :build_container=
@@ -13,16 +22,11 @@ module Drydock
 
     def self.from(hsh)
       h = hsh.to_h
-      extra_keys = h.keys - members
+      extra_keys = h.keys - MEMBERS
 
       fail ArgumentError, "unknown options: #{extra_keys.join(', ')}" unless extra_keys.empty?
 
-      new(*h.values_at(*members))
-    end
-
-    def initialize(*args)
-      super
-      @finalized = false
+      new(*h.values_at(*MEMBERS))
     end
 
     def built?
@@ -41,7 +45,7 @@ module Drydock
       if result_image
         begin
           result_image.remove(force: force)
-        rescue Docker::Error::NotFoundError => e
+        rescue Docker::Error::NotFoundError
           # Ignore, because the image could have been deleted by another phase in
           # another derived chain.
         end

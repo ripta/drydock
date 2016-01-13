@@ -1,7 +1,7 @@
 
-# Tests taken from specs at https://github.com/docker/docker/blob/master/runconfig/compare_test.go
 RSpec.describe Drydock::ContainerConfig do
-  
+
+  # Tests taken from specs at https://github.com/docker/docker/blob/master/runconfig/compare_test.go
   describe '#==' do
 
     let(:ports1) { {"1111/tcp" => {}, "2222/tcp" => {}} }
@@ -225,6 +225,29 @@ RSpec.describe Drydock::ContainerConfig do
       end
     end
 
+  end
+
+
+  describe '#method_missing' do
+    it 'reads and writes simple attribute names' do
+      subject { described_class.from({}) }
+      expect(subject[:User]).to eq('')
+      expect(subject.user).to eq('')
+
+      expect { subject.user = 'admin' }.not_to raise_error
+      expect(subject[:User]).to eq('admin')
+      expect(subject.user).to eq('admin')
+    end
+
+    it 'reads and writes attribute names with underscores' do
+      subject { described_class.from({}) }
+      expect(subject[:AttachStdin]).to eq(false)
+      expect(subject.attach_stdin).to eq(false)
+
+      expect { subject.attach_stdin = true }.not_to raise_error
+      expect(subject[:AttachStdin]).to be(true)
+      expect(subject.attach_stdin).to be(true)
+    end
   end
 
 end

@@ -16,7 +16,10 @@ require_relative 'drydock/errors'
 require_relative 'drydock/formatters'
 require_relative 'drydock/runtime_options'
 
+require_relative 'drydock/commit_options'
 require_relative 'drydock/container_config'
+require_relative 'drydock/container_options'
+require_relative 'drydock/image_query'
 require_relative 'drydock/image_repository'
 
 require_relative 'drydock/cli_flags'
@@ -29,6 +32,7 @@ require_relative 'drydock/stream_monitor'
 require_relative 'drydock/tar_writer'
 
 require_relative 'drydock/instructions/copy'
+require_relative 'drydock/instructions/import'
 
 require_relative 'drydock/object_caches/filesystem_cache'
 require_relative 'drydock/object_caches/in_memory_cache'

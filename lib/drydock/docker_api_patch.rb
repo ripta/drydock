@@ -1,28 +1,30 @@
 
 module Docker
-
+  # Patch Docker::Connection to return the entire response.
   class Connection
 
+    # Send a request to the server while returning the entire reponse.
     def raw_request(*args, &block)
       request = compile_request_params(*args, &block)
       log_request(request)
       resource.request(request)
     rescue Excon::Errors::BadRequest => ex
-      fail ClientError, ex.response.body
+      raise ClientError, ex.response.body
     rescue Excon::Errors::Unauthorized => ex
-      fail UnauthorizedError, ex.response.body
+      raise UnauthorizedError, ex.response.body
     rescue Excon::Errors::NotFound => ex
-      fail NotFoundError, ex.response.body
+      raise NotFoundError, ex.response.body
     rescue Excon::Errors::Conflict => ex
-      fail ConflictError, ex.response.body
+      raise ConflictError, ex.response.body
     rescue Excon::Errors::InternalServerError => ex
-      fail ServerError, ex.response.body
+      raise ServerError, ex.response.body
     rescue Excon::Errors::Timeout => ex
-      fail TimeoutError, ex.message
+      raise TimeoutError, ex.message
     end
 
   end
 
+  # Patch Docker::Container with archive
   class Container
 
     def archive_get(path = '/', &blk)
@@ -102,18 +104,18 @@ module Docker
   class UniversalFileMode
 
     BIT_FIELDS = [
-      {directory:        'd'},
-      {append_only:      'a'},
-      {exclusive:        'l'},
-      {temporary:        'T'},
-      {link:             'L'},
-      {device:           'D'},
-      {named_pipe:       'p'},
-      {socket:           'S'},
-      {setuid:           'u'},
-      {setgid:           'g'},
-      {character_device: 'c'},
-      {sticky:           't'}
+      { directory:        'd' },
+      { append_only:      'a' },
+      { exclusive:        'l' },
+      { temporary:        'T' },
+      { link:             'L' },
+      { device:           'D' },
+      { named_pipe:       'p' },
+      { socket:           'S' },
+      { setuid:           'u' },
+      { setgid:           'g' },
+      { character_device: 'c' },
+      { sticky:           't' }
     ]
 
     def self.bit_for(name)
@@ -172,5 +174,4 @@ module Docker
     end
 
   end
-
 end
