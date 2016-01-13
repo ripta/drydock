@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = 'dry-dock'
   gem.homepage = 'http://github.com/ripta/drydock'
   gem.license = 'MIT'
-  gem.summary = %q(Docker Image Pipeline DSL)
-  gem.description = %q(A Dockerfile-replacement DSL for building complex images)
+  gem.summary = 'Docker Image Pipeline DSL'
+  gem.description = 'A Dockerfile-replacement DSL for building complex images'
   gem.email = 'github@r8y.org'
   gem.authors = ['Ripta Pasay']
 
@@ -34,9 +34,9 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-desc "Code coverage detail"
+desc 'Code coverage detail'
 task :simplecov do
-  ENV['COVERAGE'] = "true"
+  ENV['COVERAGE'] = 'true'
   Rake::Task['test'].execute
 end
 
@@ -44,7 +44,7 @@ task default: :test
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+  version = File.exist?('VERSION') ? File.read('VERSION') : ''
 
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "drydock #{version}"
