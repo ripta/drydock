@@ -24,7 +24,7 @@ RSpec.describe Drydock::StreamMonitor do
       run_image.remove
     end
 
-    it 'receives the precise number of events' do
+    it 'receives the precise number of events', broken_before_d18: true do
       expect(events).to have(0).items
 
       expect(monitor).not_to be_nil
