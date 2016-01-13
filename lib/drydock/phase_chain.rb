@@ -21,11 +21,8 @@ module Drydock
     def_delegators :@chain, :<<, :at, :empty?, :last, :length, :push, :size
 
     def self.build_pull_opts(repo, tag = nil)
-      if tag
-        {fromImage: "#{repo}:#{tag}"}
-      else
-        {fromImage: "#{repo}:latest"}
-      end
+      tag ||= 'latest'
+      { fromImage: "#{repo}:#{tag}" }
     end
 
     # TODO(rpasay): Break this large method apart.
