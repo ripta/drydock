@@ -91,7 +91,7 @@ RSpec.describe Drydock::Project do
     expect(project.last_image).to be_nil
   end
 
-  it 'downloads from the source URL once' do
+  it 'downloads from the source URL once', docker_archive: true do
     expect(Excon).to receive(:get).once.with('http://httpbin.org/ip', hash_including(:response_block))
 
     project.set :cache, Drydock::ObjectCaches::InMemoryCache.new
