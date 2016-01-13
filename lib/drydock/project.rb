@@ -15,6 +15,8 @@ module Drydock
       ignorefile: '.dockerignore'
     }
 
+    attr_reader :chain
+
     # Create a new project. **Do not use directly.**
     #
     # @api private
@@ -507,7 +509,7 @@ module Drydock
       fail InvalidInstructionError, '`import` requires a `from:` option' if from.nil?
       log_step('import', path, from: from.last_image.id)
 
-      Instructions::Import.new(from.send(:chain), chain, path).tap do |ins|
+      Instructions::Import.new(from.chain, chain, path).tap do |ins|
         ins.force = force
         ins.spool = spool
 
@@ -633,7 +635,7 @@ module Drydock
 
     private
 
-    attr_reader :chain, :build_opts, :stream_monitor
+    attr_reader :build_opts, :stream_monitor
 
     def build_cmd(cmd)
       if @run_path.empty?
