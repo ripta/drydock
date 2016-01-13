@@ -47,4 +47,13 @@ RSpec.configure do |config|
     mocks.syntax = :expect
     mocks.verify_partial_doubles = true
   end
+
+  if ENV.key?('DOCKER_VERSION')
+    docker_version = Gem::Version.new(ENV['DOCKER_VERSION'])
+
+    if Gem::Requirement.new('< 1.8').satisfied_by?(docker_version)
+      config.filter_run_excluding docker_archive: true
+      config.filter_run_excluding broken_before_d18: true
+    end
+  end
 end

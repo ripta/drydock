@@ -47,7 +47,7 @@ RSpec.describe Drydock::Project do
     expect(project.build_id).to eq('1')
   end
 
-  it 'copies asset files into an image' do
+  it 'copies asset files into an image', broken_before_d18: true do
     project.from('alpine')
     expect { project.copy(asset_path, '/', chmod: false, no_cache: true, recursive: true) }.not_to raise_error
 
@@ -91,7 +91,7 @@ RSpec.describe Drydock::Project do
     expect(project.last_image).to be_nil
   end
 
-  it 'downloads from the source URL once' do
+  it 'downloads from the source URL once', docker_archive: true do
     expect(Excon).to receive(:get).once.with('http://httpbin.org/ip', hash_including(:response_block))
 
     project.set :cache, Drydock::ObjectCaches::InMemoryCache.new
