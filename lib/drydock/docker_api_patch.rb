@@ -41,7 +41,7 @@ module Docker
       return if response.headers.empty?
       return unless response.headers.key?('X-Docker-Container-Path-Stat')
 
-      ContainerPathStat.new(response.headers['X-Docker-Container-Path-Stat'])
+      ContainerPathStat.decode(response.headers['X-Docker-Container-Path-Stat'])
     rescue Docker::Error::NotFoundError
       nil
     end
@@ -60,10 +60,20 @@ module Docker
 
   end
 
+  # Decode and parse the `X-Docker-Container-Path-Stat` header from Docker
+  # Remote API responses.
   class ContainerPathStat
 
-    def initialize(definition)
-      @data = JSON.parse(Base64.decode64(definition))
+    def self.decode(definition)
+      parse(Base64.decode64(definition))
+    end
+
+    def self.parse(definition)
+      new(JSON.parse(definition))
+    end
+
+    def initialize(data)
+      @data = data
     end
 
     def link_target
