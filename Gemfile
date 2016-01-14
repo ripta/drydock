@@ -6,6 +6,7 @@ group :development do
   gem 'rubocop', '~> 0.34'
   gem 'jeweler', '~> 2.0'
   gem 'pry', '~> 0.10'
+  gem 'travis'
 
   gem 'simplecov', '~> 0.9'
   gem 'simplecov-rcov', '~> 0.2'
