@@ -229,25 +229,30 @@ module Drydock
           )
         end
 
-        container = self.class.create_container(build_config)
-        yield container if block_given?
+        begin
+          container = self.class.create_container(build_config)
+          yield container if block_given?
 
-        if no_commit
-          Drydock.logger.info(message: 'Skipping commit phase')
-          ephemeral_containers << container
-        else
-          self.class.propagate_config!(src_image, 'Cmd',        opts, :command)
-          self.class.propagate_config!(src_image, 'Entrypoint', opts, :entrypoint)
+          if no_commit
+            Drydock.logger.info(message: 'Skipping commit phase')
+            ephemeral_containers << container
+          else
+            self.class.propagate_config!(src_image, 'Cmd',        opts, :command)
+            self.class.propagate_config!(src_image, 'Entrypoint', opts, :entrypoint)
 
-          commit_opts = CommitOptions.new(opts)
-          result = container.commit(commit_opts.to_h)
-          Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
+            commit_opts = CommitOptions.new(opts)
+            result = container.commit(commit_opts.to_h)
+            Drydock.logger.info(message: "Committed image ID #{result.id.slice(0, 12)}")
 
-          self << Phase.from(
-            source_image:    src_image,
-            build_container: container,
-            result_image:    result
-          )
+            self << Phase.from(
+              source_image:    src_image,
+              build_container: container,
+              result_image:    result
+            )
+          end
+        rescue
+          ephemeral_containers << container if container
+          raise
         end
       end
 
