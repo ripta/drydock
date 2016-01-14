@@ -75,19 +75,22 @@ module Drydock
           unless results
             fail InvalidCommandExecutionError,
                  container: c.id,
-                 message: 'Container did not return anything (API BUG?)'
+                 message: 'Container did not return anything (API BUG?)',
+                 configuration: cfg
           end
 
           unless results.key?('StatusCode')
             fail InvalidCommandExecutionError,
                  container: c.id,
-                 message: 'Container did not return a status code (API BUG?)'
+                 message: 'Container did not return a status code (API BUG?)',
+                 configuration: cfg
           end
 
           unless results['StatusCode'] == 0
             fail InvalidCommandExecutionError,
                  container: c.id,
-                 message: "Container exited with code #{results['StatusCode']}"
+                 message: "Container exited with code #{results['StatusCode']}",
+                 configuration: cfg
           end
         rescue
           # on error, kill the streaming logs and reraise the exception
@@ -250,8 +253,16 @@ module Drydock
               result_image:    result
             )
           end
-        rescue
-          ephemeral_containers << container if container
+        rescue InvalidCommandExecutionError => e
+          # Mark the failed container an ephemeral container
+          if e && e.container
+            begin
+              ephemeral_containers << Docker::Container.get(e.container)
+            rescue # swallow
+            end
+          end
+
+          # reraise
           raise
         end
       end
