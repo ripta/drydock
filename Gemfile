@@ -20,6 +20,6 @@ group :test do
 end
 
 gem 'attr_extras', '~> 4.4'
-gem 'docker-api', '~> 1.24', require: 'docker'
+gem 'docker-api', '~> 1.26', require: 'docker'
 gem 'excon', '~> 0.45'
 gem 'memoist', '~> 0.12'
