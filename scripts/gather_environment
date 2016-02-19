@@ -6,6 +6,7 @@ set -x
 DOCKER_BINARY="$DOCKER_HOME/docker-$DOCKER_VERSION"
 
 # Print out docker details
+$DOCKER_BINARY --version
 $DOCKER_BINARY version
 $DOCKER_BINARY info
 
