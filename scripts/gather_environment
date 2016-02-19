@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 DOCKER_BINARY="$DOCKER_HOME/docker-$DOCKER_VERSION"
 
 # Print out docker details

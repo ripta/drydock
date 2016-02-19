@@ -2,6 +2,7 @@
 #
 # Start an existing docker binary located under $DOCKER_HOME.
 set -e
+set -x
 
 sudo $DOCKER_HOME/docker-$DOCKER_VERSION --daemon \
     --pidfile=/var/run/docker.pid \

@@ -3,6 +3,7 @@
 # Install the requested docker version, defined by $DOCKER_VERSION into the
 # $DOCKER_HOME directory, which will be automatically created if necessary.
 set -e
+set -x
 
 # Adapted from https://get.docker.com/builds/
 cd `mktemp -d`
