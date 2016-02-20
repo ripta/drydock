@@ -18,10 +18,11 @@ before_install:
 - gem install bundler
 - scripts/install_docker
 - scripts/start_docker
-- scripts/gather_environment
 after_failure:
 - cat $DOCKER_HOME/logs/docker.log
-script: bundle exec rspec
+script:
+- scripts/gather_environment
+- bundle exec rspec
 addons:
   code_climate:
     repo_token: e1dfe86e3cc086b44532f7f1122f585fe828e141767ac41e833b365b21fd275a
