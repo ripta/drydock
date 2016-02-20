@@ -8,6 +8,8 @@ function version {
   echo "$@" | awk -F. '{ printf("%03d%03d%03d\n", $1, $2, $3); }'
 }
 
+sudo rm -f /var/run/docker.pid
+
 if [ "$(version $DOCKER_VERSION)" -ge "$(version '1.9.0')" ]
 then
   # Docker v1.9.0 and above changed the --daemon flag to a subcommand.
