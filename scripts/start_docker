@@ -4,6 +4,18 @@
 set -e
 set -x
 
-sudo $DOCKER_HOME/docker-$DOCKER_VERSION --daemon \
-    --pidfile=/var/run/docker.pid \
-    >$DOCKER_HOME/logs/docker.log 2>&1 &
+function version {
+  echo "$@" | awk -F. '{ printf("%03d%03d%03d\n", $1, $2, $3); }'
+}
+
+if [ "$(version $DOCKER_VERSION)" -ge "$(version '1.9.0')" ]
+then
+  # Docker v1.9.0 and above changed the --daemon flag to a subcommand.
+  sudo $DOCKER_HOME/docker-$DOCKER_VERSION daemon \
+      --pidfile=/var/run/docker.pid \
+      >$DOCKER_HOME/logs/docker.log 2>&1 &
+else
+  sudo $DOCKER_HOME/docker-$DOCKER_VERSION --daemon \
+      --pidfile=/var/run/docker.pid \
+      >$DOCKER_HOME/logs/docker.log 2>&1 &
+fi
